@@ -1,0 +1,124 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const database_1 = __importDefault(require("./database"));
+const dotenv = __importStar(require("dotenv")); // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+dotenv.config().parsed;
+const express_1 = __importDefault(require("express"));
+const auth_router_1 = __importDefault(require("./routes/auth.router"));
+const user_router_1 = __importDefault(require("./routes/user.router"));
+const authGaurd_middleware_1 = __importDefault(require("./middlewares/authGaurd.middleware"));
+const employee_router_1 = __importDefault(require("./routes/employee.router"));
+const node_path_1 = __importDefault(require("node:path"));
+const multer_1 = __importDefault(require("multer"));
+const ProductCategory_model_1 = __importDefault(require("./models/product/ProductCategory.model"));
+const productCategory_router_1 = __importDefault(require("./routes/product/productCategory.router"));
+const productSubCategory_router_1 = __importDefault(require("./routes/product/productSubCategory.router"));
+const ProductMaster_router_1 = __importDefault(require("./routes/product/ProductMaster.router"));
+const storeMaster_router_1 = __importDefault(require("./routes/storeMaster.router"));
+const lineMan_router_1 = __importDefault(require("./routes/lineMan.router"));
+const cors_1 = __importDefault(require("cors"));
+// Set the base URL and store it in app.locals
+const app = (0, express_1.default)();
+app.use((0, cors_1.default)({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    // for multipart-formdata
+    preflightContinue: true,
+    optionsSuccessStatus: 204,
+    credentials: true,
+    maxAge: 86400,
+}));
+// cors
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    if (req.method === "OPTIONS") {
+        res.header("Access-Control-Allow-Methods", "PUT, POST, PATCH, DELETE, GET");
+        return res.status(200).json({});
+    }
+    next();
+});
+// parse application/json
+app.use(express_1.default.json());
+// public directory as static resource
+app.use(express_1.default.static("public"));
+// Error handling middleware for Multer
+console.log("Connecting to DB", node_path_1.default.join("public"));
+(0, database_1.default)()
+    .then(() => {
+    console.log("Connected to DB");
+})
+    .catch((err) => {
+    console.log("Error connecting to DB", err);
+});
+app.use("/api", auth_router_1.default);
+app.use("/api/users", authGaurd_middleware_1.default, user_router_1.default);
+app.use("/api/employees", authGaurd_middleware_1.default, employee_router_1.default);
+app.use("/api/productCategories", authGaurd_middleware_1.default, productCategory_router_1.default);
+app.use("/api/productSubCategories", authGaurd_middleware_1.default, productSubCategory_router_1.default);
+app.use("/api/productmasters", authGaurd_middleware_1.default, ProductMaster_router_1.default);
+app.use("/api/storeMasters", authGaurd_middleware_1.default, storeMaster_router_1.default);
+app.use("/api/lineMen", authGaurd_middleware_1.default, lineMan_router_1.default);
+app.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    ProductCategory_model_1.default.findAll()
+        .then((data) => {
+        res.json(data);
+    })
+        .catch((err) => {
+        console.log("Error", err.message);
+        res.json(err);
+    });
+}));
+app.use((err, req, res, next) => {
+    if (err instanceof multer_1.default.MulterError) {
+        // A Multer error occurred when uploading
+        res
+            .status(400)
+            .json({ message: "Multer error: " + err.message, error: err });
+    }
+    else {
+        // An unknown error occurred
+        res
+            .status(500)
+            .json({ message: "Unknown error: " + err.message, error: err });
+    }
+});
+app.listen(3000, () => {
+    console.log("Server started on port 3000");
+});

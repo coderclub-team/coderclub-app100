@@ -1,0 +1,31 @@
+### getAllProductSubCategories
+
+GET {{baseUrl}}/api/productSubCategories
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### getProductSubCategory
+GET {{baseUrl}}/api/productSubCategories/10
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### createProductSubCategory
+POST {{baseUrl}}/api/productSubCategories
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+    {
+        
+        "ProductSubCategoryName":"test category"
+    }
+   
+### updateProductSubCategory
+PUT {{baseUrl}}/api/productSubCategories/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "name": "string",
+    "description": "string",
+    "productCategoryId": 0
+}

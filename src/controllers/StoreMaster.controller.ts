@@ -1,0 +1,131 @@
+import { Request, Response } from "express";
+import StoreMaster from "../models/StoreMaster.model";
+import User from "../models/User.model";
+import decodeJWT from "../utils/decodeJWT";
+
+export const getAllStoreMasters = async (req: Request, res: Response) => {
+  try {
+    const storeMasters = await StoreMaster.findAll({
+      //   include: [
+      //     {
+      //       model: User,
+      //       as: "CreatedBy",
+      //       attributes: ["UserID", "UserName"],
+      //     },
+      //     {
+      //       model: User,
+      //       as: "ModifiedBy",
+      //       attributes: ["UserID", "UserName"],
+      //     },
+      //     {
+      //       model: User,
+      //       as: "DeletedBy",
+      //       attributes: ["UserID", "UserName"],
+      //     },
+      //   ],
+      attributes: {
+        exclude: ["CreatedByGUID", "ModifiedByGUID", "DeletedByGUID"],
+      },
+    });
+    res.status(200).json({
+      message: "Store Masters fetched successfully!",
+      storeMasters,
+    });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
+
+export const getStoreMasterById = async (req: Request, res: Response) => {
+  const { StoreGUID } = req.params;
+  try {
+    const storeMaster = await StoreMaster.findByPk(StoreGUID, {
+      //   include: [
+      //     {
+      //       model: User,
+      //       as: "CreatedBy",
+      //       attributes: ["UserID", "UserName"],
+      //     },
+      //     {
+      //       model: User,
+      //       as: "ModifiedBy",
+      //       attributes: ["UserID", "UserName"],
+      //     },
+      //     {
+      //       model: User,
+      //       as: "DeletedBy",
+      //       attributes: ["UserID", "UserName"],
+      //     },
+      //   ],
+      attributes: {
+        exclude: ["CreatedByGUID", "ModifiedByGUID", "DeletedByGUID"],
+      },
+    });
+    res.status(200).json({
+      message: "Store Master fetched successfully!",
+      storeMaster,
+    });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
+
+export const createStoreMaster = async (req: Request, res: Response) => {
+  if (req.body.user.UserGUID) {
+    req.body.CreatedGUID = req.body.user.UserGUID;
+  } else {
+    req.body.CreatedGUID = decodeJWT(req).UserGUID;
+  }
+
+  try {
+    const storeMaster = await StoreMaster.create(req.body);
+    res.status(201).json({
+      message: "Store Master created successfully!",
+      storeMaster,
+    });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
+
+export const updateStoreMaster = async (req: Request, res: Response) => {
+  if (req.body.user.UserGUID) {
+    req.body.ModifiedGUID = req.body.user.UserGUID;
+  } else {
+    req.body.ModifiedGUID = decodeJWT(req).UserGUID;
+  }
+  const { StoreGUID } = req.params;
+  try {
+    const store = await StoreMaster.findByPk(StoreGUID);
+    if (store) {
+      const storeMaster = await store.update(req.body);
+      res.status(200).json({
+        message: "Store Master updated successfully!",
+        storeMaster,
+      });
+    } else {
+      res.status(404).json({ message: "Store not found!" });
+    }
+  } catch (error: any) {
+    console.log("storeMasterController.ts: error: ", error.message);
+    res.status(500).json({ error });
+  }
+};
+
+export const deleteStoreMaster = async (req: Request, res: Response) => {
+  const { StoreGUID } = req.params;
+  try {
+    const store = await StoreMaster.findByPk(StoreGUID);
+    if (store) {
+      const storeMaster = await store.destroy();
+      res.status(200).json({
+        message: "Store Master deleted successfully!",
+        storeMaster,
+      });
+    } else {
+      res.status(404).json({ message: "Store not found!" });
+    }
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};

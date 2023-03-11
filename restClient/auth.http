@@ -1,0 +1,38 @@
+### register user
+POST {{baseUrl}}/api/register
+Content-Type: application/json
+
+    {
+        "FirstName": "Hi One",
+        "LastName": "User",
+        "LoginName": "abcdef",
+        "Password":"ATest@123",
+        "EmailAddress": "hello12@gmail.com",
+        "MobileNo":"8220370001",
+        "Address":"Test Address",
+        "City":"Test City",
+        "State":"Test State",
+        "Country":"Test Country",
+        "PinCode":"600050",
+        "DOB":"2000/01/01"
+
+    }
+
+
+
+### login user
+POST  {{baseUrl}}/api/login     
+Content-Type: application/json
+
+
+    {
+        "MobileNo": "8220370001",
+        "Password": "ATest@123"
+    }
+    
+
+
+
+
+
+

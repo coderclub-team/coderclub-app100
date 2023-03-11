@@ -1,0 +1,23 @@
+{
+  "message": "Login successful!",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyR1VJRCI6NTIsIkVtYWlsQWRkcmVzcyI6ImF0ZXN0MTIzNDU2N0BnbWFpbC5jb20iLCJMb2dpbk5hbWUiOiJBdGVzdDEyMzQ1NjciLCJpYXQiOjE2NzgxMDYyNjUsImV4cCI6MTY3ODE5MjY2NX0.xkqj4MtDugGH4JFnMP5sa9wulEvtxuL6UpeEsQ-dbHw",
+  "user": {
+    "UserGUID": 52,
+    "FirstName": "Test 5",
+    "LastName": "User 4",
+    "LoginName": "Atest1234567",
+    "Password": null,
+    "EmailAddress": "atest1234567@gmail.com",
+    "MobileNo": "9750022944",
+    "Landline": null,
+    "DOB": null,
+    "Address": "Test Address",
+    "City": "Test City",
+    "State": "Test State",
+    "Status": true,
+    "Password_Attempt": null,
+    "Account_Deactivated": null,
+    "CreatedGUID": null,
+    "ModifiedGUID": null
+  }
+}

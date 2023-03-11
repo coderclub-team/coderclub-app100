@@ -1,0 +1,4 @@
+### getAllLinMen
+
+GET {{baseUrl}}/api/linemen
+Content

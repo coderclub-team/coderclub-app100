@@ -1,0 +1,41 @@
+######  getAllUsers()
+
+GET {{baseUrl}}/api/users
+Content-Type: application/json
+Authorization:  Bearer {{token}}
+
+
+### getUserById()
+GET {{baseUrl}}/api/users/9750022944
+Content-Type: application/json
+Authorization:  Bearer {{token}}
+
+
+###updateUserById()
+PUT {{baseUrl}}/api/users/9750022944
+Content-Type: application/json
+Authorization:  Bearer {{token}}
+    
+    {
+        "FirstName": "Testing",
+        "LastName": "Usering",
+        "LoginName": "Atest12345678ing",
+        "Password":"Asdf@123$1",
+        "EmailAddress": "atest1234567in@gmail.com",
+        "MobileNo":"8220373888",
+        "Address":"Test Addressing",
+        "City":"Test Citying",
+        "State":"Test Stateing",
+        "Country":"Test Countrying",
+        "PinCode":"600050"
+     
+    }
+
+### deleteUserById()
+DELETE {{baseUrl}}/api/users/8220373888
+Content-Type: application/json
+Authorization:  Bearer {{token}}
+
+
+
+
