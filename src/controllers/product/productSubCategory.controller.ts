@@ -26,10 +26,7 @@ export const getAllProductSubCategories = async (
       total: productSubCategories.length,
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Something went wrong!",
-      error,
-    });
+    res.status(500).json(error);
   }
 };
 
@@ -64,10 +61,7 @@ export const getProductSubCategoryById = async (
       productSubCategory,
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Something went wrong!",
-      error,
-    });
+    res.status(500).json(error);
   }
 };
 
@@ -92,10 +86,7 @@ export const createProductSubCategory = async (req: Request, res: Response) => {
       productSubCategory,
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Something went wrong!",
-      error,
-    });
+    res.status(500).json(error);
   }
 };
 
@@ -129,10 +120,7 @@ export const updateProductSubCategory = async (req: Request, res: Response) => {
       productSubCategory,
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Something went wrong!",
-      error,
-    });
+    res.status(500).json(error);
   }
 };
 
@@ -157,9 +145,6 @@ export const deleteProductSubCategory = async (req: Request, res: Response) => {
       productSubCategory,
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Something went wrong!",
-      error,
-    });
+    res.status(500).json(error);
   }
 };

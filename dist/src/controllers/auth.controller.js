@@ -1,5 +1,4 @@
 "use strict";
-// a auth controller to handle login and register
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -14,45 +13,46 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.signout = exports.login = exports.register = void 0;
-const sequelize_1 = require("sequelize");
+const node_path_1 = __importDefault(require("node:path"));
 const User_model_1 = __importDefault(require("../models/User.model"));
 const auth_1 = require("../utils/auth");
-const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const node_fs_1 = __importDefault(require("node:fs"));
+const config_1 = require("../../config");
+const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    if (req.file) {
+        // move the file to the uploads directory
+        const { filename, path: tmpPath } = req.file;
+        req.body.tmpPath = tmpPath;
+        req.body.uploadPath = node_path_1.default.join(config_1.userImageUploadOptions.relativePath, filename);
+        req.body.PhotoPath = node_path_1.default.join(config_1.userImageUploadOptions.directory, filename);
+    }
     try {
-        const user = yield User_model_1.default.create(req.body);
-        const token = (0, auth_1.generateToken)(user);
-        user.set("Password", null);
-        return res.status(200).json({
-            message: "Registration successful!",
+        const createdUser = yield User_model_1.default.create(req.body);
+        if (req.file) {
+            node_fs_1.default.rename(req.body.tmpPath, req.body.uploadPath, (err) => {
+                if (err) {
+                    console.log(err);
+                }
+            });
+            createdUser.PhotoPath = node_path_1.default.join(req.protocol + "://" + req.get("host"), createdUser.PhotoPath);
+        }
+        const token = (0, auth_1.generateToken)(createdUser);
+        return res.status(201).json({
+            message: "User created successfully!",
             token,
-            user,
+            user: createdUser,
         });
     }
     catch (error) {
-        if (error instanceof sequelize_1.UniqueConstraintError) {
-            return res.status(400).json({
-                message: "User already exists!",
-                error,
-            });
-        }
-        else if (error instanceof sequelize_1.ValidationError) {
-            return res.status(400).json({
-                message: error.message,
-                error,
-            });
-        }
-        else if (error instanceof sequelize_1.DatabaseError) {
-            return res.status(400).json({
-                message: error.message,
-                error,
-            });
-        }
-        else {
-            return res.status(500).json({
-                message: "Something went wrong!",
-                error,
-            });
-        }
+        // remove the uploaded file
+        // if (req.body.tmpPath) {
+        //   fs.unlink(req.body.tmpPath, (err) => {
+        //     if (err) {
+        //       console.log(err);
+        //     }
+        //   });
+        // }
+        next(error);
     }
 });
 exports.register = register;
@@ -64,7 +64,10 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
     try {
-        const user = yield User_model_1.default.findByPk(MobileNo, {
+        const user = yield User_model_1.default.findOne({
+            where: {
+                MobileNo,
+            },
             attributes: {
                 exclude: [
                     "OTP",
@@ -99,10 +102,7 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
     catch (error) {
-        return res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        return res.status(500).json(error);
     }
 });
 exports.login = login;

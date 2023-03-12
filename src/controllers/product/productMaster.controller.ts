@@ -54,10 +54,7 @@ export const getAllProductMasters = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.log("---error", error.message);
-    res.status(500).json({
-      message: "Something went wrong!",
-      error,
-    });
+    res.status(500).json(error);
   }
 };
 
@@ -117,10 +114,7 @@ export const getProductMasterById = async (req: Request, res: Response) => {
       productMaster,
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Something went wrong!",
-      error,
-    });
+    res.status(500).json(error);
   }
 };
 
@@ -139,10 +133,7 @@ export const createProductMaster = async (req: Request, res: Response) => {
       productMaster,
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Something went wrong!",
-      error,
-    });
+    res.status(500).json(error);
   }
 };
 
@@ -200,10 +191,7 @@ export const updateProductMaster = async (req: Request, res: Response) => {
       productMaster,
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Something went wrong!",
-      error,
-    });
+    res.status(500).json(error);
   }
 };
 
@@ -231,9 +219,6 @@ export const deleteProductMaster = async (req: Request, res: Response) => {
       message: "Product master deleted successfully!",
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Something went wrong!",
-      error,
-    });
+    res.status(500).json(error);
   }
 };

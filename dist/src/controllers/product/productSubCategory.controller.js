@@ -35,10 +35,7 @@ const getAllProductSubCategories = (req, res) => __awaiter(void 0, void 0, void 
         });
     }
     catch (error) {
-        res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        res.status(500).json(error);
     }
 });
 exports.getAllProductSubCategories = getAllProductSubCategories;
@@ -65,10 +62,7 @@ const getProductSubCategoryById = (req, res) => __awaiter(void 0, void 0, void 0
         });
     }
     catch (error) {
-        res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        res.status(500).json(error);
     }
 });
 exports.getProductSubCategoryById = getProductSubCategoryById;
@@ -92,10 +86,7 @@ const createProductSubCategory = (req, res) => __awaiter(void 0, void 0, void 0,
         });
     }
     catch (error) {
-        res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        res.status(500).json(error);
     }
 });
 exports.createProductSubCategory = createProductSubCategory;
@@ -124,10 +115,7 @@ const updateProductSubCategory = (req, res) => __awaiter(void 0, void 0, void 0,
         });
     }
     catch (error) {
-        res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        res.status(500).json(error);
     }
 });
 exports.updateProductSubCategory = updateProductSubCategory;
@@ -147,10 +135,7 @@ const deleteProductSubCategory = (req, res) => __awaiter(void 0, void 0, void 0,
         });
     }
     catch (error) {
-        res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        res.status(500).json(error);
     }
 });
 exports.deleteProductSubCategory = deleteProductSubCategory;

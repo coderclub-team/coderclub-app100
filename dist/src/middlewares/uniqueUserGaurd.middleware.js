@@ -14,7 +14,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const User_model_1 = __importDefault(require("../models/User.model"));
+const node_path_1 = __importDefault(require("node:path"));
+const node_fs_1 = __importDefault(require("node:fs"));
+const custom_error_1 = require("../../custom.error");
 const uniqueUserGaurd = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const { MobileNo, EmailAddress, LoginName } = req.body;
     try {
         const user = yield User_model_1.default.findOne({
@@ -23,24 +27,28 @@ const uniqueUserGaurd = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
             },
         });
         if (user) {
-            const message = user.MobileNo === MobileNo
-                ? "MobileNo already exists!"
-                : user.EmailAddress === EmailAddress
-                    ? "EmailAddress already exists!"
-                    : user.LoginName === LoginName
-                        ? "LoginName already exists!"
-                        : "User already exists!";
-            return res.status(400).json({
-                message,
-            });
+            if (user.MobileNo === MobileNo) {
+                throw new custom_error_1.UniqueUserException("MobileNo already exists!");
+                //
+            }
+            else if (user.EmailAddress === EmailAddress) {
+                throw new custom_error_1.UniqueUserException(`EmailAddress ${user.EmailAddress} already exists!`);
+            }
+            else if (user.LoginName === LoginName) {
+                throw new custom_error_1.UniqueUserException(`LoginName ${user.LoginName} already exists!`);
+            }
+            else {
+                throw new custom_error_1.UniqueUserException("User already exists!");
+            }
         }
         next();
     }
     catch (error) {
-        return res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        if (req.file) {
+            const tmpPath = node_path_1.default.join("public/tmp", (_a = req === null || req === void 0 ? void 0 : req.file) === null || _a === void 0 ? void 0 : _a.filename);
+            node_fs_1.default.existsSync(tmpPath) && node_fs_1.default.unlinkSync(tmpPath);
+        }
+        return res.status(400).json(error);
     }
 });
 exports.default = uniqueUserGaurd;

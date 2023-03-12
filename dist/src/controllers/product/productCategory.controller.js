@@ -37,10 +37,7 @@ const getAllProductCategories = (req, res) => __awaiter(void 0, void 0, void 0, 
         });
     }
     catch (error) {
-        res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        res.status(500).json(error);
     }
 });
 exports.getAllProductCategories = getAllProductCategories;
@@ -63,10 +60,7 @@ const getProductCategoryById = (req, res) => __awaiter(void 0, void 0, void 0, f
         });
     }
     catch (error) {
-        res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        res.status(500).json(error);
     }
 });
 exports.getProductCategoryById = getProductCategoryById;
@@ -85,10 +79,7 @@ const createProductCategory = (req, res) => __awaiter(void 0, void 0, void 0, fu
         });
     }
     catch (error) {
-        res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        res.status(500).json(error);
     }
 });
 exports.createProductCategory = createProductCategory;
@@ -117,10 +108,7 @@ const updateProductCategory = (req, res) => __awaiter(void 0, void 0, void 0, fu
         });
     }
     catch (error) {
-        res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        res.status(500).json(error);
     }
 });
 exports.updateProductCategory = updateProductCategory;
@@ -140,10 +128,7 @@ const deleteProductCategory = (req, res) => __awaiter(void 0, void 0, void 0, fu
         });
     }
     catch (error) {
-        res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        res.status(500).json(error);
     }
 });
 exports.deleteProductCategory = deleteProductCategory;

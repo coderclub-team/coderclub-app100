@@ -4,7 +4,6 @@ import {
   Column,
   DataType,
   BeforeCreate,
-  Validate,
   CreatedAt,
   UpdatedAt,
   DeletedAt,
@@ -23,6 +22,7 @@ import moment from "moment";
 export default class User extends Model {
   @Column({
     type: DataType.INTEGER,
+    primaryKey: true,
     allowNull: false,
     autoIncrement: true,
   })
@@ -33,7 +33,6 @@ export default class User extends Model {
     allowNull: true,
     validate: {
       notEmpty: true,
-
       // regex for First Name
       is: /^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/,
     },
@@ -44,7 +43,6 @@ export default class User extends Model {
     type: DataType.STRING(50),
     validate: {
       notEmpty: true,
-
       // regex for Last Name
       is: /^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/,
     },
@@ -52,37 +50,73 @@ export default class User extends Model {
   public LastName!: string | null;
 
   @Column({
-    type: DataType.STRING(50),
+    type: DataType.STRING(100),
     allowNull: true,
-    unique: {
-      name: "user_email_unique",
-      msg: "Email address already in use!",
+    validate: {
+      notEmpty: true,
+      // regex for Full Name
+      is: /^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/,
     },
-    // validate: {
-    //   // regex for Login Name
-    //   is: /^[a-zA-Z0-9]+(([',. -][a-zA-Z0-9 ])?[a-zA-Z0-9]*)*$/,
-    // },
+  })
+  FullName!: string;
+
+  @Column({
+    type: DataType.STRING(20),
+    allowNull: true,
+    validate: {
+      isIn: [["Male", "Female", "Transgender", null]],
+    },
+  })
+  Gender!: string;
+
+  // DoorNumber VARCHAR(10) NULL,
+  @Column({
+    type: DataType.STRING(10),
+    allowNull: true,
+  })
+  DoorNumber!: string;
+
+  // SteetName VARCHAR(100) NULL,
+  @Column({
+    type: DataType.STRING(100),
+    allowNull: true,
+  })
+  Street!: string;
+
+  @Column({
+    type: DataType.STRING(100),
+    allowNull: true,
+  })
+  Area!: string;
+
+  @Column({
+    type: DataType.STRING(100),
+    allowNull: true,
+  })
+  Landmark!: string;
+
+  @Column({
+    type: DataType.STRING(200),
+    allowNull: true,
+  })
+  PhotoPath!: string;
+
+  @Column({
+    type: DataType.STRING(50),
+    allowNull: false,
   })
   public LoginName!: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
-
-    validate: {
-      notEmpty: true,
-      is: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-    },
   })
   public Password!: string;
 
   @Column({
     type: DataType.STRING(200),
     allowNull: false,
-    unique: {
-      msg: "Email address already in use!",
-      name: "Email",
-    },
+
     validate: {
       isEmail: true,
     },
@@ -92,9 +126,7 @@ export default class User extends Model {
   @Column({
     type: DataType.NUMBER,
     unique: true,
-    primaryKey: true,
     allowNull: false,
-
     validate: {
       // regex for mobile number
       is: /^[0-9]{10,15}$/,

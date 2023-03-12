@@ -66,10 +66,7 @@ const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, fun
     }
     catch (error) {
         console.log("---error", error.message);
-        res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        res.status(500).json(error);
     }
 });
 exports.getAllProductMasters = getAllProductMasters;
@@ -127,10 +124,7 @@ const getProductMasterById = (req, res) => __awaiter(void 0, void 0, void 0, fun
         });
     }
     catch (error) {
-        res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        res.status(500).json(error);
     }
 });
 exports.getProductMasterById = getProductMasterById;
@@ -149,10 +143,7 @@ const createProductMaster = (req, res) => __awaiter(void 0, void 0, void 0, func
         });
     }
     catch (error) {
-        res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        res.status(500).json(error);
     }
 });
 exports.createProductMaster = createProductMaster;
@@ -207,10 +198,7 @@ const updateProductMaster = (req, res) => __awaiter(void 0, void 0, void 0, func
         });
     }
     catch (error) {
-        res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        res.status(500).json(error);
     }
 });
 exports.updateProductMaster = updateProductMaster;
@@ -235,10 +223,7 @@ const deleteProductMaster = (req, res) => __awaiter(void 0, void 0, void 0, func
         });
     }
     catch (error) {
-        res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        res.status(500).json(error);
     }
 });
 exports.deleteProductMaster = deleteProductMaster;

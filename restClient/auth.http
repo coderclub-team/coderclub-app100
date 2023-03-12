@@ -1,6 +1,25 @@
+
+
+
+
+
+
+
+
+
 ### register user
 POST {{baseUrl}}/api/register
-Content-Type: application/json
+Content-Type: multipart/form-data; boundary=boundary
+Authorization: 'Bearer {{token}}'
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="my_image.jpg"
+Content-Type: image/jpeg
+
+< /Users/anel-bou/Desktop/abc.jpg>
+--boundary
+Content-Disposition: form-data; name="file"; filename="my_image.jpg"
+Content-Type: image/jpeg
 
     {
         "FirstName": "Hi One",
@@ -14,7 +33,7 @@ Content-Type: application/json
         "State":"Test State",
         "Country":"Test Country",
         "PinCode":"600050",
-        "DOB":"2000/01/01"
+        "DOB":"2000/01/01",
 
     }
 
@@ -26,8 +45,8 @@ Content-Type: application/json
 
 
     {
-        "MobileNo": "8220370001",
-        "Password": "ATest@123"
+        "MobileNo": "82203736s66",
+        "Password": "admin@123"
     }
     
 

@@ -14,6 +14,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteUserById = exports.updateUserById = exports.getUserById = exports.getAllUsers = void 0;
 const User_model_1 = __importDefault(require("../models/User.model"));
+const node_path_1 = __importDefault(require("node:path"));
+const node_fs_1 = __importDefault(require("node:fs"));
+const config_1 = require("../../config");
 const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield User_model_1.default.findAll({
@@ -33,10 +36,7 @@ const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         });
     }
     catch (error) {
-        return res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        return res.status(500).json(error);
     }
 });
 exports.getAllUsers = getAllUsers;
@@ -65,60 +65,46 @@ const getUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         });
     }
     catch (error) {
-        return res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        return res.status(500).json(error);
     }
 });
 exports.getUserById = getUserById;
-const updateUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { MobileNo } = req.params;
-    const { Password } = req.body;
-    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(Password)) {
-        return res.status(400).json({
-            message: "Password must contain at least 8 characters, one uppercase, one lowercase, one number and one special case character",
-        });
+const updateUserById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userGUID } = req.params;
+    if (req.file) {
+        const { filename, path: tmpPath } = req.file;
+        req.body.tmpPath = tmpPath;
+        req.body.uploadPath = node_path_1.default.join(config_1.userImageUploadOptions.relativePath, filename);
+        req.body.PhotoPath = node_path_1.default.join(config_1.userImageUploadOptions.directory, filename);
     }
     try {
-        const user = yield User_model_1.default.findByPk(MobileNo, {
-            attributes: {
-                exclude: [
-                    "CreatedGUID",
-                    "ModifiedGUID",
-                    "CreatedDate",
-                    "ModifiedDate",
-                    "DeletedDate",
-                ],
-            },
-        });
-        if (!user) {
-            return res.status(400).json({
-                message: "User not found!",
+        const user = yield User_model_1.default.findByPk(userGUID);
+        if (!user)
+            return res.status(400).json({ message: "User not found!" });
+        const oldPhotoPath = user.PhotoPath;
+        yield user.update(req.body);
+        if (req.body.tmpPath && req.body.uploadPath) {
+            node_fs_1.default.rename(req.body.tmpPath, req.body.uploadPath, (err) => {
+                if (err)
+                    console.log(err);
+                else
+                    user.PhotoPath = node_path_1.default.join(req.protocol + "://" + req.get("host"), user.PhotoPath);
             });
         }
-        req.body.ModifiedGUID = req.body.user.UserGUID;
-        yield user.update(req.body, {
-            exclude: ["UserGUID", "CreatedGUID", "MobileNo"],
-        });
-        return res.status(200).json({
-            message: "User updated successfully!",
-            user,
-        });
+        if (oldPhotoPath && oldPhotoPath !== user.PhotoPath) {
+            node_fs_1.default.unlink(node_path_1.default.join(config_1.userImageUploadOptions.relativePath, node_path_1.default.basename(oldPhotoPath)), (err) => {
+                if (err)
+                    console.log(err);
+                else
+                    console.log("Old photo deleted successfully!");
+            });
+        }
+        return res
+            .status(201)
+            .json({ message: "User updated successfully!", user: user });
     }
     catch (error) {
-        if (error.name === "SequelizeValidationError") {
-            return res.status(400).json({
-                success: false,
-                msg: error.errors.map((e) => e.message),
-            });
-        }
-        else {
-            return res.status(500).json({
-                message: "Something went wrong!",
-                error: error.message,
-            });
-        }
+        next(error);
     }
 });
 exports.updateUserById = updateUserById;
@@ -142,10 +128,7 @@ const deleteUserById = (req, res) => __awaiter(void 0, void 0, void 0, function*
         });
     }
     catch (error) {
-        return res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        return res.status(500).json(error);
     }
 });
 exports.deleteUserById = deleteUserById;

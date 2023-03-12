@@ -26,10 +26,7 @@ export const getAllProductCategories = async (req: Request, res: Response) => {
       total: productCategories.length,
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Something went wrong!",
-      error,
-    });
+    res.status(500).json(error);
   }
 };
 
@@ -57,10 +54,7 @@ export const getProductCategoryById = async (req: Request, res: Response) => {
       productCategory,
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Something went wrong!",
-      error,
-    });
+    res.status(500).json(error);
   }
 };
 
@@ -79,10 +73,7 @@ export const createProductCategory = async (req: Request, res: Response) => {
       productCategory,
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Something went wrong!",
-      error,
-    });
+    res.status(500).json(error);
   }
 };
 
@@ -113,10 +104,7 @@ export const updateProductCategory = async (req: Request, res: Response) => {
       productCategory,
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Something went wrong!",
-      error,
-    });
+    res.status(500).json(error);
   }
 };
 
@@ -138,10 +126,7 @@ export const deleteProductCategory = async (req: Request, res: Response) => {
       productCategory,
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Something went wrong!",
-      error,
-    });
+    res.status(500).json(error);
   }
 };
 

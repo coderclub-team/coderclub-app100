@@ -1,5 +1,8 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import User from "../models/User.model";
+import path from "node:path";
+import fs from "node:fs";
+import { userImageUploadOptions } from "../../config";
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
@@ -20,10 +23,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
       users,
     });
   } catch (error) {
-    return res.status(500).json({
-      message: "Something went wrong!",
-      error,
-    });
+    return res.status(500).json(error);
   }
 };
 
@@ -53,67 +53,62 @@ export const getUserById = async (req: Request, res: Response) => {
       user,
     });
   } catch (error) {
-    return res.status(500).json({
-      message: "Something went wrong!",
-      error,
-    });
+    return res.status(500).json(error);
   }
 };
-export const updateUserById = async (req: Request, res: Response) => {
-  const { MobileNo } = req.params;
-  const { Password } = req.body;
-  if (
-    !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
-      Password
-    )
-  ) {
-    return res.status(400).json({
-      message:
-        "Password must contain at least 8 characters, one uppercase, one lowercase, one number and one special case character",
-    });
+export const updateUserById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { userGUID } = req.params;
+
+  if (req.file) {
+    const { filename, path: tmpPath } = req.file;
+    req.body.tmpPath = tmpPath;
+    req.body.uploadPath = path.join(
+      userImageUploadOptions.relativePath,
+      filename
+    );
+    req.body.PhotoPath = path.join(userImageUploadOptions.directory, filename);
   }
 
   try {
-    const user = await User.findByPk(MobileNo, {
-      attributes: {
-        exclude: [
-          "CreatedGUID",
-          "ModifiedGUID",
-          "CreatedDate",
-          "ModifiedDate",
-          "DeletedDate",
-        ],
-      },
-    });
+    const user = await User.findByPk(userGUID);
+    if (!user) return res.status(400).json({ message: "User not found!" });
 
-    if (!user) {
-      return res.status(400).json({
-        message: "User not found!",
+    const oldPhotoPath = user.PhotoPath;
+    await user.update(req.body);
+
+    if (req.body.tmpPath && req.body.uploadPath) {
+      fs.rename(req.body.tmpPath, req.body.uploadPath, (err) => {
+        if (err) console.log(err);
+        else
+          user.PhotoPath = path.join(
+            req.protocol + "://" + req.get("host"),
+            user.PhotoPath
+          );
       });
     }
 
-    req.body.ModifiedGUID = req.body.user.UserGUID;
-
-    await user.update(req.body, {
-      exclude: ["UserGUID", "CreatedGUID", "MobileNo"],
-    });
-
-    return res.status(200).json({
-      message: "User updated successfully!",
-      user,
-    });
-  } catch (error: any) {
-    if (error.name === "SequelizeValidationError") {
-      return res.status(400).json({
-        success: false,
-        msg: error.errors.map((e: any) => e.message),
-      });
-    } else {
-      return res.status(500).json({
-        message: "Something went wrong!",
-        error: error.message,
-      });
+    if (oldPhotoPath && oldPhotoPath !== user.PhotoPath) {
+      fs.unlink(
+        path.join(
+          userImageUploadOptions.relativePath,
+          path.basename(oldPhotoPath)
+        ),
+        (err) => {
+          if (err) console.log(err);
+          else console.log("Old photo deleted successfully!");
+        }
+      );
     }
+
+    return res
+      .status(201)
+      .json({ message: "User updated successfully!", user: user });
+  } catch (error) {
+    next(error);
   }
 };
 
@@ -140,9 +135,6 @@ export const deleteUserById = async (req: Request, res: Response) => {
       user,
     });
   } catch (error) {
-    return res.status(500).json({
-      message: "Something went wrong!",
-      error,
-    });
+    return res.status(500).json(error);
   }
 };

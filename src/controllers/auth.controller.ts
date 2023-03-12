@@ -1,50 +1,59 @@
-// a auth controller to handle login and register
-
-// src/controllers/authController.ts
-
-import { Request, Response } from "express";
-import {
-  DatabaseError,
-  UniqueConstraintError,
-  ValidationError,
-} from "sequelize";
-
+import { NextFunction, Request, Response } from "express";
+import path from "node:path";
 import User from "../models/User.model";
-
 import { generateToken } from "../utils/auth";
+import fs from "node:fs";
+import { userImageUploadOptions } from "../../config";
 
-export const register = async (req: Request, res: Response) => {
+export const register = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (req.file) {
+    // move the file to the uploads directory
+    const { filename, path: tmpPath } = req.file;
+    req.body.tmpPath = tmpPath;
+    req.body.uploadPath = path.join(
+      userImageUploadOptions.relativePath,
+      filename
+    );
+    req.body.PhotoPath = path.join(userImageUploadOptions.directory, filename);
+  }
+
   try {
-    const user = await User.create(req.body);
-    const token = generateToken(user);
-    user.set("Password", null);
-    return res.status(200).json({
-      message: "Registration successful!",
+    const createdUser = await User.create(req.body);
+
+    if (req.file) {
+      fs.rename(req.body.tmpPath, req.body.uploadPath, (err) => {
+        if (err) {
+          console.log(err);
+        }
+      });
+
+      createdUser.PhotoPath = path.join(
+        req.protocol + "://" + req.get("host"),
+        createdUser.PhotoPath
+      );
+    }
+
+    const token = generateToken(createdUser);
+    return res.status(201).json({
+      message: "User created successfully!",
       token,
-      user,
+      user: createdUser,
     });
   } catch (error: any) {
-    if (error instanceof UniqueConstraintError) {
-      return res.status(400).json({
-        message: "User already exists!",
-        error,
-      });
-    } else if (error instanceof ValidationError) {
-      return res.status(400).json({
-        message: error.message,
-        error,
-      });
-    } else if (error instanceof DatabaseError) {
-      return res.status(400).json({
-        message: error.message,
-        error,
-      });
-    } else {
-      return res.status(500).json({
-        message: "Something went wrong!",
-        error,
-      });
-    }
+    // remove the uploaded file
+    // if (req.body.tmpPath) {
+    //   fs.unlink(req.body.tmpPath, (err) => {
+    //     if (err) {
+    //       console.log(err);
+    //     }
+    //   });
+    // }
+
+    next(error);
   }
 };
 export const login = async (req: Request, res: Response) => {
@@ -57,7 +66,10 @@ export const login = async (req: Request, res: Response) => {
   }
 
   try {
-    const user = await User.findByPk(MobileNo, {
+    const user = await User.findOne({
+      where: {
+        MobileNo,
+      },
       attributes: {
         exclude: [
           "OTP",
@@ -94,11 +106,8 @@ export const login = async (req: Request, res: Response) => {
       token,
       user,
     });
-  } catch (error) {
-    return res.status(500).json({
-      message: "Something went wrong!",
-      error,
-    });
+  } catch (error: any) {
+    return res.status(500).json(error);
   }
 };
 

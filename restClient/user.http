@@ -12,22 +12,31 @@ Authorization:  Bearer {{token}}
 
 
 ###updateUserById()
-PUT {{baseUrl}}/api/users/9750022944
+PUT {{baseUrl}}/api/users/8220370001
 Content-Type: application/json
 Authorization:  Bearer {{token}}
     
     {
         "FirstName": "Testing",
         "LastName": "Usering",
-        "LoginName": "Atest12345678ing",
-        "Password":"Asdf@123$1",
-        "EmailAddress": "atest1234567in@gmail.com",
-        "MobileNo":"8220373888",
+        "LoginName": "Atest1234567812",
+        "Password":"Asdf@1231",
+        "EmailAddress": "atest1234567i@gmail.com",
+
         "Address":"Test Addressing",
         "City":"Test Citying",
         "State":"Test Stateing",
         "Country":"Test Countrying",
-        "PinCode":"600050"
+        "PinCode":"600050",
+        "State":"Tamilnadu",
+        "City":"Chennai",
+        "Location":"143462223,793793",
+        "DoorNumber":"Test DoorNumbering",
+        "Street":"Test StreetNameing",
+        "Landmark":"Test Landmarking",
+        "Area":"Test Areaing",
+        "City":"Test Citying"
+
      
     }
 

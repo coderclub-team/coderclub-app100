@@ -52,10 +52,7 @@ const getAllEmployees = (req, res) => __awaiter(void 0, void 0, void 0, function
         res.send(employees);
     }
     catch (error) {
-        res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        res.status(500).json(error);
     }
 });
 exports.getAllEmployees = getAllEmployees;
@@ -88,10 +85,7 @@ const getEmployeeById = (req, res) => __awaiter(void 0, void 0, void 0, function
         });
     }
     catch (error) {
-        return res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        return res.status(500).json(error);
     }
 });
 exports.getEmployeeById = getEmployeeById;
@@ -114,10 +108,7 @@ const createEmployee = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
     catch (error) {
         console.log("employeeController.ts: error: ", error.message);
-        return res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        return res.status(500).json(error);
     }
 });
 exports.createEmployee = createEmployee;
@@ -150,10 +141,7 @@ const updateEmployee = (req, res) => __awaiter(void 0, void 0, void 0, function*
         });
     }
     catch (error) {
-        return res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        return res.status(500).json(error);
     }
 });
 exports.updateEmployee = updateEmployee;
@@ -208,10 +196,7 @@ const deleteEmployee = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
     catch (error) {
         console.log("employeeController.ts: error: ", error.message);
-        return res.status(500).json({
-            message: "Something went wrong!",
-            error,
-        });
+        return res.status(500).json(error);
     }
 });
 exports.deleteEmployee = deleteEmployee;

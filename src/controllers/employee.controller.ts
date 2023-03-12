@@ -41,10 +41,7 @@ export const getAllEmployees = async (req: Request, res: Response) => {
 
     res.send(employees);
   } catch (error) {
-    res.status(500).json({
-      message: "Something went wrong!",
-      error,
-    });
+    res.status(500).json(error);
   }
 };
 export const getEmployeeById = async (req: Request, res: Response) => {
@@ -80,10 +77,7 @@ export const getEmployeeById = async (req: Request, res: Response) => {
       employee,
     });
   } catch (error) {
-    return res.status(500).json({
-      message: "Something went wrong!",
-      error,
-    });
+    return res.status(500).json(error);
   }
 };
 export const createEmployee = async (req: Request, res: Response) => {
@@ -106,10 +100,7 @@ export const createEmployee = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.log("employeeController.ts: error: ", error.message);
-    return res.status(500).json({
-      message: "Something went wrong!",
-      error,
-    });
+    return res.status(500).json(error);
   }
 };
 export const updateEmployee = async (req: Request, res: Response) => {
@@ -143,10 +134,7 @@ export const updateEmployee = async (req: Request, res: Response) => {
       employee,
     });
   } catch (error) {
-    return res.status(500).json({
-      message: "Something went wrong!",
-      error,
-    });
+    return res.status(500).json(error);
   }
 };
 export const deleteEmployee = async (req: Request, res: Response) => {
@@ -199,9 +187,6 @@ export const deleteEmployee = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.log("employeeController.ts: error: ", error.message);
-    return res.status(500).json({
-      message: "Something went wrong!",
-      error,
-    });
+    return res.status(500).json(error);
   }
 };

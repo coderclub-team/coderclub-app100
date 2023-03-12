@@ -11,16 +11,15 @@ import {
   updateEmployee,
 } from "../controllers/employee.controller";
 import authGaurd from "../middlewares/authGaurd.middleware";
-import { uploadEmployeePhoto } from "../middlewares/upload.middleware";
 
 const employeeRouter = Router();
 employeeRouter.get("/", getAllEmployees);
 employeeRouter.get("/:EmployeeID", getEmployeeById);
-employeeRouter.post("/", authGaurd, uploadEmployeePhoto, createEmployee);
+employeeRouter.post("/", authGaurd, createEmployee);
 employeeRouter.put(
   "/:EmployeeID",
   authGaurd,
-  uploadEmployeePhoto,
+
   updateEmployee
 );
 employeeRouter.delete("/:EmployeeID", deleteEmployee);

@@ -50,6 +50,7 @@ let User = class User extends sequelize_typescript_1.Model {
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.INTEGER,
+        primaryKey: true,
         allowNull: false,
         autoIncrement: true,
     }),
@@ -80,16 +81,65 @@ __decorate([
 ], User.prototype, "LastName", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.STRING(50),
+        type: sequelize_typescript_1.DataType.STRING(100),
         allowNull: true,
-        unique: {
-            name: "user_email_unique",
-            msg: "Email address already in use!",
+        validate: {
+            notEmpty: true,
+            // regex for Full Name
+            is: /^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/,
         },
-        // validate: {
-        //   // regex for Login Name
-        //   is: /^[a-zA-Z0-9]+(([',. -][a-zA-Z0-9 ])?[a-zA-Z0-9]*)*$/,
-        // },
+    }),
+    __metadata("design:type", String)
+], User.prototype, "FullName", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING(20),
+        allowNull: true,
+        validate: {
+            isIn: [["Male", "Female", "Transgender", null]],
+        },
+    }),
+    __metadata("design:type", String)
+], User.prototype, "Gender", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING(10),
+        allowNull: true,
+    }),
+    __metadata("design:type", String)
+], User.prototype, "DoorNumber", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING(100),
+        allowNull: true,
+    }),
+    __metadata("design:type", String)
+], User.prototype, "Street", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING(100),
+        allowNull: true,
+    }),
+    __metadata("design:type", String)
+], User.prototype, "Area", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING(100),
+        allowNull: true,
+    }),
+    __metadata("design:type", String)
+], User.prototype, "Landmark", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING(200),
+        allowNull: true,
+    }),
+    __metadata("design:type", String)
+], User.prototype, "PhotoPath", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING(50),
+        allowNull: false,
     }),
     __metadata("design:type", String)
 ], User.prototype, "LoginName", void 0);
@@ -97,10 +147,6 @@ __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING,
         allowNull: false,
-        validate: {
-            notEmpty: true,
-            is: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-        },
     }),
     __metadata("design:type", String)
 ], User.prototype, "Password", void 0);
@@ -108,10 +154,6 @@ __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING(200),
         allowNull: false,
-        unique: {
-            msg: "Email address already in use!",
-            name: "Email",
-        },
         validate: {
             isEmail: true,
         },
@@ -122,7 +164,6 @@ __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.NUMBER,
         unique: true,
-        primaryKey: true,
         allowNull: false,
         validate: {
             // regex for mobile number
