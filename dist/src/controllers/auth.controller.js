@@ -89,6 +89,7 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         }
         const isValidPassword = yield user.comparePassword(Password);
         user.set("Password", null);
+        user.PhotoPath = node_path_1.default.join(req.protocol + "://" + req.get("host"), user.PhotoPath);
         if (!isValidPassword) {
             return res.status(400).json({
                 message: "Invalid password!",

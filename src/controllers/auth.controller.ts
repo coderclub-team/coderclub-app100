@@ -4,6 +4,7 @@ import User from "../models/User.model";
 import { generateToken } from "../utils/auth";
 import fs from "node:fs";
 import { userImageUploadOptions } from "../../config";
+import multer, { MulterError } from "multer";
 
 export const register = async (
   req: Request,
@@ -45,17 +46,18 @@ export const register = async (
     });
   } catch (error: any) {
     // remove the uploaded file
-    // if (req.body.tmpPath) {
-    //   fs.unlink(req.body.tmpPath, (err) => {
-    //     if (err) {
-    //       console.log(err);
-    //     }
-    //   });
-    // }
+    if (req.body.tmpPath) {
+      fs.unlink(req.body.tmpPath, (err) => {
+        if (err) {
+          console.log(err);
+        }
+      });
+    }
 
     next(error);
   }
 };
+
 export const login = async (req: Request, res: Response) => {
   const { MobileNo, Password } = req.body;
 
@@ -93,6 +95,10 @@ export const login = async (req: Request, res: Response) => {
 
     const isValidPassword = await user.comparePassword(Password);
     user.set("Password", null);
+    user.PhotoPath = path.join(
+      req.protocol + "://" + req.get("host"),
+      user.PhotoPath
+    );
     if (!isValidPassword) {
       return res.status(400).json({
         message: "Invalid password!",

@@ -32,6 +32,7 @@ export const userImageUploadOptions = {
   tmpFilePath: path.join("public/tmp"),
   relativePath: "public/uploads/",
   limits: { fileSize: 1024 * 1024 * 1 },
+
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
       cb(null, "public/tmp");

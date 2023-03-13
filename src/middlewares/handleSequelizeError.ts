@@ -2,17 +2,25 @@ import { NextFunction, Request, Response } from "express";
 
 import { ValidationError, UniqueConstraintError } from "sequelize";
 
-function parseSequelizeError(error: Error): string | object {
+function parseSequelizeError(error: Error | any): string | object {
+  console.log("  error.parent.message", error.parent.message);
+  if (error.errors.length === 0) {
+    error.errors = [
+      { path: error.parent.column, message: error.parent.message },
+    ];
+  }
   if (error instanceof ValidationError) {
     const errors = error.errors.map((err) => `${err.path} ${err.message}`);
+    error.name;
+
     return {
-      message: `Validation error: ${errors.join(", ")}`,
+      message: `Custom Validation error: ${errors.join(", ")}`,
       error: error,
     };
   } else if (error instanceof UniqueConstraintError) {
     const errors = error.errors.map((err) => `${err.path} ${err.message}`);
     return {
-      message: `Unique constraint error: ${errors.join(", ")}`,
+      message: `Custom Unique constraint error: ${errors.join(", ")}`,
       error: error,
     };
   }
@@ -32,7 +40,7 @@ function handleSequelizeError(
   if (err) {
     res.status(400).json(parseSequelizeError(err));
   } else {
-    next(err);
+    next();
   }
 }
 
