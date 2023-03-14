@@ -26,7 +26,7 @@ const upload = (0, multer_1.default)({
     },
 });
 userRouter.get("/", userController_1.getAllUsers);
-userRouter.get("/:MobileNo", userController_1.getUserById);
+userRouter.get("/:UserGUID", userController_1.getUserById);
 userRouter.put("/:userGUID", upload.single("file"), userController_1.updateUserById, handleSequelizeError_1.default);
-userRouter.delete("/:MobileNo", userController_1.deleteUserById);
+userRouter.delete("/:UserGUID", userController_1.deleteUserById);
 exports.default = userRouter;

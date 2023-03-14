@@ -1,11 +1,17 @@
 // a /login route that will return a JWT token
 
 import { Router } from "express";
+import { verify } from "jsonwebtoken";
 import multer from "multer";
 import { userImageUploadOptions } from "../../config";
-import { login, register } from "../controllers/auth.controller";
+import {
+  login,
+  register,
+  resendOTP,
+  resetPassword,
+  verifyAccount,
+} from "../controllers/auth.controller";
 import handleSequelizeError from "../middlewares/handleSequelizeError";
-import uniqueUserGaurd from "../middlewares/uniqueUserGaurd.middleware";
 
 const authRouter = Router();
 const upload = multer({
@@ -32,5 +38,9 @@ authRouter.post(
   register,
   handleSequelizeError
 );
+
+authRouter.post("/verify-account", verifyAccount, handleSequelizeError);
+authRouter.post("/resend-otp", resendOTP, handleSequelizeError);
+authRouter.post("/reset-password", resetPassword, handleSequelizeError);
 
 export default authRouter;

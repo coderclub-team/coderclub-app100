@@ -40,18 +40,21 @@ const dotenv = __importStar(require("dotenv")); // see https://github.com/motdot
 dotenv.config().parsed;
 const express_1 = __importDefault(require("express"));
 const auth_router_1 = __importDefault(require("./routes/auth.router"));
-const body_parser_1 = __importDefault(require("body-parser"));
+const authGaurd_middleware_1 = __importDefault(require("./middlewares/authGaurd.middleware"));
 const node_path_1 = __importDefault(require("node:path"));
 const ProductCategory_model_1 = __importDefault(require("./models/product/ProductCategory.model"));
 const cors_1 = __importDefault(require("cors"));
 const user_router_1 = __importDefault(require("./routes/user.router"));
+const multer_1 = __importDefault(require("multer"));
 // Set the base URL and store it in app.locals
 const app = (0, express_1.default)();
 app.use(express_1.default.static("public"));
 app.use((0, cors_1.default)());
 // parse application/json
-app.use(body_parser_1.default.urlencoded({ extended: true }));
-app.use(body_parser_1.default.json());
+app.use(express_1.default.urlencoded({ extended: true }));
+app.use(express_1.default.json());
+// app.use(bodyParser.json()
+// app.use(bodyParser.urlencoded({ extended: true }));
 // public directory as static resource
 // Error handling middleware for Multer
 console.log("Connecting to DB", node_path_1.default.join("public"));
@@ -73,7 +76,18 @@ app.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     });
 }));
 app.use("/api", auth_router_1.default);
-app.use("/api/users", user_router_1.default);
+app.use("/api/users", authGaurd_middleware_1.default, user_router_1.default);
+// Error handler middleware function for handling multer errors
+app.use((err, req, res, next) => {
+    if (err instanceof multer_1.default.MulterError) {
+        // Multer error occurred during file upload
+        res.status(400).json({ message: "Error uploading file", error: err });
+    }
+    else {
+        // Other error occurred
+        res.status(500).json({ message: "Internal server error", error: err });
+    }
+});
 app.listen(3000, () => {
     console.log("Server started on port 3000");
 });

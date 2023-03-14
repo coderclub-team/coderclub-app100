@@ -3,7 +3,7 @@ import * as dotenv from "dotenv"; // see https://github.com/motdotla/dotenv#how-
 dotenv.config().parsed;
 import express, { NextFunction, Request, Response } from "express";
 import authRouter from "./routes/auth.router";
-import bodyParser from "body-parser";
+import authGaurd from "./middlewares/authGaurd.middleware";
 
 import path from "node:path";
 
@@ -50,7 +50,7 @@ app.get("/", async (req, res) => {
     });
 });
 app.use("/api", authRouter);
-app.use("/api/users", userRouter);
+app.use("/api/users", authGaurd, userRouter);
 // Error handler middleware function for handling multer errors
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof multer.MulterError) {

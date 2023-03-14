@@ -45,13 +45,13 @@ const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
     }
     catch (error) {
         // remove the uploaded file
-        // if (req.body.tmpPath) {
-        //   fs.unlink(req.body.tmpPath, (err) => {
-        //     if (err) {
-        //       console.log(err);
-        //     }
-        //   });
-        // }
+        if (req.body.tmpPath) {
+            node_fs_1.default.unlink(req.body.tmpPath, (err) => {
+                if (err) {
+                    console.log(err);
+                }
+            });
+        }
         next(error);
     }
 });
@@ -88,13 +88,14 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             });
         }
         const isValidPassword = yield user.comparePassword(Password);
-        user.set("Password", null);
-        user.PhotoPath = node_path_1.default.join(req.protocol + "://" + req.get("host"), user.PhotoPath);
         if (!isValidPassword) {
             return res.status(400).json({
                 message: "Invalid password!",
             });
         }
+        user.set("Password", null);
+        if (user.PhotoPath)
+            user.PhotoPath = node_path_1.default.join(req.protocol.toString() + "://" + req.get("host"), user.PhotoPath);
         const token = (0, auth_1.generateToken)(user);
         return res.status(200).json({
             message: "Login successful!",
@@ -103,8 +104,12 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
     catch (error) {
+        console.log("error===", error);
         return res.status(500).json(error);
     }
+    // } catch (error: any) {
+    //   return res.status(500).json(error);
+    // }
 });
 exports.login = login;
 // signout a user and invalidate the token

@@ -95,10 +95,9 @@ Content-Type: image/jpg
 POST  {{baseUrl}}/api/login     
 Content-Type: application/json
 
-
     {
-        "MobileNo": "8220373666",
-        "Password": "admin@123"
+        "MobileNo": "9750022933",
+        "Password": "123456"
     }
     
 

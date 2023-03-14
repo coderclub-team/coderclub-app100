@@ -9,7 +9,9 @@ import {
   getUserById,
   updateUserById,
 } from "../controllers/userController.";
+import authGaurdMiddleware from "../middlewares/authGaurd.middleware";
 import handleSequelizeError from "../middlewares/handleSequelizeError";
+import authRouter from "./auth.router";
 
 const userRouter = Router();
 const upload = multer({
@@ -30,13 +32,13 @@ const upload = multer({
 });
 
 userRouter.get("/", getAllUsers);
-userRouter.get("/:MobileNo", getUserById);
+userRouter.get("/:UserGUID", getUserById);
 userRouter.put(
-  "/:userGUID",
+  "/:UserGUID",
   upload.single("file"),
   updateUserById,
   handleSequelizeError
 );
-userRouter.delete("/:MobileNo", deleteUserById);
+userRouter.delete("/:UserGUID", deleteUserById, handleSequelizeError);
 
 export default userRouter;

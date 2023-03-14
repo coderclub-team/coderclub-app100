@@ -41,17 +41,11 @@ const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 });
 exports.getAllUsers = getAllUsers;
 const getUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { MobileNo } = req.params;
+    const { UserGUID } = req.params;
     try {
-        const user = yield User_model_1.default.findByPk(MobileNo, {
-            attributes: {
-                exclude: [
-                    "CreatedGUID",
-                    "ModifiedGUID",
-                    "CreatedDate",
-                    "ModifiedDate",
-                    "DeletedDate",
-                ],
+        const user = yield User_model_1.default.findOne({
+            where: {
+                UserGUID,
             },
         });
         if (!user) {
@@ -109,11 +103,11 @@ const updateUserById = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
 });
 exports.updateUserById = updateUserById;
 const deleteUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { MobileNo } = req.params;
+    const { UserGUID } = req.params;
     try {
-        const user = yield User_model_1.default.findByPk(MobileNo, {
-            attributes: {
-                exclude: ["DeletedGUID", "ModifiedGUID", "CreatedDate", "ModifiedDate"],
+        const user = yield User_model_1.default.findOne({
+            where: {
+                UserGUID,
             },
         });
         if (!user) {

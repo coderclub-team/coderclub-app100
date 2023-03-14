@@ -5,6 +5,9 @@ import fs from "node:fs";
 import { userImageUploadOptions } from "../../config";
 
 export const getAllUsers = async (req: Request, res: Response) => {
+  const { deleted } = req.query;
+  const paranoid = deleted === "true" ? false : true;
+
   try {
     const users = await User.findAll({
       attributes: {
@@ -16,6 +19,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
           "DeletedDate",
         ],
       },
+      paranoid,
     });
 
     return res.status(200).json({
@@ -28,18 +32,15 @@ export const getAllUsers = async (req: Request, res: Response) => {
 };
 
 export const getUserById = async (req: Request, res: Response) => {
-  const { MobileNo } = req.params;
+  const { UserGUID } = req.params;
+  const { deleted } = req.query;
+  const paranoid = deleted === "true" ? false : true;
   try {
-    const user = await User.findByPk(MobileNo, {
-      attributes: {
-        exclude: [
-          "CreatedGUID",
-          "ModifiedGUID",
-          "CreatedDate",
-          "ModifiedDate",
-          "DeletedDate",
-        ],
+    const user = await User.findOne({
+      where: {
+        UserGUID,
       },
+      paranoid,
     });
 
     if (!user) {
@@ -61,7 +62,9 @@ export const updateUserById = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { userGUID } = req.params;
+  const { UserGUID } = req.params;
+  const { deleted } = req.query;
+  const paranoid = deleted === "true" ? false : true;
 
   if (req.file) {
     const { filename, path: tmpPath } = req.file;
@@ -74,8 +77,15 @@ export const updateUserById = async (
   }
 
   try {
-    const user = await User.findByPk(userGUID);
-    if (!user) return res.status(400).json({ message: "User not found!" });
+    let user = await User.findByPk(UserGUID, {
+      paranoid,
+    });
+    if (user && user.DeletedDate && !paranoid) {
+      await user.restore();
+      // user.DeletedDate = null;
+    } else if (!user) {
+      return res.status(400).json({ message: "User not found!" });
+    }
 
     const oldPhotoPath = user.PhotoPath;
     await user.update(req.body);
@@ -84,9 +94,9 @@ export const updateUserById = async (
       fs.rename(req.body.tmpPath, req.body.uploadPath, (err) => {
         if (err) console.log(err);
         else
-          user.PhotoPath = path.join(
+          user!.PhotoPath = path.join(
             req.protocol + "://" + req.get("host"),
-            user.PhotoPath
+            user!.PhotoPath
           );
       });
     }
@@ -104,21 +114,19 @@ export const updateUserById = async (
       );
     }
 
-    return res
-      .status(201)
-      .json({ message: "User updated successfully!", user: user });
+    res.status(201).json({ message: "User updated successfully!", user: user });
   } catch (error) {
     next(error);
   }
 };
 
 export const deleteUserById = async (req: Request, res: Response) => {
-  const { MobileNo } = req.params;
+  const { UserGUID } = req.params;
 
   try {
-    const user = await User.findByPk(MobileNo, {
-      attributes: {
-        exclude: ["DeletedGUID", "ModifiedGUID", "CreatedDate", "ModifiedDate"],
+    const user = await User.findOne({
+      where: {
+        UserGUID,
       },
     });
 

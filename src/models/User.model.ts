@@ -9,6 +9,7 @@ import {
   DeletedAt,
   BeforeUpdate,
   Unique,
+  BeforeSave,
 } from "sequelize-typescript";
 import bcrypt from "bcrypt";
 
@@ -183,7 +184,7 @@ export default class User extends Model {
   @Column({
     type: DataType.NUMBER,
     allowNull: false,
-    defaultValue: 1,
+    defaultValue: 0,
   })
   public Status!: number;
 
@@ -217,6 +218,12 @@ export default class User extends Model {
     allowNull: true,
   })
   public OTP!: string | null;
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  OtpExpiryDate!: Date | null;
 
   @CreatedAt
   @Column({
@@ -259,6 +266,16 @@ export default class User extends Model {
     const salt = await bcrypt.genSalt(10);
     if (instance.Password)
       instance.Password = await bcrypt.hash(instance.Password, salt);
+  }
+  @BeforeSave
+  static async hashSavePassword(instance: User) {
+    const salt = await bcrypt.genSalt(10);
+    if (instance.Password)
+      instance.Password = await bcrypt.hash(instance.Password, salt);
+
+    // if (instance.OtpExpiryDate) {
+    //   instance.OtpExpiryDate = moment(instance.OtpExpiryDate).toDate();
+    // }
   }
 
   async comparePassword(password: string) {
