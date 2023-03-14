@@ -204,7 +204,9 @@ const resendOTP = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         const { OTP, OtpExpiryDate } = (0, generateOTP_1.default)();
         user.set("OTP", OTP);
         user.set("OtpExpiryDate", OtpExpiryDate);
-        yield user.save();
+        yield user.save({
+            fields: ["OTP", "OtpExpiryDate"],
+        });
         res.status(200).json({
             message: "OTP sent successfully!",
             user,

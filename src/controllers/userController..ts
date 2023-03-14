@@ -121,7 +121,9 @@ export const updateUserById = async (
 };
 
 export const deleteUserById = async (req: Request, res: Response) => {
+  const { deleted } = req.query;
   const { UserGUID } = req.params;
+  const paranoid = deleted === "true" ? false : true;
 
   try {
     const user = await User.findOne({
@@ -136,7 +138,9 @@ export const deleteUserById = async (req: Request, res: Response) => {
       });
     }
 
-    await user.destroy();
+    await user.destroy({
+      force: !paranoid,
+    });
 
     return res.status(200).json({
       message: "User deleted successfully!",

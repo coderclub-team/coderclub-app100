@@ -14,6 +14,7 @@ import {
 import bcrypt from "bcrypt";
 
 import moment from "moment";
+import { DataTypes } from "sequelize";
 
 @Table({
   tableName: "tbl_Users",
@@ -179,7 +180,7 @@ export default class User extends Model {
     type: DataType.STRING(200),
     validate: {},
   })
-  public State!: string | null;
+  public State!: number;
 
   @Column({
     type: DataType.NUMBER,
@@ -255,17 +256,22 @@ export default class User extends Model {
   })
   public ModifiedGUID!: number | null;
 
+  static readonly fields = {
+    password: { type: DataTypes.STRING, allowNull: false, exclude: true },
+  };
+
   @BeforeCreate
   static async hashPassword(instance: User) {
-    const salt = await bcrypt.genSalt(10);
-    if (instance.Password)
-      instance.Password = await bcrypt.hash(instance.Password, salt);
+    if (instance.Password) {
+      const salt = await bcrypt.genSalt(10);
+      const hash = await bcrypt.hash(instance.Password, salt);
+      instance.Password = await instance.encrtiptPassword(instance.Password);
+    }
   }
-  @BeforeUpdate
-  static async hashUpdatePassword(instance: User) {
+  public async encrtiptPassword(password: string) {
     const salt = await bcrypt.genSalt(10);
-    if (instance.Password)
-      instance.Password = await bcrypt.hash(instance.Password, salt);
+    const hash = await bcrypt.hash(password, salt);
+    return hash;
   }
 
   async comparePassword(password: string) {

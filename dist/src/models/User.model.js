@@ -39,16 +39,6 @@ let User = class User extends sequelize_typescript_1.Model {
                 instance.Password = yield bcrypt_1.default.hash(instance.Password, salt);
         });
     }
-    static hashSavePassword(instance) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const salt = yield bcrypt_1.default.genSalt(10);
-            if (instance.Password)
-                instance.Password = yield bcrypt_1.default.hash(instance.Password, salt);
-            // if (instance.OtpExpiryDate) {
-            //   instance.OtpExpiryDate = moment(instance.OtpExpiryDate).toDate();
-            // }
-        });
-    }
     comparePassword(password) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.Password)
@@ -331,12 +321,6 @@ __decorate([
     __metadata("design:paramtypes", [User]),
     __metadata("design:returntype", Promise)
 ], User, "hashUpdatePassword", null);
-__decorate([
-    sequelize_typescript_1.BeforeSave,
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [User]),
-    __metadata("design:returntype", Promise)
-], User, "hashSavePassword", null);
 User = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: "tbl_Users",

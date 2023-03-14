@@ -178,7 +178,9 @@ export const verifyAccount = async (
 
     user.set("OTP", null);
     user.set("Status", 1);
-    await user.save();
+    await user.save({
+      fields: ["OTP", "Status"],
+    });
 
     res.status(200).json({
       message: "User verified successfully!",
@@ -206,7 +208,7 @@ export const resendOTP = async (
       },
       paranoid,
     });
-    console.log("user.Status===", user!.Status);
+    console.log("user.Status===", user?.Status);
     if (!user) {
       return res.status(400).json({
         message: "User not found!",
@@ -223,7 +225,9 @@ export const resendOTP = async (
     const { OTP, OtpExpiryDate } = generateOTP();
     user.set("OTP", OTP);
     user.set("OtpExpiryDate", OtpExpiryDate);
-    await user.save();
+    await user.save({
+      fields: ["OTP", "OtpExpiryDate"],
+    });
 
     res.status(200).json({
       message: "OTP sent successfully!",
@@ -275,10 +279,12 @@ export const resetPassword = async (
       });
     }
 
-    user.set("Password", Password);
+    user.set("Password", await user.encrtiptPassword(Password));
     user.set("OTP", null);
     user.set("OtpExpiryDate", null);
-    await user.save();
+    await user.save({
+      fields: ["Password", "OTP", "OtpExpiryDate"],
+    });
 
     res.status(200).json({
       message: "Password reset successfully!",

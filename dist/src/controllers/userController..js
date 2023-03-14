@@ -116,7 +116,9 @@ const updateUserById = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
 });
 exports.updateUserById = updateUserById;
 const deleteUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { deleted } = req.query;
     const { UserGUID } = req.params;
+    const paranoid = deleted === "true" ? false : true;
     try {
         const user = yield User_model_1.default.findOne({
             where: {
@@ -128,7 +130,9 @@ const deleteUserById = (req, res) => __awaiter(void 0, void 0, void 0, function*
                 message: "User not found!",
             });
         }
-        yield user.destroy();
+        yield user.destroy({
+            force: !paranoid,
+        });
         return res.status(200).json({
             message: "User deleted successfully!",
             user,
