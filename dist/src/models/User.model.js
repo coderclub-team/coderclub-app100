@@ -39,6 +39,16 @@ let User = class User extends sequelize_typescript_1.Model {
                 instance.Password = yield bcrypt_1.default.hash(instance.Password, salt);
         });
     }
+    static hashSavePassword(instance) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const salt = yield bcrypt_1.default.genSalt(10);
+            if (instance.Password)
+                instance.Password = yield bcrypt_1.default.hash(instance.Password, salt);
+            // if (instance.OtpExpiryDate) {
+            //   instance.OtpExpiryDate = moment(instance.OtpExpiryDate).toDate();
+            // }
+        });
+    }
     comparePassword(password) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.Password)
@@ -227,7 +237,7 @@ __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.NUMBER,
         allowNull: false,
-        defaultValue: 1,
+        defaultValue: 0,
     }),
     __metadata("design:type", Number)
 ], User.prototype, "Status", void 0);
@@ -267,6 +277,13 @@ __decorate([
     }),
     __metadata("design:type", Object)
 ], User.prototype, "OTP", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.DATE,
+        allowNull: true,
+    }),
+    __metadata("design:type", Object)
+], User.prototype, "OtpExpiryDate", void 0);
 __decorate([
     sequelize_typescript_1.CreatedAt,
     (0, sequelize_typescript_1.Column)({
@@ -314,6 +331,12 @@ __decorate([
     __metadata("design:paramtypes", [User]),
     __metadata("design:returntype", Promise)
 ], User, "hashUpdatePassword", null);
+__decorate([
+    sequelize_typescript_1.BeforeSave,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [User]),
+    __metadata("design:returntype", Promise)
+], User, "hashSavePassword", null);
 User = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: "tbl_Users",

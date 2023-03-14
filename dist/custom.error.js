@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UniqueUserException = void 0;
+exports.UserNotFoundExceptionError = exports.UniqueUserException = void 0;
 class UniqueUserException extends Error {
     constructor(message) {
         super(message);
@@ -9,3 +9,11 @@ class UniqueUserException extends Error {
     }
 }
 exports.UniqueUserException = UniqueUserException;
+class UserNotFoundExceptionError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "UserNotFoundException";
+        Object.setPrototypeOf(this, UserNotFoundExceptionError.prototype);
+    }
+}
+exports.UserNotFoundExceptionError = UserNotFoundExceptionError;

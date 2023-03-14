@@ -213,12 +213,12 @@ export const resendOTP = async (
       });
     }
 
-    if (user!.Status) {
-      console.log("user.Status===", user.Status);
-      return res.status(400).json({
-        message: "User is already verified!",
-      });
-    }
+    // if (user!.Status) {
+    //   console.log("user.Status===", user.Status);
+    //   return res.status(400).json({
+    //     message: "User is already verified!",
+    //   });
+    // }
 
     const { OTP, OtpExpiryDate } = generateOTP();
     user.set("OTP", OTP);

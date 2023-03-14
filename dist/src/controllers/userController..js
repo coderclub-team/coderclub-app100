@@ -18,6 +18,8 @@ const node_path_1 = __importDefault(require("node:path"));
 const node_fs_1 = __importDefault(require("node:fs"));
 const config_1 = require("../../config");
 const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { deleted } = req.query;
+    const paranoid = deleted === "true" ? false : true;
     try {
         const users = yield User_model_1.default.findAll({
             attributes: {
@@ -29,6 +31,7 @@ const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                     "DeletedDate",
                 ],
             },
+            paranoid,
         });
         return res.status(200).json({
             message: "Users fetched successfully!",
@@ -42,11 +45,14 @@ const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 exports.getAllUsers = getAllUsers;
 const getUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { UserGUID } = req.params;
+    const { deleted } = req.query;
+    const paranoid = deleted === "true" ? false : true;
     try {
         const user = yield User_model_1.default.findOne({
             where: {
                 UserGUID,
             },
+            paranoid,
         });
         if (!user) {
             return res.status(400).json({
@@ -64,7 +70,9 @@ const getUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 });
 exports.getUserById = getUserById;
 const updateUserById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userGUID } = req.params;
+    const { UserGUID } = req.params;
+    const { deleted } = req.query;
+    const paranoid = deleted === "true" ? false : true;
     if (req.file) {
         const { filename, path: tmpPath } = req.file;
         req.body.tmpPath = tmpPath;
@@ -72,9 +80,16 @@ const updateUserById = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         req.body.PhotoPath = node_path_1.default.join(config_1.userImageUploadOptions.directory, filename);
     }
     try {
-        const user = yield User_model_1.default.findByPk(userGUID);
-        if (!user)
+        let user = yield User_model_1.default.findByPk(UserGUID, {
+            paranoid,
+        });
+        if (user && user.DeletedDate && !paranoid) {
+            yield user.restore();
+            // user.DeletedDate = null;
+        }
+        else if (!user) {
             return res.status(400).json({ message: "User not found!" });
+        }
         const oldPhotoPath = user.PhotoPath;
         yield user.update(req.body);
         if (req.body.tmpPath && req.body.uploadPath) {
@@ -93,9 +108,7 @@ const updateUserById = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
                     console.log("Old photo deleted successfully!");
             });
         }
-        return res
-            .status(201)
-            .json({ message: "User updated successfully!", user: user });
+        res.status(201).json({ message: "User updated successfully!", user: user });
     }
     catch (error) {
         next(error);

@@ -1,8 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
+const custom_error_1 = require("../../custom.error");
 function parseSequelizeError(error) {
-    console.log("  error.parent.message", error.parent.message);
+    if (error instanceof custom_error_1.UserNotFoundExceptionError) {
+        return {
+            message: error.message,
+            error: error,
+        };
+    }
     if (error.errors.length === 0) {
         error.errors = [
             { path: error.parent.column, message: error.parent.message },

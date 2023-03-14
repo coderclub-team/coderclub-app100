@@ -267,16 +267,6 @@ export default class User extends Model {
     if (instance.Password)
       instance.Password = await bcrypt.hash(instance.Password, salt);
   }
-  @BeforeSave
-  static async hashSavePassword(instance: User) {
-    const salt = await bcrypt.genSalt(10);
-    if (instance.Password)
-      instance.Password = await bcrypt.hash(instance.Password, salt);
-
-    // if (instance.OtpExpiryDate) {
-    //   instance.OtpExpiryDate = moment(instance.OtpExpiryDate).toDate();
-    // }
-  }
 
   async comparePassword(password: string) {
     if (!this.Password) return false;
