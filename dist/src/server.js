@@ -45,7 +45,9 @@ const node_path_1 = __importDefault(require("node:path"));
 const ProductCategory_model_1 = __importDefault(require("./models/product/ProductCategory.model"));
 const cors_1 = __importDefault(require("cors"));
 const user_router_1 = __importDefault(require("./routes/user.router"));
-const multer_1 = __importDefault(require("multer"));
+const productCategory_router_1 = __importDefault(require("./routes/product/productCategory.router"));
+const productSubCategory_router_1 = __importDefault(require("./routes/product/productSubCategory.router"));
+const ProductMaster_router_1 = __importDefault(require("./routes/product/ProductMaster.router"));
 // Set the base URL and store it in app.locals
 const app = (0, express_1.default)();
 app.use(express_1.default.static("public"));
@@ -77,17 +79,10 @@ app.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 }));
 app.use("/api", auth_router_1.default);
 app.use("/api/users", authGaurd_middleware_1.default, user_router_1.default);
+app.use("/api/productCategories", authGaurd_middleware_1.default, productCategory_router_1.default);
+app.use("/api/productSubCategories", authGaurd_middleware_1.default, productSubCategory_router_1.default);
+app.use("/api/productMasters", authGaurd_middleware_1.default, ProductMaster_router_1.default);
 // Error handler middleware function for handling multer errors
-app.use((err, req, res, next) => {
-    if (err instanceof multer_1.default.MulterError) {
-        // Multer error occurred during file upload
-        res.status(400).json({ message: "Error uploading file", error: err });
-    }
-    else {
-        // Other error occurred
-        res.status(500).json({ message: "Internal server error", error: err });
-    }
-});
 app.listen(3000, () => {
     console.log("Server started on port 3000");
 });

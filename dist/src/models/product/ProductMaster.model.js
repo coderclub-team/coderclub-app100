@@ -166,7 +166,6 @@ __decorate([
     (0, sequelize_typescript_1.Column)({
         allowNull: true,
         type: sequelize_1.DataTypes.DATE,
-        comment: "DeletedDate",
     }),
     __metadata("design:type", Date)
 ], ProductMaster.prototype, "DeletedDate", void 0);

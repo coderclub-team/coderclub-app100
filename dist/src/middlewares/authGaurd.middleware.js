@@ -13,7 +13,7 @@ exports.default = (req, res, next) => {
     try {
         const decoded = (0, jsonwebtoken_1.verify)(token, process.env.JWT_SECRET);
         req.body.user = decoded;
-        console.log("payload", req.body.newUser);
+        console.log("payload", req.body.user);
         next();
     }
     catch (error) {

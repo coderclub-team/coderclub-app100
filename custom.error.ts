@@ -14,3 +14,12 @@ export class UserNotFoundExceptionError extends Error {
     Object.setPrototypeOf(this, UserNotFoundExceptionError.prototype);
   }
 }
+
+// error for ProductCategoryNotFoundException
+export class ProductCategoryNotFoundException extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ProductCategoryNotFoundException";
+    Object.setPrototypeOf(this, ProductCategoryNotFoundException.prototype);
+  }
+}

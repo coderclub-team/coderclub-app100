@@ -149,7 +149,6 @@ export default class ProductMaster extends Model {
   @Column({
     allowNull: true,
     type: DataTypes.DATE,
-    comment: "DeletedDate",
   })
   DeletedDate!: Date;
 

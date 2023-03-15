@@ -29,6 +29,12 @@ function parseSequelizeError(error) {
             error: error,
         };
     }
+    else if (error instanceof sequelize_1.DatabaseError) {
+        return {
+            message: error.message,
+            error: error,
+        };
+    }
     return {
         message: error.message,
         error: error,

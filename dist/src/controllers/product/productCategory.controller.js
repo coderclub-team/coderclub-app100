@@ -64,8 +64,8 @@ const getProductCategoryById = (req, res) => __awaiter(void 0, void 0, void 0, f
     }
 });
 exports.getProductCategoryById = getProductCategoryById;
-const createProductCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.body.user.UserGUID) {
+const createProductCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    if (req.body.user) {
         req.body.CreatedGUID = req.body.user.UserGUID;
     }
     else {
@@ -79,7 +79,8 @@ const createProductCategory = (req, res) => __awaiter(void 0, void 0, void 0, fu
         });
     }
     catch (error) {
-        res.status(500).json(error);
+        console.log("productCategory.controller", error.message);
+        next(error);
     }
 });
 exports.createProductCategory = createProductCategory;

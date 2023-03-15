@@ -3,7 +3,10 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.model";
 
 export const generateToken = (user: User) => {
-  const { ...data } = user;
+  const data = user.get({
+    plain: true,
+  });
+
   const JWT_SECRET = process.env.JWT_SECRET || "Asdf@123$";
   const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1d";
 

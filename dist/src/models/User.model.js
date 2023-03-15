@@ -24,19 +24,22 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_typescript_1 = require("sequelize-typescript");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const moment_1 = __importDefault(require("moment"));
+const sequelize_1 = require("sequelize");
 let User = class User extends sequelize_typescript_1.Model {
     static hashPassword(instance) {
         return __awaiter(this, void 0, void 0, function* () {
-            const salt = yield bcrypt_1.default.genSalt(10);
-            if (instance.Password)
-                instance.Password = yield bcrypt_1.default.hash(instance.Password, salt);
+            if (instance.Password) {
+                const salt = yield bcrypt_1.default.genSalt(10);
+                const hash = yield bcrypt_1.default.hash(instance.Password, salt);
+                instance.Password = yield instance.encrtiptPassword(instance.Password);
+            }
         });
     }
-    static hashUpdatePassword(instance) {
+    encrtiptPassword(password) {
         return __awaiter(this, void 0, void 0, function* () {
             const salt = yield bcrypt_1.default.genSalt(10);
-            if (instance.Password)
-                instance.Password = yield bcrypt_1.default.hash(instance.Password, salt);
+            const hash = yield bcrypt_1.default.hash(password, salt);
+            return hash;
         });
     }
     comparePassword(password) {
@@ -46,6 +49,9 @@ let User = class User extends sequelize_typescript_1.Model {
             return bcrypt_1.default.compare(password, this.Password);
         });
     }
+};
+User.fields = {
+    password: { type: sequelize_1.DataTypes.STRING, allowNull: false, exclude: true },
 };
 __decorate([
     (0, sequelize_typescript_1.Column)({
@@ -221,7 +227,7 @@ __decorate([
         type: sequelize_typescript_1.DataType.STRING(200),
         validate: {},
     }),
-    __metadata("design:type", Object)
+    __metadata("design:type", Number)
 ], User.prototype, "State", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
@@ -300,7 +306,7 @@ __decorate([
         type: sequelize_typescript_1.DataType.INTEGER,
         allowNull: true,
     }),
-    __metadata("design:type", Object)
+    __metadata("design:type", Number)
 ], User.prototype, "CreatedGUID", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
@@ -315,12 +321,6 @@ __decorate([
     __metadata("design:paramtypes", [User]),
     __metadata("design:returntype", Promise)
 ], User, "hashPassword", null);
-__decorate([
-    sequelize_typescript_1.BeforeUpdate,
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [User]),
-    __metadata("design:returntype", Promise)
-], User, "hashUpdatePassword", null);
 User = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: "tbl_Users",

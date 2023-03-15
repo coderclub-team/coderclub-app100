@@ -1,45 +1,73 @@
 import { NextFunction, Request, Response } from "express";
+import {
+  ValidationError,
+  UniqueConstraintError,
+  DatabaseError,
+  ForeignKeyConstraintError,
+} from "sequelize";
+import {
+  ProductCategoryNotFoundException,
+  UserNotFoundExceptionError,
+} from "../../custom.error";
 
-import { ValidationError, UniqueConstraintError } from "sequelize";
-import { UserNotFoundExceptionError } from "../../custom.error";
-
-function parseSequelizeError(error: Error | any): string | object {
+function parseSequelizeError(error: any): string | object {
+  if (error.errors && error.errors.length === 0 && error.parent) {
+    error.errors = [
+      { path: error.parent.column, message: error.parent.message },
+    ];
+  }
   if (error instanceof UserNotFoundExceptionError) {
     return {
       message: error.message,
       error: error,
     };
-  }
-  if (error.errors.length === 0) {
-    error.errors = [
-      { path: error.parent.column, message: error.parent.message },
-    ];
-  }
-
-  if (error instanceof ValidationError) {
-    const errors = error.errors.map((err) => `${err.path} ${err.message}`);
-    error.name;
-
+  } else if (error instanceof ValidationError) {
+    const errors = error.errors
+      .map((err: any) => `${err.path} ${err.message}`)
+      .join(", ");
     return {
-      message: `Custom Validation error: ${errors.join(", ")}`,
+      message: `Custom Validation error: ${errors}`,
       error: error,
     };
   } else if (error instanceof UniqueConstraintError) {
-    const errors = error.errors.map((err) => `${err.path} ${err.message}`);
+    const errors = error.errors
+      .map((err: any) => `${err.path} ${err.message}`)
+      .join(", ");
     return {
-      message: `Custom Unique constraint error: ${errors.join(", ")}`,
+      message: `Custom Unique constraint error: ${errors}`,
+      error: error,
+    };
+  } else if (error instanceof ForeignKeyConstraintError) {
+    return {
+      message: `Custom Foreign key constraint error: ${error.message}`,
+      error: error,
+    };
+  } else if (error instanceof DatabaseError) {
+    return {
+      message: error.message,
+      error: error,
+    };
+  } else if (error instanceof TypeError) {
+    return {
+      message: error.message,
+      error: error,
+    };
+  } else if (error instanceof ProductCategoryNotFoundException) {
+    return {
+      message: error.message,
+      error: error,
+    };
+  } else {
+    console.log("Error on final", error);
+    return {
+      message: error.message,
       error: error,
     };
   }
-
-  return {
-    message: error.message,
-    error: error,
-  };
 }
 
 function handleSequelizeError(
-  err: Error,
+  err: Error | any,
   req: Request,
   res: Response,
   next: NextFunction
@@ -47,7 +75,7 @@ function handleSequelizeError(
   if (err) {
     res.status(400).json(parseSequelizeError(err));
   } else {
-    next();
+    res.status(500).json({ message: "Internal server error" });
   }
 }
 

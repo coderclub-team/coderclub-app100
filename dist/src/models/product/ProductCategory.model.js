@@ -37,7 +37,6 @@ __decorate([
         field: "ProductCategoryName",
         allowNull: false,
         type: sequelize_typescript_1.DataType.STRING(100),
-        comment: "Product Category Name",
         unique: true,
     }),
     __metadata("design:type", String)
@@ -66,15 +65,29 @@ __decorate([
     __metadata("design:type", Number)
 ], ProductCategory.prototype, "CreatedGUID", void 0);
 __decorate([
-    sequelize_typescript_1.CreatedAt,
     (0, sequelize_typescript_1.Column)({
         field: "CreatedDate",
         allowNull: false,
-        type: sequelize_typescript_1.DataType.DATEONLY,
-        comment: "Created Date",
+        type: sequelize_typescript_1.DataType.DATE,
     }),
     __metadata("design:type", Date)
 ], ProductCategory.prototype, "CreatedDate", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        field: "ModifiedDate",
+        allowNull: true,
+        type: sequelize_typescript_1.DataType.DATE,
+    }),
+    __metadata("design:type", Date)
+], ProductCategory.prototype, "ModifiedDate", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        field: "DeletedDate",
+        allowNull: true,
+        type: sequelize_typescript_1.DataType.DATE,
+    }),
+    __metadata("design:type", Date)
+], ProductCategory.prototype, "DeletedDate", void 0);
 __decorate([
     (0, sequelize_typescript_1.HasMany)(() => ProductSubCategory_model_1.default, {
         foreignKey: "ProductCategoryGUID",
@@ -86,8 +99,11 @@ __decorate([
 ProductCategory = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: "tbl_ProductCategory",
+        paranoid: true,
         timestamps: true,
-        updatedAt: false,
+        updatedAt: "ModifiedDate",
+        createdAt: "CreatedDate",
+        deletedAt: "DeletedDate",
     })
 ], ProductCategory);
 exports.default = ProductCategory;

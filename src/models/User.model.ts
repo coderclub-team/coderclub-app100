@@ -248,7 +248,7 @@ export default class User extends Model {
     type: DataType.INTEGER,
     allowNull: true,
   })
-  public CreatedGUID!: number | null;
+  public CreatedGUID!: number;
 
   @Column({
     type: DataType.INTEGER,

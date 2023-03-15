@@ -1,8 +1,7 @@
 // a controller for product
 
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import ProductCategory from "../../models/product/ProductCategory.model";
-import { Op } from "sequelize";
 import decodeJWT from "../../utils/decodeJWT";
 import ProductSubCategory from "../../models/product/ProductSubCategory.model";
 // import { productCategoryImageUploadOptions } from "../../config";
@@ -58,8 +57,12 @@ export const getProductCategoryById = async (req: Request, res: Response) => {
   }
 };
 
-export const createProductCategory = async (req: Request, res: Response) => {
-  if (req.body.user.UserGUID) {
+export const createProductCategory = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (req.body.user) {
     req.body.CreatedGUID = req.body.user.UserGUID;
   } else {
     req.body.CreatedGUID = decodeJWT(req).UserGUID;
@@ -72,8 +75,9 @@ export const createProductCategory = async (req: Request, res: Response) => {
       message: "Product category created successfully!",
       productCategory,
     });
-  } catch (error) {
-    res.status(500).json(error);
+  } catch (error: any) {
+    console.log("productCategory.controller", error.message);
+    next(error);
   }
 };
 

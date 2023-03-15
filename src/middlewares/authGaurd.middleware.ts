@@ -17,8 +17,8 @@ export default (req: Request, res: Response, next: NextFunction) => {
   try {
     const decoded = verify(token, process.env.JWT_SECRET!);
 
-    req.body.user = decoded;
-    console.log("payload", req.body.newUser);
+    req.body.user = decoded as User;
+    console.log("payload", req.body.user);
     next();
   } catch (error) {
     return res.status(401).json({ message: "Unauthorized" });

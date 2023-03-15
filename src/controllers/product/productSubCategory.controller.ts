@@ -1,8 +1,9 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import ProductSubCategory from "../../models/product/ProductSubCategory.model";
 import { Op } from "sequelize";
 import decodeJWT from "../../utils/decodeJWT";
 import ProductCategory from "../../models/product/ProductCategory.model";
+import { ProductCategoryNotFoundException } from "../../../custom.error";
 
 export const getAllProductSubCategories = async (
   req: Request,
@@ -23,7 +24,6 @@ export const getAllProductSubCategories = async (
     res.status(200).json({
       message: "Product sub categories fetched successfully!",
       productSubCategories,
-      total: productSubCategories.length,
     });
   } catch (error) {
     res.status(500).json(error);
@@ -65,28 +65,37 @@ export const getProductSubCategoryById = async (
   }
 };
 
-export const createProductSubCategory = async (req: Request, res: Response) => {
+export const createProductSubCategory = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   // add createdGUID using req.body.user.UserGUID or decodeJWT(req)
+
   if (req.body.user.UserGUID) {
     req.body.CreatedGUID = req.body.user.UserGUID;
   } else {
     req.body.CreatedGUID = decodeJWT(req).UserGUID;
   }
 
-  const { ProductCategoryGUID, ProductSubCategoryName } = req.body;
-
   try {
-    const productSubCategory = await ProductSubCategory.create({
-      ProductCategoryGUID,
-      ProductSubCategoryName,
-    });
+    // Check if the ProductCategoryGUID value exists in the ProductCategory table
+    const category = await ProductCategory.findByPk(
+      req.body.ProductCategoryGUID
+    );
+    // if (!category) {
+    //   throw new ProductCategoryNotFoundException("Product category not found!");
+    // }
+
+    const productSubCategory = await ProductSubCategory.create(req.body);
 
     res.status(201).json({
       message: "Product sub category created successfully!",
       productSubCategory,
     });
-  } catch (error) {
-    res.status(500).json(error);
+  } catch (error: any) {
+    console.log("error", error.message);
+    next(error);
   }
 };
 

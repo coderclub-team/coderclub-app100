@@ -4,23 +4,18 @@
 // 	[CreatedGUID] [int] NULL,
 // 	[CreatedDate] [datetime] NULL
 
-import {
-  BelongsTo,
-  Column,
-  CreatedAt,
-  DataType,
-  HasMany,
-  Model,
-  Table,
-} from "sequelize-typescript";
+import { Column, DataType, HasMany, Model, Table } from "sequelize-typescript";
 import ProductSubCategory from "./ProductSubCategory.model";
 
 // Path: src/models/ProductCategory.ts
 
 @Table({
   tableName: "tbl_ProductCategory",
+  paranoid: true,
   timestamps: true,
-  updatedAt: false,
+  updatedAt: "ModifiedDate",
+  createdAt: "CreatedDate",
+  deletedAt: "DeletedDate",
 })
 export default class ProductCategory extends Model {
   @Column({
@@ -36,7 +31,6 @@ export default class ProductCategory extends Model {
     field: "ProductCategoryName",
     allowNull: false,
     type: DataType.STRING(100),
-    comment: "Product Category Name",
     unique: true,
   })
   ProductCategoryName!: string;
@@ -62,14 +56,25 @@ export default class ProductCategory extends Model {
   })
   CreatedGUID!: number;
 
-  @CreatedAt
   @Column({
     field: "CreatedDate",
     allowNull: false,
-    type: DataType.DATEONLY,
-    comment: "Created Date",
+    type: DataType.DATE,
   })
   CreatedDate!: Date;
+
+  @Column({
+    field: "ModifiedDate",
+    allowNull: true,
+    type: DataType.DATE,
+  })
+  ModifiedDate!: Date;
+  @Column({
+    field: "DeletedDate",
+    allowNull: true,
+    type: DataType.DATE,
+  })
+  DeletedDate!: Date;
 
   @HasMany(() => ProductSubCategory, {
     foreignKey: "ProductCategoryGUID",

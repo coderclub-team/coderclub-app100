@@ -1,26 +1,21 @@
-// [ProductSubCategoryGUID] [int] IDENTITY(1,1) NOT NULL,
-// 	[ProductCategoryGUID] [int] NULL,
-// 	[ProductSubCategoryName] [varchar](400) NULL,
-// 	[IsActive] [bit] NULL,
-// 	[CreatedGUID] [int] NULL,
-// 	[CreatedDate] [datetime] NULL
-
 import {
   BelongsTo,
   Column,
-  CreatedAt,
   DataType,
   Model,
   Table,
 } from "sequelize-typescript";
+import User from "../User.model";
 import ProductCategory from "./ProductCategory.model";
 
 @Table({
   tableName: "tbl_ProductSubCategory",
   timestamps: true,
-  updatedAt: false,
+  updatedAt: "ModifiedDate",
+  createdAt: "CreatedDate",
+  deletedAt: "DeletedDate",
 })
-export default class ProductSubCategory extends Model {
+export default class ProductSubCategory extends Model<ProductSubCategory> {
   @Column({
     field: "ProductSubCategoryGUID",
     primaryKey: true,
@@ -55,30 +50,67 @@ export default class ProductSubCategory extends Model {
   @Column({
     field: "IsActive",
     allowNull: false,
-    type: DataType.TINYINT,
+    type: DataType.BOOLEAN,
     comment: "Is Active",
     defaultValue: 1,
   })
-  IsActive!: boolean;
+  IsActive!: number;
 
-  @Column({
-    field: "CreatedGUID",
-    allowNull: false,
-    type: DataType.INTEGER,
-    comment: "Created GUID",
-    // references: {
-    //   model: "User",
-    //   key: "UserGUID",
-    // },
-  })
-  CreatedGUID!: number;
-
-  @CreatedAt
   @Column({
     field: "CreatedDate",
     allowNull: false,
     type: DataType.DATE,
-    comment: "Created Date",
   })
   CreatedDate!: Date;
+
+  @Column({
+    field: "ModifiedDate",
+    allowNull: true,
+    type: DataType.DATE,
+  })
+  ModifiedDate!: Date;
+
+  @Column({
+    field: "DeletedDate",
+    allowNull: true,
+    type: DataType.DATE,
+  })
+  DeletedDate!: Date;
+
+  @BelongsTo(() => User, {
+    foreignKey: "CreatedGUID",
+    targetKey: "UserGUID",
+    as: "CreatedUser",
+  })
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  CreatedGUID!: number;
+
+  @BelongsTo(() => User, {
+    foreignKey: "ModifiedGUID",
+    targetKey: "UserGUID",
+    as: "ModifiedUser",
+  })
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  ModifiedGUID!: number;
+
+  @BelongsTo(() => User, {
+    foreignKey: "DeletedGUID",
+    targetKey: "UserGUID",
+    as: "DeletedUser",
+  })
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true,
+    references: {
+      model: "User",
+      key: "UserGUID",
+    },
+  })
+  DeletedGUID!: number;
 }

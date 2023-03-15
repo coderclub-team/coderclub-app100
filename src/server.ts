@@ -9,8 +9,12 @@ import path from "node:path";
 
 import ProductCategory from "./models/product/ProductCategory.model";
 import cors from "cors";
-import handleSequelizeError from "./middlewares/handleSequelizeError";
+
 import userRouter from "./routes/user.router";
+import productCategoryRouter from "./routes/product/productCategory.router";
+import productSubCategoryRouter from "./routes/product/productSubCategory.router";
+import productMasterRouter from "./routes/product/ProductMaster.router";
+
 import multer from "multer";
 
 // Set the base URL and store it in app.locals
@@ -51,16 +55,22 @@ app.get("/", async (req, res) => {
 });
 app.use("/api", authRouter);
 app.use("/api/users", authGaurd, userRouter);
+app.use("/api/productCategories", authGaurd, productCategoryRouter);
+app.use("/api/productSubCategories", authGaurd, productSubCategoryRouter);
+app.use("/api/productMasters", authGaurd, productMasterRouter);
 // Error handler middleware function for handling multer errors
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  if (err instanceof multer.MulterError) {
-    // Multer error occurred during file upload
-    res.status(400).json({ message: "Error uploading file", error: err });
-  } else {
-    // Other error occurred
-    res.status(500).json({ message: "Internal server error", error: err });
-  }
-});
+
+// app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+//   if (err instanceof multer.MulterError) {
+//     res.status(400).json({
+//       message: err.message,
+//     });
+//   } else {
+//     res.status(500).json({
+//       message: err.message,
+//     });
+//   }
+// });
 
 app.listen(3000, () => {
   console.log("Server started on port 3000");

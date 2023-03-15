@@ -166,7 +166,9 @@ const verifyAccount = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         }
         user.set("OTP", null);
         user.set("Status", 1);
-        yield user.save();
+        yield user.save({
+            fields: ["OTP", "Status"],
+        });
         res.status(200).json({
             message: "User verified successfully!",
             user,
@@ -189,7 +191,7 @@ const resendOTP = (req, res, next) => __awaiter(void 0, void 0, void 0, function
             },
             paranoid,
         });
-        console.log("user.Status===", user.Status);
+        console.log("user.Status===", user === null || user === void 0 ? void 0 : user.Status);
         if (!user) {
             return res.status(400).json({
                 message: "User not found!",
@@ -256,10 +258,12 @@ const resetPassword = (req, res, next) => __awaiter(void 0, void 0, void 0, func
                 message: "OTP is expired!",
             });
         }
-        user.set("Password", Password);
+        user.set("Password", yield user.encrtiptPassword(Password));
         user.set("OTP", null);
         user.set("OtpExpiryDate", null);
-        yield user.save();
+        yield user.save({
+            fields: ["Password", "OTP", "OtpExpiryDate"],
+        });
         res.status(200).json({
             message: "Password reset successfully!",
             user,
