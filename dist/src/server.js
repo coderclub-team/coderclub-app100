@@ -83,6 +83,17 @@ app.use("/api/productCategories", authGaurd_middleware_1.default, productCategor
 app.use("/api/productSubCategories", authGaurd_middleware_1.default, productSubCategory_router_1.default);
 app.use("/api/productMasters", authGaurd_middleware_1.default, ProductMaster_router_1.default);
 // Error handler middleware function for handling multer errors
+// app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+//   if (err instanceof multer.MulterError) {
+//     res.status(400).json({
+//       message: err.message,
+//     });
+//   } else {
+//     res.status(500).json({
+//       message: err.message,
+//     });
+//   }
+// });
 app.listen(3000, () => {
     console.log("Server started on port 3000");
 });

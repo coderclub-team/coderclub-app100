@@ -14,6 +14,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const sequelize_typescript_1 = require("sequelize-typescript");
+const GlobalType_model_1 = require("../GlobalType.model");
+const User_model_1 = __importDefault(require("../User.model"));
 const ProductCategory_model_1 = __importDefault(require("./ProductCategory.model"));
 const ProductSubCategory_model_1 = __importDefault(require("./ProductSubCategory.model"));
 let ProductMaster = class ProductMaster extends sequelize_typescript_1.Model {
@@ -30,7 +32,7 @@ __decorate([
 ], ProductMaster.prototype, "ProductGUID", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
-        allowNull: true,
+        allowNull: false,
         type: sequelize_1.DataTypes.STRING(200),
         unique: true,
         comment: "ProductID",
@@ -140,12 +142,21 @@ __decorate([
     __metadata("design:type", String)
 ], ProductMaster.prototype, "UOM", void 0);
 __decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => GlobalType_model_1.GlobalType, {
+        foreignKey: "UOMTypeGUID",
+        targetKey: "GlobalTypeGUID",
+        as: "UOMType",
+    }),
     (0, sequelize_typescript_1.Column)({
         allowNull: true,
         type: sequelize_1.DataTypes.INTEGER,
     }),
     __metadata("design:type", Number)
 ], ProductMaster.prototype, "UOMTypeGUID", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
+], ProductMaster.prototype, "PhotoPath", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         allowNull: false,
@@ -170,6 +181,11 @@ __decorate([
     __metadata("design:type", Date)
 ], ProductMaster.prototype, "DeletedDate", void 0);
 __decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => User_model_1.default, {
+        foreignKey: "CreatedGUID",
+        targetKey: "UserGUID",
+        as: "CreatedBy",
+    }),
     (0, sequelize_typescript_1.Column)({
         allowNull: false,
         type: sequelize_1.DataTypes.INTEGER,
@@ -182,6 +198,11 @@ __decorate([
     __metadata("design:type", Number)
 ], ProductMaster.prototype, "CreatedGUID", void 0);
 __decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => User_model_1.default, {
+        foreignKey: "CreatedGUID",
+        targetKey: "UserGUID",
+        as: "CreatedUser",
+    }),
     (0, sequelize_typescript_1.Column)({
         allowNull: true,
         type: sequelize_1.DataTypes.INTEGER,
@@ -194,6 +215,11 @@ __decorate([
     __metadata("design:type", Number)
 ], ProductMaster.prototype, "ModifiedGUID", void 0);
 __decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => User_model_1.default, {
+        foreignKey: "DeletedGUID",
+        targetKey: "UserGUID",
+        as: "DeletedBy",
+    }),
     (0, sequelize_typescript_1.Column)({
         allowNull: true,
         type: sequelize_1.DataTypes.INTEGER,

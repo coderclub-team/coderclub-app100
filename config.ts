@@ -43,3 +43,19 @@ export const userImageUploadOptions = {
     },
   }),
 };
+export const productImageUploadOptions = {
+  directory: path.join("products"),
+  tmpFilePath: path.join("public/tmp"),
+  relativePath: "public/products/",
+  limits: { fileSize: 1024 * 1024 * 1 },
+
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, "public/tmp");
+    },
+    filename: (req, file, cb) => {
+      // a unique name for the file with the original extension
+      cb(null, `${Date.now()}.${file.originalname.split(".").pop()}`);
+    },
+  }),
+};

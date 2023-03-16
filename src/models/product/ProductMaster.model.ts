@@ -10,6 +10,8 @@ import {
   Table,
   UpdatedAt,
 } from "sequelize-typescript";
+import { GlobalType } from "../GlobalType.model";
+import User from "../User.model";
 import ProductCategory from "./ProductCategory.model";
 import ProductSubCategory from "./ProductSubCategory.model";
 
@@ -36,6 +38,9 @@ export default class ProductMaster extends Model {
     type: DataTypes.STRING(200),
     unique: true,
     comment: "ProductID",
+    validate: {
+      len: [4, 200],
+    },
   })
   ProductID!: string;
 
@@ -126,11 +131,19 @@ export default class ProductMaster extends Model {
   })
   UOM!: string;
 
+  @BelongsTo(() => GlobalType, {
+    foreignKey: "UOMTypeGUID",
+    targetKey: "GlobalTypeGUID",
+    as: "UOMType",
+  })
   @Column({
     allowNull: true,
     type: DataTypes.INTEGER,
   })
   UOMTypeGUID!: number;
+
+  @Column
+  PhotoPath!: string;
 
   @Column({
     allowNull: false,
@@ -152,6 +165,11 @@ export default class ProductMaster extends Model {
   })
   DeletedDate!: Date;
 
+  @BelongsTo(() => User, {
+    foreignKey: "CreatedGUID",
+    targetKey: "UserGUID",
+    as: "CreatedBy",
+  })
   @Column({
     allowNull: false,
     type: DataTypes.INTEGER,
@@ -162,6 +180,12 @@ export default class ProductMaster extends Model {
     },
   })
   CreatedGUID!: number;
+
+  @BelongsTo(() => User, {
+    foreignKey: "CreatedGUID",
+    targetKey: "UserGUID",
+    as: "CreatedUser",
+  })
   @Column({
     allowNull: true,
     type: DataTypes.INTEGER,
@@ -172,6 +196,11 @@ export default class ProductMaster extends Model {
     },
   })
   ModifiedGUID!: number;
+  @BelongsTo(() => User, {
+    foreignKey: "DeletedGUID",
+    targetKey: "UserGUID",
+    as: "DeletedBy",
+  })
   @Column({
     allowNull: true,
     type: DataTypes.INTEGER,

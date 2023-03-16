@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserNotFoundExceptionError = exports.UniqueUserException = void 0;
+exports.ProductCategoryNotFoundException = exports.UserNotFoundExceptionError = exports.UniqueUserException = void 0;
 class UniqueUserException extends Error {
     constructor(message) {
         super(message);
@@ -17,3 +17,12 @@ class UserNotFoundExceptionError extends Error {
     }
 }
 exports.UserNotFoundExceptionError = UserNotFoundExceptionError;
+// error for ProductCategoryNotFoundException
+class ProductCategoryNotFoundException extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "ProductCategoryNotFoundException";
+        Object.setPrototypeOf(this, ProductCategoryNotFoundException.prototype);
+    }
+}
+exports.ProductCategoryNotFoundException = ProductCategoryNotFoundException;

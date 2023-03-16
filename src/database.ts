@@ -1,6 +1,7 @@
 import { Sequelize } from "sequelize-typescript";
 import { sequelizeConnectionOptions } from "../config";
 import Employee from "./models/Employee.model";
+import { GlobalType } from "./models/GlobalType.model";
 import LineMan from "./models/LineMan.model";
 
 import ProductCategory from "./models/product/ProductCategory.model";
@@ -34,6 +35,7 @@ export default async () => {
     ProductMaster,
     StoreMaster,
     LineMan,
+    GlobalType,
   ]);
   User.sync();
   Employee.sync();
@@ -42,6 +44,7 @@ export default async () => {
   ProductMaster.sync();
   StoreMaster.sync();
   LineMan.sync();
+  GlobalType.sync();
 
   return sequelize;
 };

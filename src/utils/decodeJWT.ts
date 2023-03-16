@@ -13,7 +13,8 @@ export default (req: Request) => {
 
   try {
     const decoded = verify(token, process.env.JWT_SECRET!);
-    return decoded as User;
+    const { ...user } = decoded as User;
+    return user;
   } catch (error) {
     throw new Error("Token is not valid");
   }

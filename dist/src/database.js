@@ -16,6 +16,7 @@ exports.sequelize = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
 const config_1 = require("../config");
 const Employee_model_1 = __importDefault(require("./models/Employee.model"));
+const GlobalType_model_1 = require("./models/GlobalType.model");
 const LineMan_model_1 = __importDefault(require("./models/LineMan.model"));
 const ProductCategory_model_1 = __importDefault(require("./models/product/ProductCategory.model"));
 const ProductMaster_model_1 = __importDefault(require("./models/product/ProductMaster.model"));
@@ -44,6 +45,7 @@ exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
         ProductMaster_model_1.default,
         StoreMaster_model_1.default,
         LineMan_model_1.default,
+        GlobalType_model_1.GlobalType,
     ]);
     User_model_1.default.sync();
     Employee_model_1.default.sync();
@@ -52,5 +54,6 @@ exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
     ProductMaster_model_1.default.sync();
     StoreMaster_model_1.default.sync();
     LineMan_model_1.default.sync();
+    GlobalType_model_1.GlobalType.sync();
     return exports.sequelize;
 });

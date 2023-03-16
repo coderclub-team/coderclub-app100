@@ -13,10 +13,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteProductMaster = exports.updateProductMaster = exports.createProductMaster = exports.getProductMasterById = exports.getAllProductMasters = void 0;
+const config_1 = require("../../../config");
 const ProductCategory_model_1 = __importDefault(require("../../models/product/ProductCategory.model"));
 const ProductMaster_model_1 = __importDefault(require("../../models/product/ProductMaster.model"));
 const ProductSubCategory_model_1 = __importDefault(require("../../models/product/ProductSubCategory.model"));
 const decodeJWT_1 = __importDefault(require("../../utils/decodeJWT"));
+const node_path_1 = __importDefault(require("node:path"));
+const node_fs_1 = __importDefault(require("node:fs"));
 const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const productMasters = yield ProductMaster_model_1.default.findAll({
@@ -128,22 +131,53 @@ const getProductMasterById = (req, res) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 exports.getProductMasterById = getProductMasterById;
-const createProductMaster = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.body.user.UserGUID) {
-        req.body.CreatedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
+const createProductMaster = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    let data = {
+        CreatedGUID: 333,
+        ProductID: "ABC-12",
+        ProductName: "test-product",
+        ProductCode: "test-code",
+        ProductCategoryGUID: 1,
+        ProductSubCategoryGUID: 1,
+        Unit_Price: 120,
+        MRP: 140,
+        GST: 10,
+        Qty: 1,
+        UnitsInStock: 100,
+        SKU: "khkhk",
+        UOM: "abc",
+        UOMTypeGUID: 1,
+        PhotoPath: req.body.PhotoPath,
+    };
     try {
-        const productMaster = yield ProductMaster_model_1.default.create(req.body);
+        console.log("req.file.filename", req.file);
+        if (req.file) {
+            const { filename, path: tmpPath } = req.file;
+            req.body.tmpPath = tmpPath;
+            req.body.uploadPath = node_path_1.default.join(config_1.productImageUploadOptions.relativePath, filename);
+            req.body.PhotoPath = node_path_1.default.join(config_1.productImageUploadOptions.directory, filename);
+        }
+        if (req.body.user) {
+            req.body.CreatedGUID = req.body.user.UserGUID;
+        }
+        else {
+            req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
+        }
+        const ceratedPhoto = yield ProductMaster_model_1.default.create(req.body);
+        if (req.body.tmpPath && req.body.uploadPath) {
+            node_fs_1.default.rename(req.body.tmpPath, req.body.uploadPath, (err) => {
+                if (err)
+                    console.log(err);
+                else
+                    ceratedPhoto.PhotoPath = node_path_1.default.join(req.protocol + "://" + req.get("host"), ceratedPhoto.PhotoPath);
+            });
+        }
         res.status(201).json({
             message: "Product master created successfully!",
-            productMaster,
         });
     }
     catch (error) {
-        res.status(500).json(error);
+        next(error);
     }
 });
 exports.createProductMaster = createProductMaster;

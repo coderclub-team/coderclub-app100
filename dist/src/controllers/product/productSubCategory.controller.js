@@ -31,7 +31,6 @@ const getAllProductSubCategories = (req, res) => __awaiter(void 0, void 0, void 
         res.status(200).json({
             message: "Product sub categories fetched successfully!",
             productSubCategories,
-            total: productSubCategories.length,
         });
     }
     catch (error) {
@@ -66,7 +65,7 @@ const getProductSubCategoryById = (req, res) => __awaiter(void 0, void 0, void 0
     }
 });
 exports.getProductSubCategoryById = getProductSubCategoryById;
-const createProductSubCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const createProductSubCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     // add createdGUID using req.body.user.UserGUID or decodeJWT(req)
     if (req.body.user.UserGUID) {
         req.body.CreatedGUID = req.body.user.UserGUID;
@@ -74,23 +73,25 @@ const createProductSubCategory = (req, res) => __awaiter(void 0, void 0, void 0,
     else {
         req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
     }
-    const { ProductCategoryGUID, ProductSubCategoryName } = req.body;
     try {
-        const productSubCategory = yield ProductSubCategory_model_1.default.create({
-            ProductCategoryGUID,
-            ProductSubCategoryName,
-        });
+        // Check if the ProductCategoryGUID value exists in the ProductCategory table
+        const category = yield ProductCategory_model_1.default.findByPk(req.body.ProductCategoryGUID);
+        // if (!category) {
+        //   throw new ProductCategoryNotFoundException("Product category not found!");
+        // }
+        const productSubCategory = yield ProductSubCategory_model_1.default.create(req.body);
         res.status(201).json({
             message: "Product sub category created successfully!",
             productSubCategory,
         });
     }
     catch (error) {
-        res.status(500).json(error);
+        console.log("error", error.message);
+        next(error);
     }
 });
 exports.createProductSubCategory = createProductSubCategory;
-const updateProductSubCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const updateProductSubCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     // add modifiedGUID using req.body.user.UserGUID or decodeJWT(req)
     if (req.body.user.UserGUID) {
         req.body.ModifiedGUID = req.body.user.UserGUID;
@@ -106,8 +107,12 @@ const updateProductSubCategory = (req, res) => __awaiter(void 0, void 0, void 0,
                 message: "Product sub category not found!",
             });
         }
-        productSubCategory.update(req.body, {
-            exclude: ["CreatedGUID", "CreatedDate", "ProductSubCategoryGUID"],
+        productSubCategory.set({
+            ProductSubCategoryName: req.body.ProductSubCategoryName,
+            ProductCategoryGUID: req.body.ProductCategoryGUID,
+        });
+        yield productSubCategory.save({
+            fields: ["ProductSubCategoryName", "ProductCategoryGUID"],
         });
         res.status(200).json({
             message: "Product sub category updated successfully!",
@@ -115,7 +120,7 @@ const updateProductSubCategory = (req, res) => __awaiter(void 0, void 0, void 0,
         });
     }
     catch (error) {
-        res.status(500).json(error);
+        next(error);
     }
 });
 exports.updateProductSubCategory = updateProductSubCategory;

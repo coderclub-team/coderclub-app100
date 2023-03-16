@@ -16,8 +16,9 @@ export default (req: Request, res: Response, next: NextFunction) => {
 
   try {
     const decoded = verify(token, process.env.JWT_SECRET!);
+    const { ...user } = decoded as User;
 
-    req.body.user = decoded as User;
+    req.body.user = user;
     console.log("payload", req.body.user);
     next();
   } catch (error) {

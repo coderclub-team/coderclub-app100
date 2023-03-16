@@ -99,7 +99,11 @@ export const createProductSubCategory = async (
   }
 };
 
-export const updateProductSubCategory = async (req: Request, res: Response) => {
+export const updateProductSubCategory = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   // add modifiedGUID using req.body.user.UserGUID or decodeJWT(req)
   if (req.body.user.UserGUID) {
     req.body.ModifiedGUID = req.body.user.UserGUID;
@@ -120,8 +124,12 @@ export const updateProductSubCategory = async (req: Request, res: Response) => {
       });
     }
 
-    productSubCategory.update(req.body, {
-      exclude: ["CreatedGUID", "CreatedDate", "ProductSubCategoryGUID"],
+    productSubCategory!.set({
+      ProductSubCategoryName: req.body.ProductSubCategoryName,
+      ProductCategoryGUID: req.body.ProductCategoryGUID,
+    });
+    await productSubCategory.save({
+      fields: ["ProductSubCategoryName", "ProductCategoryGUID"],
     });
 
     res.status(200).json({
@@ -129,7 +137,7 @@ export const updateProductSubCategory = async (req: Request, res: Response) => {
       productSubCategory,
     });
   } catch (error) {
-    res.status(500).json(error);
+    next(error);
   }
 };
 

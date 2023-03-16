@@ -1,8 +1,11 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
+import { productImageUploadOptions } from "../../../config";
 import ProductCategory from "../../models/product/ProductCategory.model";
 import ProductMaster from "../../models/product/ProductMaster.model";
 import ProductSubCategory from "../../models/product/ProductSubCategory.model";
 import decodeJWT from "../../utils/decodeJWT";
+import path from "node:path";
+import fs from "node:fs";
 
 export const getAllProductMasters = async (req: Request, res: Response) => {
   try {
@@ -118,22 +121,69 @@ export const getProductMasterById = async (req: Request, res: Response) => {
   }
 };
 
-export const createProductMaster = async (req: Request, res: Response) => {
-  if (req.body.user.UserGUID) {
-    req.body.CreatedGUID = req.body.user.UserGUID;
-  } else {
-    req.body.CreatedGUID = decodeJWT(req).UserGUID;
-  }
+export const createProductMaster = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  let data = {
+    CreatedGUID: 333,
+    ProductID: "ABC-12",
+    ProductName: "test-product",
+    ProductCode: "test-code",
+    ProductCategoryGUID: 1,
+    ProductSubCategoryGUID: 1,
+    Unit_Price: 120,
+    MRP: 140,
+    GST: 10,
+    Qty: 1,
+    UnitsInStock: 100,
+    SKU: "khkhk",
+    UOM: "abc",
+    UOMTypeGUID: 1,
+    PhotoPath: req.body.PhotoPath,
+  };
 
   try {
-    const productMaster = await ProductMaster.create(req.body);
+    console.log("req.file.filename", req!.file);
+
+    if (req.file) {
+      const { filename, path: tmpPath } = req.file;
+      req.body.tmpPath = tmpPath;
+      req.body.uploadPath = path.join(
+        productImageUploadOptions.relativePath,
+        filename
+      );
+      req.body.PhotoPath = path.join(
+        productImageUploadOptions.directory,
+        filename
+      );
+    }
+
+    if (req.body.user) {
+      req.body.CreatedGUID = req.body.user.UserGUID;
+    } else {
+      req.body.CreatedGUID = decodeJWT(req).UserGUID;
+    }
+
+    const ceratedPhoto = await ProductMaster.create(req.body);
+
+    if (req.body.tmpPath && req.body.uploadPath) {
+      fs.rename(req.body.tmpPath, req.body.uploadPath, (err) => {
+        if (err) console.log(err);
+        else
+          ceratedPhoto!.PhotoPath = path.join(
+            req.protocol + "://" + req.get("host"),
+            ceratedPhoto!.PhotoPath
+          );
+      });
+    }
 
     res.status(201).json({
       message: "Product master created successfully!",
-      productMaster,
     });
   } catch (error) {
-    res.status(500).json(error);
+    next(error);
   }
 };
 
