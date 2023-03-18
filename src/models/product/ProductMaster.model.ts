@@ -2,6 +2,8 @@ import { DataTypes } from "sequelize";
 import {
   AllowNull,
   Association,
+  BeforeCreate,
+  BeforeSave,
   BelongsTo,
   Column,
   DeletedAt,
@@ -38,9 +40,9 @@ export default class ProductMaster extends Model {
     type: DataTypes.STRING(200),
     unique: true,
     comment: "ProductID",
-    validate: {
-      len: [4, 200],
-    },
+    // validate: {
+    //   len: [4, 200],
+    // },
   })
   ProductID!: string;
 
@@ -211,4 +213,35 @@ export default class ProductMaster extends Model {
     },
   })
   DeletedGUID!: number;
+
+  @BeforeCreate
+  static async generateProductGUID(instance: ProductMaster) {
+    const nextGUID =
+      (((await this.max("ProductGUID")) as null | number) || 0) + 1;
+    console.log({
+      ProductID: instance.ProductID,
+      nextGUID,
+    });
+    const productCategory = await ProductCategory.findByPk(
+      instance.ProductCategoryGUID
+    );
+    const productSubCategory = await ProductSubCategory.findByPk(
+      instance.ProductSubCategoryGUID
+    );
+    if (!productCategory || !productSubCategory)
+      return (instance.ProductID =
+        "ABC-XYZ-" + nextGUID.toString().padStart(4, "0"));
+
+    const PRO = productCategory?.ProductCategoryName.substring(
+      0,
+      3
+    )?.toUpperCase();
+    const SUB = productSubCategory?.ProductSubCategoryName.substring(
+      0,
+      3
+    )?.toUpperCase();
+
+    instance.ProductID =
+      PRO + "-" + SUB + "-" + nextGUID.toString().padStart(4, "0");
+  }
 }

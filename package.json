@@ -9,7 +9,7 @@
     "prestart": "npm run build",
     "migrate": "npx sequelize-cli db:migrate",
     "migrate:undo": "npx sequelize-cli db:migrate:undo",
-    "test": "nodemon dist/src/server.js"
+    "test": "nodemon  dist/src/server.js"
   },
   "keywords": [],
   "author": "",

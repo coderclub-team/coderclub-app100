@@ -23,14 +23,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_typescript_1 = require("sequelize-typescript");
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const moment_1 = __importDefault(require("moment"));
 const sequelize_1 = require("sequelize");
 let User = class User extends sequelize_typescript_1.Model {
     static hashPassword(instance) {
         return __awaiter(this, void 0, void 0, function* () {
             if (instance.Password) {
-                const salt = yield bcrypt_1.default.genSalt(10);
-                const hash = yield bcrypt_1.default.hash(instance.Password, salt);
                 instance.Password = yield instance.encrtiptPassword(instance.Password);
             }
         });
@@ -47,6 +46,41 @@ let User = class User extends sequelize_typescript_1.Model {
             if (!this.Password)
                 return false;
             return bcrypt_1.default.compare(password, this.Password);
+        });
+    }
+    // signIn() {
+    //   const JWT_SECRET = process.env.JWT_SECRET || "Asdf@123$";
+    //   const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1d";
+    //   const data = this.get({
+    //     plain: true,
+    //   });
+    //   const token = jwt.sign(data, JWT_SECRET, {
+    //     expiresIn: JWT_EXPIRES_IN,
+    //   });
+    //   console.log("User.model.ts:token", token);
+    //   return token;
+    // }
+    static authenticateByPhoneAndPassword(MobileNo, password) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = yield this.findOne({
+                where: {
+                    MobileNo,
+                },
+            });
+            if (!user) {
+                throw new Error("User not found");
+            }
+            const isPasswordValid = yield user.comparePassword(password);
+            if (!isPasswordValid) {
+                throw new Error("Invalid password");
+            }
+            const JWT_SECRET = process.env.JWT_SECRET || "Asdf@123$";
+            const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1d";
+            const data = user.get({
+                plain: true,
+            });
+            user.set("token", jsonwebtoken_1.default.sign(data, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN }));
+            return user;
         });
     }
 };
@@ -168,7 +202,7 @@ __decorate([
 ], User.prototype, "EmailAddress", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.NUMBER,
+        type: sequelize_typescript_1.DataType.STRING,
         unique: true,
         allowNull: false,
         validate: {
@@ -176,7 +210,7 @@ __decorate([
             is: /^[0-9]{10,15}$/,
         },
     }),
-    __metadata("design:type", Number)
+    __metadata("design:type", String)
 ], User.prototype, "MobileNo", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
@@ -315,6 +349,13 @@ __decorate([
     }),
     __metadata("design:type", Object)
 ], User.prototype, "ModifiedGUID", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING,
+        allowNull: true,
+    }),
+    __metadata("design:type", String)
+], User.prototype, "token", void 0);
 __decorate([
     sequelize_typescript_1.BeforeCreate,
     __metadata("design:type", Function),

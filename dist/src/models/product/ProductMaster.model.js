@@ -8,6 +8,15 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -19,6 +28,25 @@ const User_model_1 = __importDefault(require("../User.model"));
 const ProductCategory_model_1 = __importDefault(require("./ProductCategory.model"));
 const ProductSubCategory_model_1 = __importDefault(require("./ProductSubCategory.model"));
 let ProductMaster = class ProductMaster extends sequelize_typescript_1.Model {
+    static generateProductGUID(instance) {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            const nextGUID = ((yield this.max("ProductGUID")) || 0) + 1;
+            console.log({
+                ProductID: instance.ProductID,
+                nextGUID,
+            });
+            const productCategory = yield ProductCategory_model_1.default.findByPk(instance.ProductCategoryGUID);
+            const productSubCategory = yield ProductSubCategory_model_1.default.findByPk(instance.ProductSubCategoryGUID);
+            if (!productCategory || !productSubCategory)
+                return (instance.ProductID =
+                    "ABC-XYZ-" + nextGUID.toString().padStart(4, "0"));
+            const PRO = (_a = productCategory === null || productCategory === void 0 ? void 0 : productCategory.ProductCategoryName.substring(0, 3)) === null || _a === void 0 ? void 0 : _a.toUpperCase();
+            const SUB = (_b = productSubCategory === null || productSubCategory === void 0 ? void 0 : productSubCategory.ProductSubCategoryName.substring(0, 3)) === null || _b === void 0 ? void 0 : _b.toUpperCase();
+            instance.ProductID =
+                PRO + "-" + SUB + "-" + nextGUID.toString().padStart(4, "0");
+        });
+    }
 };
 __decorate([
     (0, sequelize_typescript_1.Column)({
@@ -32,10 +60,13 @@ __decorate([
 ], ProductMaster.prototype, "ProductGUID", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
-        allowNull: false,
+        allowNull: true,
         type: sequelize_1.DataTypes.STRING(200),
         unique: true,
         comment: "ProductID",
+        // validate: {
+        //   len: [4, 200],
+        // },
     }),
     __metadata("design:type", String)
 ], ProductMaster.prototype, "ProductID", void 0);
@@ -231,6 +262,12 @@ __decorate([
     }),
     __metadata("design:type", Number)
 ], ProductMaster.prototype, "DeletedGUID", void 0);
+__decorate([
+    sequelize_typescript_1.BeforeCreate,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [ProductMaster]),
+    __metadata("design:returntype", Promise)
+], ProductMaster, "generateProductGUID", null);
 ProductMaster = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: "tbl_ProductMaster",
