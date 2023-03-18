@@ -23,13 +23,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_typescript_1 = require("sequelize-typescript");
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const moment_1 = __importDefault(require("moment"));
 const sequelize_1 = require("sequelize");
+const custom_error_1 = require("../../custom.error");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 let User = class User extends sequelize_typescript_1.Model {
+    get token() {
+        return this.token;
+    }
+    set token(token) {
+        this._token = token;
+    }
     static hashPassword(instance) {
         return __awaiter(this, void 0, void 0, function* () {
             if (instance.Password) {
+                const salt = yield bcrypt_1.default.genSalt(10);
+                const hash = yield bcrypt_1.default.hash(instance.Password, salt);
                 instance.Password = yield instance.encrtiptPassword(instance.Password);
             }
         });
@@ -48,39 +57,46 @@ let User = class User extends sequelize_typescript_1.Model {
             return bcrypt_1.default.compare(password, this.Password);
         });
     }
-    // signIn() {
-    //   const JWT_SECRET = process.env.JWT_SECRET || "Asdf@123$";
-    //   const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1d";
-    //   const data = this.get({
-    //     plain: true,
-    //   });
-    //   const token = jwt.sign(data, JWT_SECRET, {
-    //     expiresIn: JWT_EXPIRES_IN,
-    //   });
-    //   console.log("User.model.ts:token", token);
-    //   return token;
-    // }
-    static authenticateByPhoneAndPassword(MobileNo, password) {
+    static authenticate(props) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = yield this.findOne({
                 where: {
-                    MobileNo,
+                    MobileNo: props.MobileNo,
                 },
             });
             if (!user) {
-                throw new Error("User not found");
+                throw new custom_error_1.UserNotFoundExceptionError("User not found");
             }
-            const isPasswordValid = yield user.comparePassword(password);
-            if (!isPasswordValid) {
-                throw new Error("Invalid password");
+            else if (user.Password_Attempt && user.Password_Attempt >= 3) {
+                throw new Error("Account is locked due to multiple attempts");
             }
-            const JWT_SECRET = process.env.JWT_SECRET || "Asdf@123$";
-            const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1d";
-            const data = user.get({
-                plain: true,
+            else if (user.Account_Deactivated) {
+                throw new Error("Account is deactivated by admin");
+            }
+            else if (user.Status == 0) {
+                throw new Error("Account is not activated");
+            }
+            const isPasswordMatch = yield user.comparePassword(props.Password);
+            if (!isPasswordMatch) {
+                if (user.Password_Attempt) {
+                    user.Password_Attempt = user.Password_Attempt + 1;
+                }
+                else {
+                    user.Password_Attempt = 1;
+                }
+                yield user.save({
+                    fields: ["Password_Attempt"],
+                });
+                throw new custom_error_1.IncorrectPasswordError("Incorrect password");
+            }
+            // json web token
+            const token = jsonwebtoken_1.default.sign(user.get({ plain: true }), process.env.JWT_SECRET, {
+                expiresIn: "1d",
             });
-            user.set("token", jsonwebtoken_1.default.sign(data, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN }));
-            return user;
+            return {
+                user,
+                token,
+            };
         });
     }
 };
@@ -202,7 +218,7 @@ __decorate([
 ], User.prototype, "EmailAddress", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.STRING,
+        type: sequelize_typescript_1.DataType.NUMBER,
         unique: true,
         allowNull: false,
         validate: {
@@ -210,7 +226,7 @@ __decorate([
             is: /^[0-9]{10,15}$/,
         },
     }),
-    __metadata("design:type", String)
+    __metadata("design:type", Number)
 ], User.prototype, "MobileNo", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
@@ -349,13 +365,6 @@ __decorate([
     }),
     __metadata("design:type", Object)
 ], User.prototype, "ModifiedGUID", void 0);
-__decorate([
-    (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.STRING,
-        allowNull: true,
-    }),
-    __metadata("design:type", String)
-], User.prototype, "token", void 0);
 __decorate([
     sequelize_typescript_1.BeforeCreate,
     __metadata("design:type", Function),

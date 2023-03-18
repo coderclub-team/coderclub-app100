@@ -23,3 +23,11 @@ export class ProductCategoryNotFoundException extends Error {
     Object.setPrototypeOf(this, ProductCategoryNotFoundException.prototype);
   }
 }
+
+export class IncorrectPasswordError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "IncorrectPasswordException";
+    Object.setPrototypeOf(this, IncorrectPasswordError.prototype);
+  }
+}

@@ -1,12 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import path from "node:path";
 import User from "../models/User.model";
-import { generateToken } from "../utils/auth";
 import fs from "node:fs";
 import { userImageUploadOptions } from "../../config";
-import multer, { MulterError } from "multer";
-import { convertToObject } from "typescript";
-import { UserNotFoundExceptionError } from "../../custom.error";
 import generateOTP from "../utils/generateOTP";
 
 export const register = async (
@@ -44,11 +40,14 @@ export const register = async (
       );
     }
 
-    const token = generateToken(createdUser);
+    const authenticatedUser = await User.authenticate({
+      MobileNo: createdUser.MobileNo,
+      Password: createdUser.Password,
+    });
     return res.status(201).json({
       message: "User created successfully!",
-      token,
-      user: createdUser,
+      user: authenticatedUser.user,
+      token: authenticatedUser.token,
     });
   } catch (error: any) {
     // remove the uploaded file
@@ -64,74 +63,26 @@ export const register = async (
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { MobileNo, Password } = req.body;
 
-  if (!MobileNo || !Password) {
-    return res.status(400).json({
-      message: "MobileNo and password are required!",
-    });
-  }
+  if (!MobileNo || !Password)
+    throw new Error("MobileNo and password are required!");
 
   try {
-    // Status ==1 means user is active
-    const user = await User.findOne({
-      where: {
-        MobileNo,
-      },
-      attributes: {
-        exclude: [
-          "OTP",
-          "AuthID",
-          "Logouttime",
-          "ModifiedDate",
-          "DeletedDate",
-          "CreatedDate",
-          "ModifiedGUID",
-          "CreatedGUID",
-          "DeletedGUID",
-        ],
-      },
-    });
-
-    if (!user) {
-      return res.status(400).json({
-        message: "User not found!",
-      });
-    } else if (user.Status == 0) {
-      return res.status(400).json({
-        message: "User is not verified!",
-      });
-    }
-
-    const isValidPassword = await user.comparePassword(Password);
-    if (!isValidPassword) {
-      return res.status(400).json({
-        message: "Invalid password!",
-      });
-    }
-    user.set("Password", null);
-    if (user.PhotoPath)
-      user.PhotoPath = path.join(
-        req.protocol.toString() + "://" + req.get("host"),
-        user.PhotoPath
-      );
-
-    const token = generateToken(user);
-
-    return res.status(200).json({
+    const authenticatedUser = await User.authenticate({ MobileNo, Password });
+    res.status(200).json({
       message: "Login successful!",
-      token,
-      user,
+      user: authenticatedUser.user,
+      token: authenticatedUser.token,
     });
   } catch (error: any) {
-    console.log("error===", error);
-    return res.status(500).json(error);
+    next(error);
   }
-
-  // } catch (error: any) {
-  //   return res.status(500).json(error);
-  // }
 };
 
 export const verifyAccount = async (
@@ -187,7 +138,6 @@ export const verifyAccount = async (
       user,
     });
   } catch (error: any) {
-    console.log("error===", error.message);
     next(error);
   }
 };
@@ -234,7 +184,6 @@ export const resendOTP = async (
       user,
     });
   } catch (error: any) {
-    console.log("error===", error.message);
     next(error);
   }
 };
@@ -291,7 +240,6 @@ export const resetPassword = async (
       user,
     });
   } catch (error: any) {
-    console.log("error===", error.message);
     next(error);
   }
 };

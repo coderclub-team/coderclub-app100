@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.signout = exports.resetPassword = exports.resendOTP = exports.verifyAccount = exports.login = exports.register = void 0;
 const node_path_1 = __importDefault(require("node:path"));
 const User_model_1 = __importDefault(require("../models/User.model"));
-// import { generateToken } from "../utils/auth";
+const auth_1 = require("../utils/auth");
 const node_fs_1 = __importDefault(require("node:fs"));
 const config_1 = require("../../config");
 const generateOTP_1 = __importDefault(require("../utils/generateOTP"));
@@ -40,10 +40,11 @@ const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
             });
             createdUser.PhotoPath = node_path_1.default.join(req.protocol + "://" + req.get("host"), createdUser.PhotoPath);
         }
-        const authenticateduser = yield User_model_1.default.authenticateByPhoneAndPassword(createdUser.MobileNo, createdUser.Password);
+        const token = (0, auth_1.generateToken)(createdUser);
         return res.status(201).json({
             message: "User created successfully!",
-            user: authenticateduser,
+            token,
+            user: createdUser,
         });
     }
     catch (error) {
@@ -59,68 +60,25 @@ const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.register = register;
-const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { MobileNo, Password } = req.body;
-    if (!MobileNo || !Password) {
-        return res.status(400).json({
-            message: "MobileNo and password are required!",
+    try {
+        if (!MobileNo || !Password) {
+            throw new Error("MobileNo and password are required!");
+        }
+        const authenticatedUser = yield User_model_1.default.authenticate({
+            MobileNo,
+            Password,
+        });
+        res.status(200).json({
+            message: "Login successful!",
+            user: authenticatedUser.user,
+            token: authenticatedUser.token,
         });
     }
-    try {
-        // Status ==1 means user is active
-        // const user = await User.findOne({
-        //   where: {
-        //     MobileNo,
-        //   },
-        //   attributes: {
-        //     exclude: [
-        //       "OTP",
-        //       "AuthID",
-        //       "Logouttime",
-        //       "ModifiedDate",
-        //       "DeletedDate",
-        //       "CreatedDate",
-        //       "ModifiedGUID",
-        //       "CreatedGUID",
-        //       "DeletedGUID",
-        //     ],
-        //   },
-        // });
-        // if (!user) {
-        //   return res.status(400).json({
-        //     message: "User not found!",
-        //   });
-        // } else if (user.Status == 0) {
-        //   return res.status(400).json({
-        //     message: "User is not verified!",
-        //   });
-        // }
-        // const isValidPassword = await user.comparePassword(Password);
-        // if (!isValidPassword) {
-        //   return res.status(400).json({
-        //     message: "Invalid password!",
-        //   });
-        // }
-        // user.set("Password", null);
-        // if (user.PhotoPath)
-        //   user.PhotoPath = path.join(
-        //     req.protocol.toString() + "://" + req.get("host"),
-        //     user.PhotoPath
-        //   );
-        // const token = user.signIn();
-        // return res.status(200).json({
-        //   message: "Login successful!",
-        //   token,
-        //   user,
-        // });
-    }
     catch (error) {
-        console.log("error===", error);
-        return res.status(500).json(error);
+        next(error);
     }
-    // } catch (error: any) {
-    //   return res.status(500).json(error);
-    // }
 });
 exports.login = login;
 const verifyAccount = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -176,7 +134,6 @@ const verifyAccount = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         });
     }
     catch (error) {
-        console.log("error===", error.message);
         next(error);
     }
 });
@@ -216,7 +173,6 @@ const resendOTP = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         });
     }
     catch (error) {
-        console.log("error===", error.message);
         next(error);
     }
 });
@@ -271,7 +227,6 @@ const resetPassword = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         });
     }
     catch (error) {
-        console.log("error===", error.message);
         next(error);
     }
 });

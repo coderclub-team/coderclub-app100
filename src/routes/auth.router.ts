@@ -31,7 +31,7 @@ const upload = multer({
   },
 });
 
-authRouter.post("/login", login);
+authRouter.post("/login", login, handleSequelizeError);
 authRouter.post(
   "/register",
   upload.single("file"),

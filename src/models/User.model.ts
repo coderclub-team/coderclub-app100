@@ -15,6 +15,12 @@ import bcrypt from "bcrypt";
 
 import moment from "moment";
 import { DataTypes } from "sequelize";
+import { AuthenticateProps } from "../../custom";
+import {
+  IncorrectPasswordError,
+  UserNotFoundExceptionError,
+} from "../../custom.error";
+import jwt from "jsonwebtoken";
 
 @Table({
   tableName: "tbl_Users",
@@ -126,7 +132,7 @@ export default class User extends Model {
   public EmailAddress!: string;
 
   @Column({
-    type: DataType.NUMBER,
+    type: DataType.STRING,
     unique: true,
     allowNull: false,
     validate: {
@@ -134,7 +140,7 @@ export default class User extends Model {
       is: /^[0-9]{10,15}$/,
     },
   })
-  public MobileNo!: number;
+  public MobileNo!: string;
 
   @Column({
     type: DataType.NUMBER,
@@ -260,6 +266,15 @@ export default class User extends Model {
     password: { type: DataTypes.STRING, allowNull: false, exclude: true },
   };
 
+  private _token!: string;
+
+  get token(): string {
+    return this.token;
+  }
+  set token(token: string) {
+    this._token = token;
+  }
+
   @BeforeCreate
   static async hashPassword(instance: User) {
     if (instance.Password) {
@@ -278,5 +293,48 @@ export default class User extends Model {
     if (!this.Password) return false;
 
     return bcrypt.compare(password, this.Password);
+  }
+
+  static async authenticate(props: AuthenticateProps) {
+    const user = await this.findOne({
+      where: {
+        MobileNo: props.MobileNo,
+      },
+    });
+
+    if (!user) {
+      throw new UserNotFoundExceptionError("User not found");
+    } else if (user.Password_Attempt && user.Password_Attempt >= 3) {
+      throw new Error("Account is locked due to multiple attempts");
+    } else if (user.Account_Deactivated) {
+      throw new Error("Account is deactivated by admin");
+    } else if (user.Status == 0) {
+      throw new Error("Account is not activated");
+    }
+
+    const isPasswordMatch = await user.comparePassword(props.Password);
+
+    if (!isPasswordMatch) {
+      if (user.Password_Attempt) {
+        user.Password_Attempt = user.Password_Attempt + 1;
+      } else {
+        user.Password_Attempt = 1;
+      }
+      await user.save({
+        fields: ["Password_Attempt"],
+      });
+      throw new IncorrectPasswordError("Incorrect password");
+    }
+
+    // json web token
+
+    const token = jwt.sign(user.get({ plain: true }), process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+
+    return {
+      user,
+      token,
+    };
   }
 }

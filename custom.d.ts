@@ -63,3 +63,8 @@ export interface IEmployee {
   PhotoPath?: string;
   MobileNo: string;
 }
+
+export interface AuthenticateProps {
+  MobileNo: string;
+  Password: string;
+}
