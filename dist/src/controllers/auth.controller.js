@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.signout = exports.resetPassword = exports.resendOTP = exports.verifyAccount = exports.login = exports.register = void 0;
 const node_path_1 = __importDefault(require("node:path"));
 const User_model_1 = __importDefault(require("../models/User.model"));
-const auth_1 = require("../utils/auth");
+// import { generateToken } from "../utils/auth";
 const node_fs_1 = __importDefault(require("node:fs"));
 const config_1 = require("../../config");
 const generateOTP_1 = __importDefault(require("../utils/generateOTP"));
@@ -40,11 +40,10 @@ const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
             });
             createdUser.PhotoPath = node_path_1.default.join(req.protocol + "://" + req.get("host"), createdUser.PhotoPath);
         }
-        const token = (0, auth_1.generateToken)(createdUser);
+        const authenticateduser = yield User_model_1.default.authenticateByPhoneAndPassword(createdUser.MobileNo, createdUser.Password);
         return res.status(201).json({
             message: "User created successfully!",
-            token,
-            user: createdUser,
+            user: authenticateduser,
         });
     }
     catch (error) {
@@ -69,49 +68,51 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
     try {
         // Status ==1 means user is active
-        const user = yield User_model_1.default.findOne({
-            where: {
-                MobileNo,
-            },
-            attributes: {
-                exclude: [
-                    "OTP",
-                    "AuthID",
-                    "Logouttime",
-                    "ModifiedDate",
-                    "DeletedDate",
-                    "CreatedDate",
-                    "ModifiedGUID",
-                    "CreatedGUID",
-                    "DeletedGUID",
-                ],
-            },
-        });
-        if (!user) {
-            return res.status(400).json({
-                message: "User not found!",
-            });
-        }
-        else if (user.Status == 0) {
-            return res.status(400).json({
-                message: "User is not verified!",
-            });
-        }
-        const isValidPassword = yield user.comparePassword(Password);
-        if (!isValidPassword) {
-            return res.status(400).json({
-                message: "Invalid password!",
-            });
-        }
-        user.set("Password", null);
-        if (user.PhotoPath)
-            user.PhotoPath = node_path_1.default.join(req.protocol.toString() + "://" + req.get("host"), user.PhotoPath);
-        const token = (0, auth_1.generateToken)(user);
-        return res.status(200).json({
-            message: "Login successful!",
-            token,
-            user,
-        });
+        // const user = await User.findOne({
+        //   where: {
+        //     MobileNo,
+        //   },
+        //   attributes: {
+        //     exclude: [
+        //       "OTP",
+        //       "AuthID",
+        //       "Logouttime",
+        //       "ModifiedDate",
+        //       "DeletedDate",
+        //       "CreatedDate",
+        //       "ModifiedGUID",
+        //       "CreatedGUID",
+        //       "DeletedGUID",
+        //     ],
+        //   },
+        // });
+        // if (!user) {
+        //   return res.status(400).json({
+        //     message: "User not found!",
+        //   });
+        // } else if (user.Status == 0) {
+        //   return res.status(400).json({
+        //     message: "User is not verified!",
+        //   });
+        // }
+        // const isValidPassword = await user.comparePassword(Password);
+        // if (!isValidPassword) {
+        //   return res.status(400).json({
+        //     message: "Invalid password!",
+        //   });
+        // }
+        // user.set("Password", null);
+        // if (user.PhotoPath)
+        //   user.PhotoPath = path.join(
+        //     req.protocol.toString() + "://" + req.get("host"),
+        //     user.PhotoPath
+        //   );
+        // const token = user.signIn();
+        // return res.status(200).json({
+        //   message: "Login successful!",
+        //   token,
+        //   user,
+        // });
     }
     catch (error) {
         console.log("error===", error);

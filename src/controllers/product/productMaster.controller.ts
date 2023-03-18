@@ -126,23 +126,23 @@ export const createProductMaster = async (
   res: Response,
   next: NextFunction
 ) => {
-  let data = {
-    CreatedGUID: 333,
-    ProductID: "ABC-12",
-    ProductName: "test-product",
-    ProductCode: "test-code",
-    ProductCategoryGUID: 1,
-    ProductSubCategoryGUID: 1,
-    Unit_Price: 120,
-    MRP: 140,
-    GST: 10,
-    Qty: 1,
-    UnitsInStock: 100,
-    SKU: "khkhk",
-    UOM: "abc",
-    UOMTypeGUID: 1,
-    PhotoPath: req.body.PhotoPath,
-  };
+  // let data = {
+  //   CreatedGUID: 333,
+  //   ProductID: "ABC-12",
+  //   ProductName: "test-product",
+  //   ProductCode: "test-code",
+  //   ProductCategoryGUID: 1,
+  //   ProductSubCategoryGUID: 1,
+  //   Unit_Price: 120,
+  //   MRP: 140,
+  //   GST: 10,
+  //   Qty: 1,
+  //   UnitsInStock: 100,
+  //   SKU: "khkhk",
+  //   UOM: "abc",
+  //   UOMTypeGUID: 1,
+  //   PhotoPath: req.body.PhotoPath,
+  // };
 
   try {
     console.log("req.file.filename", req!.file);
@@ -259,11 +259,15 @@ export const deleteProductMaster = async (req: Request, res: Response) => {
 
     if (!productMaster) {
       return res.status(400).json({
-        message: "Product master not found!",
+        message: "Product master not found!!",
       });
     }
 
-    await productMaster.destroy();
+    await ProductMaster.destroy({
+      where: {
+        ProductMasterGUID,
+      },
+    });
 
     res.send({
       message: "Product master deleted successfully!",
