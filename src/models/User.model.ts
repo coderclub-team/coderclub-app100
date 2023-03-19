@@ -21,7 +21,6 @@ import {
   UserNotFoundExceptionError,
 } from "../../custom.error";
 import jwt from "jsonwebtoken";
-import generateOTP from "../utils/generateOTP";
 
 @Table({
   tableName: "tbl_Users",
@@ -282,7 +281,7 @@ export default class User extends Model {
       const salt = await bcrypt.genSalt(10);
       const hash = await bcrypt.hash(instance.Password, salt);
       instance.Password = hash;
-      const { OTP, OtpExpiryDate } = generateOTP();
+      const { OTP, OtpExpiryDate } = instance.generateOTP();
       instance.OTP = OTP;
       instance.OtpExpiryDate = OtpExpiryDate;
     }
@@ -326,6 +325,27 @@ export default class User extends Model {
       return Promise.reject(error);
     }
   }
+
+  generateOTP(): {
+    OTP: string;
+    OtpExpiryDate: Date;
+  } {
+    const digits = "0123456789";
+    let OTP = "";
+    for (let i = 0; i < 6; i++) {
+      OTP += digits[Math.floor(Math.random() * 10)];
+    }
+    if (process.env.NDOE_ENV !== "production") {
+      OTP = "998877";
+    }
+    // one hour from now
+    const OtpExpiryDate = new Date(Date.now() + 60 * 60 * 1000);
+
+    return {
+      OTP,
+      OtpExpiryDate,
+    };
+  }
   async sendOTP(): Promise<User> {
     console.log("sendOTP-this", this);
     try {
@@ -338,7 +358,7 @@ export default class User extends Model {
         return Promise.reject("Account is locked due to multiple attempts");
       }
 
-      const { OTP, OtpExpiryDate } = generateOTP();
+      const { OTP, OtpExpiryDate } = this.generateOTP();
       this.OTP = OTP;
       this.OtpExpiryDate = OtpExpiryDate ? OtpExpiryDate : null;
       return await this.save();

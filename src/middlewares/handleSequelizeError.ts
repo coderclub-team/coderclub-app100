@@ -75,7 +75,6 @@ function parseSequelizeError(error: any): string | object {
       error: error,
     };
   } else {
-    console.log("Error on final", error);
     return {
       message: error.message,
       error: error,

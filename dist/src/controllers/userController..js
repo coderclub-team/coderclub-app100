@@ -91,7 +91,9 @@ const updateUserById = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
             return res.status(400).json({ message: "User not found!" });
         }
         const oldPhotoPath = user.PhotoPath;
-        yield user.update(req.body);
+        delete req.body.MobileNo;
+        delete req.body.Password;
+        yield user.save(req.body);
         if (req.body.tmpPath && req.body.uploadPath) {
             node_fs_1.default.rename(req.body.tmpPath, req.body.uploadPath, (err) => {
                 if (err)

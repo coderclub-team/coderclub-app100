@@ -26,7 +26,6 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const moment_1 = __importDefault(require("moment"));
 const sequelize_1 = require("sequelize");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const generateOTP_1 = __importDefault(require("../utils/generateOTP"));
 let User = class User extends sequelize_typescript_1.Model {
     get token() {
         return this.token;
@@ -40,7 +39,7 @@ let User = class User extends sequelize_typescript_1.Model {
                 const salt = yield bcrypt_1.default.genSalt(10);
                 const hash = yield bcrypt_1.default.hash(instance.Password, salt);
                 instance.Password = hash;
-                const { OTP, OtpExpiryDate } = (0, generateOTP_1.default)();
+                const { OTP, OtpExpiryDate } = instance.generateOTP();
                 instance.OTP = OTP;
                 instance.OtpExpiryDate = OtpExpiryDate;
             }
@@ -83,6 +82,22 @@ let User = class User extends sequelize_typescript_1.Model {
             }
         });
     }
+    generateOTP() {
+        const digits = "0123456789";
+        let OTP = "";
+        for (let i = 0; i < 6; i++) {
+            OTP += digits[Math.floor(Math.random() * 10)];
+        }
+        if (process.env.NDOE_ENV !== "production") {
+            OTP = "998877";
+        }
+        // one hour from now
+        const OtpExpiryDate = new Date(Date.now() + 60 * 60 * 1000);
+        return {
+            OTP,
+            OtpExpiryDate,
+        };
+    }
     sendOTP() {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("sendOTP-this", this);
@@ -97,7 +112,7 @@ let User = class User extends sequelize_typescript_1.Model {
                 else if (this.Password_Attempt && this.Password_Attempt >= 3) {
                     return Promise.reject("Account is locked due to multiple attempts");
                 }
-                const { OTP, OtpExpiryDate } = (0, generateOTP_1.default)();
+                const { OTP, OtpExpiryDate } = this.generateOTP();
                 this.OTP = OTP;
                 this.OtpExpiryDate = OtpExpiryDate ? OtpExpiryDate : null;
                 return yield this.save();

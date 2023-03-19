@@ -88,7 +88,11 @@ export const updateUserById = async (
     }
 
     const oldPhotoPath = user.PhotoPath;
-    await user.update(req.body);
+
+    delete req.body.MobileNo;
+    delete req.body.Password;
+
+    await user.save(req.body);
 
     if (req.body.tmpPath && req.body.uploadPath) {
       fs.rename(req.body.tmpPath, req.body.uploadPath, (err) => {

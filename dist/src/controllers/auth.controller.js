@@ -61,6 +61,9 @@ exports.register = register;
 const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { MobileNo, Password } = req.body;
     try {
+        if (!MobileNo || !Password) {
+            throw new Error("MobileNo or Password is missing");
+        }
         const user = yield User_model_1.default.findOne({
             where: {
                 MobileNo: MobileNo,

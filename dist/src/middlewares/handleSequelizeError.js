@@ -73,7 +73,6 @@ function parseSequelizeError(error) {
         };
     }
     else {
-        console.log("Error on final", error);
         return {
             message: error.message,
             error: error,

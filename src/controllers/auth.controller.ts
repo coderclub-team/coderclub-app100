@@ -58,7 +58,12 @@ export const login = async (
   next: NextFunction
 ) => {
   const { MobileNo, Password } = req.body;
+
   try {
+    if (!MobileNo || !Password) {
+      throw new Error("MobileNo or Password is missing");
+    }
+
     const user = await User.findOne({
       where: {
         MobileNo: MobileNo,
