@@ -1,6 +1,6 @@
 export default function generateOTP(): {
   OTP: string;
-  OtpExpiryDate?: Date;
+  OtpExpiryDate: Date;
 } {
   const digits = "0123456789";
   let OTP = "";

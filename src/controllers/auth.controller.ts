@@ -3,18 +3,13 @@ import path from "node:path";
 import User from "../models/User.model";
 import fs from "node:fs";
 import { userImageUploadOptions } from "../../config";
-import generateOTP from "../utils/generateOTP";
-
+import { UserNotFoundExceptionError } from "../../custom.error";
 export const register = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const { OTP, OtpExpiryDate } = generateOTP();
-  req.body.OTP = OTP;
-  req.body.OtpExpiryDate = OtpExpiryDate;
   if (req.file) {
-    // move the file to the uploads directory
     const { filename, path: tmpPath } = req.file;
     req.body.tmpPath = tmpPath;
     req.body.uploadPath = path.join(
@@ -23,31 +18,27 @@ export const register = async (
     );
     req.body.PhotoPath = path.join(userImageUploadOptions.directory, filename);
   }
-
   try {
     const createdUser = await User.create(req.body);
-
+    if (!createdUser) {
+      throw new UserNotFoundExceptionError("User not found!");
+    }
     if (req.file) {
       fs.rename(req.body.tmpPath, req.body.uploadPath, (err) => {
         if (err) {
           console.log(err);
         }
       });
-
       createdUser.PhotoPath = path.join(
         req.protocol + "://" + req.get("host"),
         createdUser.PhotoPath
       );
     }
-
-    const authenticatedUser = await User.authenticate({
-      MobileNo: createdUser.MobileNo,
-      Password: createdUser.Password,
-    });
+    const token = await createdUser.authenticate(req.body.Password);
     return res.status(201).json({
       message: "User created successfully!",
-      user: authenticatedUser.user,
-      token: authenticatedUser.token,
+      user: createdUser,
+      token: token,
     });
   } catch (error: any) {
     // remove the uploaded file
@@ -58,33 +49,34 @@ export const register = async (
         }
       });
     }
-
     next(error);
   }
 };
-
 export const login = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const { MobileNo, Password } = req.body;
-
-  if (!MobileNo || !Password)
-    throw new Error("MobileNo and password are required!");
-
   try {
-    const authenticatedUser = await User.authenticate({ MobileNo, Password });
+    const user = await User.findOne({
+      where: {
+        MobileNo: MobileNo,
+      },
+    });
+    if (!user) {
+      throw new UserNotFoundExceptionError("User not found!");
+    }
+    const token = await user?.authenticate(Password);
     res.status(200).json({
       message: "Login successful!",
-      user: authenticatedUser.user,
-      token: authenticatedUser.token,
+      user,
+      token,
     });
   } catch (error: any) {
     next(error);
   }
 };
-
 export const verifyAccount = async (
   req: Request,
   res: Response,
@@ -93,7 +85,6 @@ export const verifyAccount = async (
   const { MobileNo, OTP } = req.body;
   const { deleted } = req.query;
   const paranoid = deleted === "true" ? false : true;
-  const currentDate = new Date();
   try {
     const user = await User.findOne({
       where: {
@@ -105,34 +96,8 @@ export const verifyAccount = async (
       return res.status(400).json({
         message: "User not found!",
       });
-    } else if (!user.OTP) {
-      return res.status(400).json({
-        message: "OTP is not generated!",
-      });
-    } else if (user.OTP !== OTP) {
-      return res.status(400).json({
-        message: "Invalid OTP!",
-      });
-    } else if (!user.OtpExpiryDate) {
-      return res.status(400).json({
-        message: "OTP is not generated!",
-      });
-    } else if (user.OtpExpiryDate < currentDate) {
-      return res.status(400).json({
-        message: "OTP is expired!",
-      });
-    } else if (user.Status === 1) {
-      return res.status(400).json({
-        message: "User is already verified!",
-      });
     }
-
-    user.set("OTP", null);
-    user.set("Status", 1);
-    await user.save({
-      fields: ["OTP", "Status"],
-    });
-
+    await user.verifyOTP(OTP);
     res.status(200).json({
       message: "User verified successfully!",
       user,
@@ -141,8 +106,7 @@ export const verifyAccount = async (
     next(error);
   }
 };
-
-export const resendOTP = async (
+export const sendOTP = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -150,7 +114,6 @@ export const resendOTP = async (
   const { MobileNo } = req.body;
   const { deleted } = req.query;
   const paranoid = deleted === "true" ? false : true;
-
   try {
     const user = await User.findOne({
       where: {
@@ -158,27 +121,10 @@ export const resendOTP = async (
       },
       paranoid,
     });
-    console.log("user.Status===", user?.Status);
     if (!user) {
-      return res.status(400).json({
-        message: "User not found!",
-      });
+      throw new UserNotFoundExceptionError("User not found!");
     }
-
-    // if (user!.Status) {
-    //   console.log("user.Status===", user.Status);
-    //   return res.status(400).json({
-    //     message: "User is already verified!",
-    //   });
-    // }
-
-    const { OTP, OtpExpiryDate } = generateOTP();
-    user.set("OTP", OTP);
-    user.set("OtpExpiryDate", OtpExpiryDate);
-    await user.save({
-      fields: ["OTP", "OtpExpiryDate"],
-    });
-
+    await user?.sendOTP();
     res.status(200).json({
       message: "OTP sent successfully!",
       user,
@@ -187,18 +133,15 @@ export const resendOTP = async (
     next(error);
   }
 };
-
 export const resetPassword = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   // reset password by verifying OTP
-
   const { MobileNo, OTP, Password } = req.body;
   const { deleted } = req.query;
   const paranoid = deleted === "true" ? false : true;
-  const currentDate = new Date();
   try {
     const user = await User.findOne({
       where: {
@@ -210,31 +153,8 @@ export const resetPassword = async (
       return res.status(400).json({
         message: "User not found!",
       });
-    } else if (!user.OTP) {
-      return res.status(400).json({
-        message: "OTP is not generated!",
-      });
-    } else if (user.OTP !== OTP) {
-      return res.status(400).json({
-        message: "Invalid OTP!",
-      });
-    } else if (!user.OtpExpiryDate) {
-      return res.status(400).json({
-        message: "OTP is not generated!",
-      });
-    } else if (user.OtpExpiryDate < currentDate) {
-      return res.status(400).json({
-        message: "OTP is expired!",
-      });
     }
-
-    user.set("Password", await user.encrtiptPassword(Password));
-    user.set("OTP", null);
-    user.set("OtpExpiryDate", null);
-    await user.save({
-      fields: ["Password", "OTP", "OtpExpiryDate"],
-    });
-
+    await user.resetPassword(Password, OTP);
     res.status(200).json({
       message: "Password reset successfully!",
       user,
@@ -243,7 +163,6 @@ export const resetPassword = async (
     next(error);
   }
 };
-
 export const signout = async (req: Request, res: Response) => {
   res.json({
     message: "Signout should be implemented at the Frontend side!",

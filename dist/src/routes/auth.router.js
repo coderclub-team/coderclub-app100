@@ -28,6 +28,6 @@ const upload = (0, multer_1.default)({
 authRouter.post("/login", auth_controller_1.login, handleSequelizeError_1.default);
 authRouter.post("/register", upload.single("file"), auth_controller_1.register, handleSequelizeError_1.default);
 authRouter.post("/verify-account", auth_controller_1.verifyAccount, handleSequelizeError_1.default);
-authRouter.post("/resend-otp", auth_controller_1.resendOTP, handleSequelizeError_1.default);
+authRouter.post("/send-otp", auth_controller_1.sendOTP, handleSequelizeError_1.default);
 authRouter.post("/reset-password", auth_controller_1.resetPassword, handleSequelizeError_1.default);
 exports.default = authRouter;

@@ -21,6 +21,7 @@ import {
   UserNotFoundExceptionError,
 } from "../../custom.error";
 import jwt from "jsonwebtoken";
+import generateOTP from "../utils/generateOTP";
 
 @Table({
   tableName: "tbl_Users",
@@ -280,61 +281,123 @@ export default class User extends Model {
     if (instance.Password) {
       const salt = await bcrypt.genSalt(10);
       const hash = await bcrypt.hash(instance.Password, salt);
-      instance.Password = await instance.encrtiptPassword(instance.Password);
+      instance.Password = hash;
+      const { OTP, OtpExpiryDate } = generateOTP();
+      instance.OTP = OTP;
+      instance.OtpExpiryDate = OtpExpiryDate;
     }
   }
-  public async encrtiptPassword(password: string) {
-    const salt = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(password, salt);
-    return hash;
-  }
 
-  async comparePassword(password: string) {
-    if (!this.Password) return false;
-
-    return bcrypt.compare(password, this.Password);
-  }
-
-  static async authenticate(props: AuthenticateProps) {
-    const user = await this.findOne({
-      where: {
-        MobileNo: props.MobileNo,
-      },
-    });
-
-    if (!user) {
-      throw new UserNotFoundExceptionError("User not found");
-    } else if (user.Password_Attempt && user.Password_Attempt >= 3) {
-      throw new Error("Account is locked due to multiple attempts");
-    } else if (user.Account_Deactivated) {
-      throw new Error("Account is deactivated by admin");
-    } else if (user.Status == 0) {
-      throw new Error("Account is not activated");
-    }
-
-    const isPasswordMatch = await user.comparePassword(props.Password);
-
-    if (!isPasswordMatch) {
-      if (user.Password_Attempt) {
-        user.Password_Attempt = user.Password_Attempt + 1;
+  async authenticate(password: string): Promise<string> {
+    if (!password) {
+      return Promise.reject("Password is required");
+    } else if (this.Password_Attempt && this.Password_Attempt >= 3) {
+      return Promise.reject(
+        "Account is locked due to multiple incorrect password attempts"
+      );
+    } else if (this.Account_Deactivated) {
+      return Promise.reject("Account is deactivated");
+    } else if (this.Status == 0) {
+      return Promise.reject("Account is not activated");
+    } else if (!(await bcrypt.compare(password, this.Password))) {
+      if (this.Password_Attempt) {
+        this.Password_Attempt = this.Password_Attempt + 1;
       } else {
-        user.Password_Attempt = 1;
+        this.Password_Attempt = 1;
       }
-      await user.save({
+      await this.save({
         fields: ["Password_Attempt"],
       });
-      throw new IncorrectPasswordError("Incorrect password");
+
+      return Promise.reject("Incorrect password");
     }
 
-    // json web token
+    try {
+      const token = jwt.sign(
+        this.get({ plain: true }),
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "1d",
+        }
+      );
 
-    const token = jwt.sign(user.get({ plain: true }), process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
+      return Promise.resolve(token);
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+  async sendOTP(): Promise<User> {
+    console.log("sendOTP-this", this);
+    try {
+      if (this.Status == 0) {
+        console.log("sendOTP-this.Status", this.Status);
+        return Promise.reject("Account is not activated");
+      } else if (this.Account_Deactivated) {
+        return Promise.reject("Account is deactivated by admin");
+      } else if (this.Password_Attempt && this.Password_Attempt >= 3) {
+        return Promise.reject("Account is locked due to multiple attempts");
+      }
 
-    return {
-      user,
-      token,
-    };
+      const { OTP, OtpExpiryDate } = generateOTP();
+      this.OTP = OTP;
+      this.OtpExpiryDate = OtpExpiryDate ? OtpExpiryDate : null;
+      return await this.save();
+    } catch (error: any) {
+      return Promise.reject(error.message);
+    }
+  }
+
+  verifyOTP(otp: string): Promise<User> {
+    try {
+      if (!otp) {
+        return Promise.reject("OTP is required");
+      } else if (!this.OTP) {
+        return Promise.reject("OTP is not generated");
+      } else if (this.OTP != otp) {
+        return Promise.reject("OTP is incorrect");
+      } else if (
+        this.OtpExpiryDate &&
+        moment(this.OtpExpiryDate).isBefore(moment())
+      ) {
+        return Promise.reject("OTP is expired");
+      }
+
+      this.OTP = null;
+      this.OtpExpiryDate = null;
+      this.Password_Attempt = 0;
+      this.Status = 1;
+      return this.save();
+    } catch (error: any) {
+      return Promise.reject(error.message);
+    }
+  }
+
+  async resetPassword(password: string, otp: string): Promise<User> {
+    try {
+      if (!password) {
+        return Promise.reject("Password is required");
+      } else if (!this.OTP) {
+        return Promise.reject("OTP is not generated");
+      } else if (this.OTP != otp) {
+        return Promise.reject("OTP is incorrect");
+      } else if (!this.OtpExpiryDate) {
+        return Promise.reject("OTP is not generated");
+      } else if (moment(this.OtpExpiryDate).isBefore(moment())) {
+        return Promise.reject("OTP is expired");
+      }
+      const salt = await bcrypt.genSalt(10);
+      const hash = await bcrypt.hash(password, salt);
+      this.Password = hash;
+      this.OTP = null;
+      this.OtpExpiryDate = null;
+      this.Password_Attempt = 0;
+      this.Status = 1;
+
+      return this.save({
+        fields: ["Password", "OTP", "OtpExpiryDate", "Password_Attempt"],
+      });
+    } catch (error: any) {
+      return Promise.reject(error.message);
+    }
   }
 }

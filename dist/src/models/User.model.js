@@ -25,8 +25,8 @@ const sequelize_typescript_1 = require("sequelize-typescript");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const moment_1 = __importDefault(require("moment"));
 const sequelize_1 = require("sequelize");
-const custom_error_1 = require("../../custom.error");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const generateOTP_1 = __importDefault(require("../utils/generateOTP"));
 let User = class User extends sequelize_typescript_1.Model {
     get token() {
         return this.token;
@@ -39,64 +39,131 @@ let User = class User extends sequelize_typescript_1.Model {
             if (instance.Password) {
                 const salt = yield bcrypt_1.default.genSalt(10);
                 const hash = yield bcrypt_1.default.hash(instance.Password, salt);
-                instance.Password = yield instance.encrtiptPassword(instance.Password);
+                instance.Password = hash;
+                const { OTP, OtpExpiryDate } = (0, generateOTP_1.default)();
+                instance.OTP = OTP;
+                instance.OtpExpiryDate = OtpExpiryDate;
             }
         });
     }
-    encrtiptPassword(password) {
+    authenticate(password) {
         return __awaiter(this, void 0, void 0, function* () {
-            const salt = yield bcrypt_1.default.genSalt(10);
-            const hash = yield bcrypt_1.default.hash(password, salt);
-            return hash;
-        });
-    }
-    comparePassword(password) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!this.Password)
-                return false;
-            return bcrypt_1.default.compare(password, this.Password);
-        });
-    }
-    static authenticate(props) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const user = yield this.findOne({
-                where: {
-                    MobileNo: props.MobileNo,
-                },
-            });
-            if (!user) {
-                throw new custom_error_1.UserNotFoundExceptionError("User not found");
+            if (!password) {
+                return Promise.reject("Password is required");
             }
-            else if (user.Password_Attempt && user.Password_Attempt >= 3) {
-                throw new Error("Account is locked due to multiple attempts");
+            else if (this.Password_Attempt && this.Password_Attempt >= 3) {
+                return Promise.reject("Account is locked due to multiple incorrect password attempts");
             }
-            else if (user.Account_Deactivated) {
-                throw new Error("Account is deactivated by admin");
+            else if (this.Account_Deactivated) {
+                return Promise.reject("Account is deactivated");
             }
-            else if (user.Status == 0) {
-                throw new Error("Account is not activated");
+            else if (this.Status == 0) {
+                return Promise.reject("Account is not activated");
             }
-            const isPasswordMatch = yield user.comparePassword(props.Password);
-            if (!isPasswordMatch) {
-                if (user.Password_Attempt) {
-                    user.Password_Attempt = user.Password_Attempt + 1;
+            else if (!(yield bcrypt_1.default.compare(password, this.Password))) {
+                if (this.Password_Attempt) {
+                    this.Password_Attempt = this.Password_Attempt + 1;
                 }
                 else {
-                    user.Password_Attempt = 1;
+                    this.Password_Attempt = 1;
                 }
-                yield user.save({
+                yield this.save({
                     fields: ["Password_Attempt"],
                 });
-                throw new custom_error_1.IncorrectPasswordError("Incorrect password");
+                return Promise.reject("Incorrect password");
             }
-            // json web token
-            const token = jsonwebtoken_1.default.sign(user.get({ plain: true }), process.env.JWT_SECRET, {
-                expiresIn: "1d",
-            });
-            return {
-                user,
-                token,
-            };
+            try {
+                const token = jsonwebtoken_1.default.sign(this.get({ plain: true }), process.env.JWT_SECRET, {
+                    expiresIn: "1d",
+                });
+                return Promise.resolve(token);
+            }
+            catch (error) {
+                return Promise.reject(error);
+            }
+        });
+    }
+    sendOTP() {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log("sendOTP-this", this);
+            try {
+                if (this.Status == 0) {
+                    console.log("sendOTP-this.Status", this.Status);
+                    return Promise.reject("Account is not activated");
+                }
+                else if (this.Account_Deactivated) {
+                    return Promise.reject("Account is deactivated by admin");
+                }
+                else if (this.Password_Attempt && this.Password_Attempt >= 3) {
+                    return Promise.reject("Account is locked due to multiple attempts");
+                }
+                const { OTP, OtpExpiryDate } = (0, generateOTP_1.default)();
+                this.OTP = OTP;
+                this.OtpExpiryDate = OtpExpiryDate ? OtpExpiryDate : null;
+                return yield this.save();
+            }
+            catch (error) {
+                return Promise.reject(error.message);
+            }
+        });
+    }
+    verifyOTP(otp) {
+        try {
+            if (!otp) {
+                return Promise.reject("OTP is required");
+            }
+            else if (!this.OTP) {
+                return Promise.reject("OTP is not generated");
+            }
+            else if (this.OTP != otp) {
+                return Promise.reject("OTP is incorrect");
+            }
+            else if (this.OtpExpiryDate &&
+                (0, moment_1.default)(this.OtpExpiryDate).isBefore((0, moment_1.default)())) {
+                return Promise.reject("OTP is expired");
+            }
+            this.OTP = null;
+            this.OtpExpiryDate = null;
+            this.Password_Attempt = 0;
+            this.Status = 1;
+            return this.save();
+        }
+        catch (error) {
+            return Promise.reject(error.message);
+        }
+    }
+    resetPassword(password, otp) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (!password) {
+                    return Promise.reject("Password is required");
+                }
+                else if (!this.OTP) {
+                    return Promise.reject("OTP is not generated");
+                }
+                else if (this.OTP != otp) {
+                    return Promise.reject("OTP is incorrect");
+                }
+                else if (!this.OtpExpiryDate) {
+                    return Promise.reject("OTP is not generated");
+                }
+                else if ((0, moment_1.default)(this.OtpExpiryDate).isBefore((0, moment_1.default)())) {
+                    return Promise.reject("OTP is expired");
+                }
+                const salt = yield bcrypt_1.default.genSalt(10);
+                const hash = yield bcrypt_1.default.hash(password, salt);
+                this.Password = hash;
+                this.OTP = null;
+                this.OtpExpiryDate = null;
+                this.Password_Attempt = 0;
+                this.Status = 1;
+                return this.save({
+                    fields: ["Password", "OTP", "OtpExpiryDate", "Password_Attempt"],
+                });
+            }
+            catch (error) {
+                return Promise.reject(error.message);
+            }
         });
     }
 };
@@ -218,7 +285,7 @@ __decorate([
 ], User.prototype, "EmailAddress", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.NUMBER,
+        type: sequelize_typescript_1.DataType.STRING,
         unique: true,
         allowNull: false,
         validate: {
@@ -226,7 +293,7 @@ __decorate([
             is: /^[0-9]{10,15}$/,
         },
     }),
-    __metadata("design:type", Number)
+    __metadata("design:type", String)
 ], User.prototype, "MobileNo", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({

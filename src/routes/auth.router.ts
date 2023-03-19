@@ -7,7 +7,7 @@ import { userImageUploadOptions } from "../../config";
 import {
   login,
   register,
-  resendOTP,
+  sendOTP,
   resetPassword,
   verifyAccount,
 } from "../controllers/auth.controller";
@@ -40,7 +40,7 @@ authRouter.post(
 );
 
 authRouter.post("/verify-account", verifyAccount, handleSequelizeError);
-authRouter.post("/resend-otp", resendOTP, handleSequelizeError);
+authRouter.post("/send-otp", sendOTP, handleSequelizeError);
 authRouter.post("/reset-password", resetPassword, handleSequelizeError);
 
 export default authRouter;
