@@ -1,21 +1,14 @@
 import ConnectDB from "./database";
 import * as dotenv from "dotenv"; // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 dotenv.config().parsed;
-import express, { NextFunction, Request, Response } from "express";
+import express from "express";
 import authRouter from "./routes/auth.router";
 import authGaurd from "./middlewares/authGaurd.middleware";
-
 import path from "node:path";
-
-import ProductCategory from "./models/product/ProductCategory.model";
 import cors from "cors";
-
 import userRouter from "./routes/user.router";
 import productCategoryRouter from "./routes/product/productCategory.router";
-import productSubCategoryRouter from "./routes/product/productSubCategory.router";
 import productMasterRouter from "./routes/product/ProductMaster.router";
-
-import multer from "multer";
 
 // Set the base URL and store it in app.locals
 const app = express();
@@ -27,13 +20,6 @@ app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// app.use(bodyParser.json()
-
-// app.use(bodyParser.urlencoded({ extended: true }));
-
-// public directory as static resource
-
-// Error handling middleware for Multer
 console.log("Connecting to DB", path.join("public"));
 ConnectDB()
   .then(() => {
@@ -43,34 +29,11 @@ ConnectDB()
     console.log("Error connecting to DB", err);
   });
 
-app.get("/", async (req, res) => {
-  ProductCategory.findAll()
-    .then((data: any) => {
-      res.json(data);
-    })
-    .catch((err: any) => {
-      console.log("Error", err.message);
-      res.json(err);
-    });
-});
+app.get("/api", async (req, res) => {});
 app.use("/api", authRouter);
 app.use("/api/users", authGaurd, userRouter);
-app.use("/api/productCategories", authGaurd, productCategoryRouter);
-app.use("/api/productSubCategories", authGaurd, productSubCategoryRouter);
 app.use("/api/productMasters", authGaurd, productMasterRouter);
-// Error handler middleware function for handling multer errors
-
-// app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-//   if (err instanceof multer.MulterError) {
-//     res.status(400).json({
-//       message: err.message,
-//     });
-//   } else {
-//     res.status(500).json({
-//       message: err.message,
-//     });
-//   }
-// });
+app.use("/api/productcategories", productCategoryRouter);
 
 app.listen(3000, () => {
   console.log("Server started on port 3000");

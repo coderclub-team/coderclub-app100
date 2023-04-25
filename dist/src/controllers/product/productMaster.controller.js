@@ -12,45 +12,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteProductMaster = exports.updateProductMaster = exports.createProductMaster = exports.getProductMasterById = exports.getAllProductMasters = void 0;
+exports.createAttribute = exports.deleteProductMaster = exports.updateProductMaster = exports.createProductMaster = exports.getProductMasterById = exports.getAllProductMasters = void 0;
 const config_1 = require("../../../config");
-const ProductCategory_model_1 = __importDefault(require("../../models/product/ProductCategory.model"));
 const ProductMaster_model_1 = __importDefault(require("../../models/product/ProductMaster.model"));
-const ProductSubCategory_model_1 = __importDefault(require("../../models/product/ProductSubCategory.model"));
 const decodeJWT_1 = __importDefault(require("../../utils/decodeJWT"));
 const node_path_1 = __importDefault(require("node:path"));
-const node_fs_1 = __importDefault(require("node:fs"));
 const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const productMasters = yield ProductMaster_model_1.default.findAll({
-            include: [
-                {
-                    model: ProductCategory_model_1.default,
-                    attributes: {
-                        exclude: [
-                            "CreatedGUID",
-                            "CreatedDate",
-                            "ModifiedGUID",
-                            "UpdatedDate",
-                            "DeletedGUID",
-                            "DeletedDate",
-                        ],
-                    },
-                },
-                {
-                    model: ProductSubCategory_model_1.default,
-                    attributes: {
-                        exclude: [
-                            "CreatedGUID",
-                            "CreatedDate",
-                            "ModifiedGUID",
-                            "UpdatedDate",
-                            "DeletedGUID",
-                            "DeletedDate",
-                        ],
-                    },
-                },
-            ],
             attributes: {
                 exclude: [
                     "CreatedGUID",
@@ -77,34 +46,6 @@ const getProductMasterById = (req, res) => __awaiter(void 0, void 0, void 0, fun
     const { ProductMasterGUID } = req.params;
     try {
         const productMaster = yield ProductMaster_model_1.default.findByPk(ProductMasterGUID, {
-            include: [
-                {
-                    model: ProductCategory_model_1.default,
-                    attributes: {
-                        exclude: [
-                            "CreatedGUID",
-                            "CreatedDate",
-                            "ModifiedGUID",
-                            "UpdatedDate",
-                            "DeletedGUID",
-                            "DeletedDate",
-                        ],
-                    },
-                },
-                {
-                    model: ProductSubCategory_model_1.default,
-                    attributes: {
-                        exclude: [
-                            "CreatedGUID",
-                            "CreatedDate",
-                            "ModifiedGUID",
-                            "UpdatedDate",
-                            "DeletedGUID",
-                            "DeletedDate",
-                        ],
-                    },
-                },
-            ],
             attributes: {
                 exclude: [
                     "CreatedGUID",
@@ -132,30 +73,15 @@ const getProductMasterById = (req, res) => __awaiter(void 0, void 0, void 0, fun
 });
 exports.getProductMasterById = getProductMasterById;
 const createProductMaster = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    // let data = {
-    //   CreatedGUID: 333,
-    //   ProductID: "ABC-12",
-    //   ProductName: "test-product",
-    //   ProductCode: "test-code",
-    //   ProductCategoryGUID: 1,
-    //   ProductSubCategoryGUID: 1,
-    //   Unit_Price: 120,
-    //   MRP: 140,
-    //   GST: 10,
-    //   Qty: 1,
-    //   UnitsInStock: 100,
-    //   SKU: "khkhk",
-    //   UOM: "abc",
-    //   UOMTypeGUID: 1,
-    //   PhotoPath: req.body.PhotoPath,
-    // };
-    try {
-        console.log("req.file.filename", req.file);
-        if (req.file) {
-            const { filename, path: tmpPath } = req.file;
-            req.body.tmpPath = tmpPath;
-            req.body.uploadPath = node_path_1.default.join(config_1.productImageUploadOptions.relativePath, filename);
-            req.body.PhotoPath = node_path_1.default.join(config_1.productImageUploadOptions.directory, filename);
+    if (req.body.ProductType === "Simple") {
+        if (!req.files || Object.keys(req.files).length === 0) {
+            console.log("No files were uploaded.");
+        }
+        else {
+            Object.entries(req.files).forEach(([key, value]) => {
+                console.log(key, value);
+                req.body[key] = node_path_1.default.join(config_1.productImageUploadOptions.directory, value[0].filename);
+            });
         }
         if (req.body.user) {
             req.body.CreatedGUID = req.body.user.UserGUID;
@@ -163,22 +89,62 @@ const createProductMaster = (req, res, next) => __awaiter(void 0, void 0, void 0
         else {
             req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
         }
-        const ceratedPhoto = yield ProductMaster_model_1.default.create(req.body);
-        if (req.body.tmpPath && req.body.uploadPath) {
-            node_fs_1.default.rename(req.body.tmpPath, req.body.uploadPath, (err) => {
-                if (err)
-                    console.log(err);
-                else
-                    ceratedPhoto.PhotoPath = node_path_1.default.join(req.protocol + "://" + req.get("host"), ceratedPhoto.PhotoPath);
+        try {
+            const product = yield ProductMaster_model_1.default.create(req.body);
+            res.status(201).json({
+                message: "Product master created successfully!",
+                product,
             });
         }
-        res.status(201).json({
-            message: "Product master created successfully!",
-        });
+        catch (error) {
+            console.log("error", error.message);
+            next(error);
+        }
     }
-    catch (error) {
-        next(error);
+    else if (req.body.ProductType === "Variable") {
+        try {
+            const product = yield ProductMaster_model_1.default.create(req.body);
+            res.status(201).json({
+                message: "Product master created successfully!",
+                product,
+            });
+        }
+        catch (error) {
+            console.log("error", error.message);
+            next(error);
+        }
     }
+    // try {
+    //   console.log("req.file.filename", req!.file);
+    //   if (req.file) {
+    //     const { filename, path: tmpPath } = req.file;
+    //     req.body.tmpPath = tmpPath;
+    //     req.body.uploadPath = path.join(
+    //       productImageUploadOptions.relativePath,
+    //       filename
+    //     );
+    //     req.body.PhotoPath = path.join(
+    //       productImageUploadOptions.directory,
+    //       filename
+    //     );
+    //   }
+    //   const ceratedPhoto = await ProductMaster.create(req.body);
+    //   if (req.body.tmpPath && req.body.uploadPath) {
+    //     fs.rename(req.body.tmpPath, req.body.uploadPath, (err) => {
+    //       if (err) console.log(err);
+    //       else
+    //         ceratedPhoto!.PhotoPath = path.join(
+    //           req.protocol + "://" + req.get("host"),
+    //           ceratedPhoto!.PhotoPath
+    //         );
+    //     });
+    //   }
+    //   res.status(201).json({
+    //     message: "Product master created successfully!",
+    //   });
+    // } catch (error) {
+    //   next(error);
+    // }
 });
 exports.createProductMaster = createProductMaster;
 const updateProductMaster = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -190,36 +156,7 @@ const updateProductMaster = (req, res) => __awaiter(void 0, void 0, void 0, func
         req.body.ModifiedGUID = (0, decodeJWT_1.default)(req).UserGUID;
     }
     try {
-        const productMaster = yield ProductMaster_model_1.default.findByPk(ProductMasterGUID, {
-            include: [
-                {
-                    model: ProductCategory_model_1.default,
-                    attributes: {
-                        exclude: [
-                            "CreatedGUID",
-                            "CreatedDate",
-                            "ModifiedGUID",
-                            "UpdatedDate",
-                            "DeletedGUID",
-                            "DeletedDate",
-                        ],
-                    },
-                },
-                {
-                    model: ProductSubCategory_model_1.default,
-                    attributes: {
-                        exclude: [
-                            "CreatedGUID",
-                            "CreatedDate",
-                            "ModifiedGUID",
-                            "UpdatedDate",
-                            "DeletedGUID",
-                            "DeletedDate",
-                        ],
-                    },
-                },
-            ],
-        });
+        const productMaster = yield ProductMaster_model_1.default.findByPk(ProductMasterGUID);
         if (!productMaster) {
             return res.status(400).json({
                 message: "Product master not found!",
@@ -265,3 +202,18 @@ const deleteProductMaster = (req, res) => __awaiter(void 0, void 0, void 0, func
     }
 });
 exports.deleteProductMaster = deleteProductMaster;
+const createAttribute = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    // get productGUID from params
+    const { productGUID } = req.params;
+    try {
+        res.status(201).json({
+            message: "Attribute created successfully!",
+            attribute: "",
+            ProductMasterGUID: productGUID,
+        });
+    }
+    catch (error) {
+        res.status(500).json(error);
+    }
+});
+exports.createAttribute = createAttribute;

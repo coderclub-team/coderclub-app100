@@ -4,6 +4,7 @@ import multer from "multer";
 import { productImageUploadOptions } from "../../../config";
 
 import {
+  createAttribute,
   createProductMaster,
   deleteProductMaster,
   getAllProductMasters,
@@ -34,11 +35,21 @@ router.get("/", getAllProductMasters);
 router.get("/:ProductMasterGUID", getProductMasterById);
 router.post(
   "/",
-  upload.single("file"),
+  upload.fields([
+    { name: "PhotoPath", maxCount: 1 },
+    {
+      name: "GalleryPhotoPath1",
+      maxCount: 1,
+    },
+  ]),
   createProductMaster,
   handleSequelizeError
 );
 router.put("/:ProductMasterGUID", updateProductMaster, handleSequelizeError);
 router.delete("/:ProductMasterGUID", deleteProductMaster);
+
+// attributes
+
+router.post("/:productGUID/attributes", createAttribute);
 
 export default router;

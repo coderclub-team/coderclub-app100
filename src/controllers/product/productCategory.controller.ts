@@ -13,10 +13,10 @@ export const getAllProductCategories = async (req: Request, res: Response) => {
         exclude: ["CreatedGUID", "CreatedDate"],
       },
       paranoid: false,
-      include: {
-        model: ProductSubCategory,
-        attributes: ["ProductSubCategoryName"],
-      },
+      // include: {
+      //   model: ProductSubCategory,
+      //   attributes: ["ProductSubCategoryName"],
+      // },
     });
 
     res.status(200).json({

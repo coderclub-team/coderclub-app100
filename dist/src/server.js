@@ -42,11 +42,9 @@ const express_1 = __importDefault(require("express"));
 const auth_router_1 = __importDefault(require("./routes/auth.router"));
 const authGaurd_middleware_1 = __importDefault(require("./middlewares/authGaurd.middleware"));
 const node_path_1 = __importDefault(require("node:path"));
-const ProductCategory_model_1 = __importDefault(require("./models/product/ProductCategory.model"));
 const cors_1 = __importDefault(require("cors"));
 const user_router_1 = __importDefault(require("./routes/user.router"));
 const productCategory_router_1 = __importDefault(require("./routes/product/productCategory.router"));
-const productSubCategory_router_1 = __importDefault(require("./routes/product/productSubCategory.router"));
 const ProductMaster_router_1 = __importDefault(require("./routes/product/ProductMaster.router"));
 // Set the base URL and store it in app.locals
 const app = (0, express_1.default)();
@@ -55,10 +53,6 @@ app.use((0, cors_1.default)());
 // parse application/json
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use(express_1.default.json());
-// app.use(bodyParser.json()
-// app.use(bodyParser.urlencoded({ extended: true }));
-// public directory as static resource
-// Error handling middleware for Multer
 console.log("Connecting to DB", node_path_1.default.join("public"));
 (0, database_1.default)()
     .then(() => {
@@ -67,33 +61,11 @@ console.log("Connecting to DB", node_path_1.default.join("public"));
     .catch((err) => {
     console.log("Error connecting to DB", err);
 });
-app.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    ProductCategory_model_1.default.findAll()
-        .then((data) => {
-        res.json(data);
-    })
-        .catch((err) => {
-        console.log("Error", err.message);
-        res.json(err);
-    });
-}));
+app.get("/api", (req, res) => __awaiter(void 0, void 0, void 0, function* () { }));
 app.use("/api", auth_router_1.default);
 app.use("/api/users", authGaurd_middleware_1.default, user_router_1.default);
-app.use("/api/productCategories", authGaurd_middleware_1.default, productCategory_router_1.default);
-app.use("/api/productSubCategories", authGaurd_middleware_1.default, productSubCategory_router_1.default);
 app.use("/api/productMasters", authGaurd_middleware_1.default, ProductMaster_router_1.default);
-// Error handler middleware function for handling multer errors
-// app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-//   if (err instanceof multer.MulterError) {
-//     res.status(400).json({
-//       message: err.message,
-//     });
-//   } else {
-//     res.status(500).json({
-//       message: err.message,
-//     });
-//   }
-// });
+app.use("/api/productcategories", productCategory_router_1.default);
 app.listen(3000, () => {
     console.log("Server started on port 3000");
 });

@@ -16,7 +16,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteProductCategory = exports.updateProductCategory = exports.createProductCategory = exports.getProductCategoryById = exports.getAllProductCategories = void 0;
 const ProductCategory_model_1 = __importDefault(require("../../models/product/ProductCategory.model"));
 const decodeJWT_1 = __importDefault(require("../../utils/decodeJWT"));
-const ProductSubCategory_model_1 = __importDefault(require("../../models/product/ProductSubCategory.model"));
 // import { productCategoryImageUploadOptions } from "../../config";
 const getAllProductCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -25,10 +24,10 @@ const getAllProductCategories = (req, res) => __awaiter(void 0, void 0, void 0, 
                 exclude: ["CreatedGUID", "CreatedDate"],
             },
             paranoid: false,
-            include: {
-                model: ProductSubCategory_model_1.default,
-                attributes: ["ProductSubCategoryName"],
-            },
+            // include: {
+            //   model: ProductSubCategory,
+            //   attributes: ["ProductSubCategoryName"],
+            // },
         });
         res.status(200).json({
             message: "Product categories fetched successfully!",

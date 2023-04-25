@@ -1,3 +1,6 @@
 node_modules
 dist
 restClient
+data
+nodemon.json
+package-lock.json

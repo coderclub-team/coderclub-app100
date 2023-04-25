@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon src/server.ts -e development",
+    "start": "ts-node  src/server.ts",
     "build": "tsc",
     "prestart": "npm run build",
     "migrate": "npx sequelize-cli db:migrate",
@@ -38,6 +38,7 @@
   },
   "devDependencies": {
     "@types/cors": "^2.8.13",
-    "@types/multer": "^1.4.7"
+    "@types/multer": "^1.4.7",
+    "ts-node-dev": "^2.0.0"
   }
 }

@@ -102,6 +102,7 @@ export const verifyAccount = async (
         message: "User not found!",
       });
     }
+
     await user.verifyOTP(OTP);
     res.status(200).json({
       message: "User verified successfully!",

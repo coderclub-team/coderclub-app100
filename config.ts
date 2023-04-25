@@ -5,7 +5,6 @@ import { Request } from "express";
 
 export const sequelizeConnectionOptions: SequelizeOptions = {
   dialect: "mssql",
-
   host: "154.61.74.30",
   port: 1533,
   username: "gkdairy",
@@ -47,7 +46,7 @@ export const productImageUploadOptions = {
   directory: path.join("products"),
   tmpFilePath: path.join("public/tmp"),
   relativePath: "public/products/",
-  limits: { fileSize: 1024 * 1024 * 1 },
+  limits: { fileSize: 1024 * 1024 * 2 },
 
   storage: multer.diskStorage({
     destination: (req, file, cb) => {

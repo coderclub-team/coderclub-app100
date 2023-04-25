@@ -46,7 +46,7 @@ exports.productImageUploadOptions = {
     directory: node_path_1.default.join("products"),
     tmpFilePath: node_path_1.default.join("public/tmp"),
     relativePath: "public/products/",
-    limits: { fileSize: 1024 * 1024 * 1 },
+    limits: { fileSize: 1024 * 1024 * 2 },
     storage: multer_1.default.diskStorage({
         destination: (req, file, cb) => {
             cb(null, "public/tmp");

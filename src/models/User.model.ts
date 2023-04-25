@@ -349,10 +349,12 @@ export default class User extends Model {
   async sendOTP(): Promise<User> {
     console.log("sendOTP-this", this);
     try {
-      if (this.Status == 0) {
-        console.log("sendOTP-this.Status", this.Status);
-        return Promise.reject("Account is not activated");
-      } else if (this.Account_Deactivated) {
+      // if (this.Status == 0) {
+      //   console.log("sendOTP-this.Status", this.Status);
+      //   return Promise.reject("Account is not activated");
+      // } else
+
+      if (this.Account_Deactivated) {
         return Promise.reject("Account is deactivated by admin");
       } else if (this.Password_Attempt && this.Password_Attempt >= 3) {
         return Promise.reject("Account is locked due to multiple attempts");
