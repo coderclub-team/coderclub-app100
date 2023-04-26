@@ -10,6 +10,7 @@ import {
   sendOTP,
   resetPassword,
   verifyAccount,
+  forgotPassword,
 } from "../controllers/auth.controller";
 import handleSequelizeError from "../middlewares/handleSequelizeError";
 
@@ -42,5 +43,6 @@ authRouter.post(
 authRouter.post("/verify-account", verifyAccount, handleSequelizeError);
 authRouter.post("/send-otp", sendOTP, handleSequelizeError);
 authRouter.post("/reset-password", resetPassword, handleSequelizeError);
+authRouter.post("/forget-password", forgotPassword, handleSequelizeError);
 
 export default authRouter;

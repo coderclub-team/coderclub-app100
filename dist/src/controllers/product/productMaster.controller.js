@@ -73,16 +73,12 @@ const getProductMasterById = (req, res) => __awaiter(void 0, void 0, void 0, fun
 });
 exports.getProductMasterById = getProductMasterById;
 const createProductMaster = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.body.ProductType === "Simple") {
-        if (!req.files || Object.keys(req.files).length === 0) {
-            console.log("No files were uploaded.");
-        }
-        else {
-            Object.entries(req.files).forEach(([key, value]) => {
-                console.log(key, value);
-                req.body[key] = node_path_1.default.join(config_1.productImageUploadOptions.directory, value[0].filename);
-            });
-        }
+    if (!req.body.ProductType) {
+        res.status(400).json({
+            message: "Product type is required!",
+        });
+    }
+    if (req.body.ProductType.toString().toLocaleUpperCase() === "SIMPLE") {
         if (req.body.user) {
             req.body.CreatedGUID = req.body.user.UserGUID;
         }
@@ -90,6 +86,15 @@ const createProductMaster = (req, res, next) => __awaiter(void 0, void 0, void 0
             req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
         }
         try {
+            if (!req.files || Object.keys(req.files).length === 0) {
+                console.log("No files were uploaded.");
+            }
+            else {
+                Object.entries(req.files).forEach(([key, value]) => {
+                    console.log(key, value);
+                    req.body[key] = node_path_1.default.join(config_1.productImageUploadOptions.directory, value[0].filename);
+                });
+            }
             const product = yield ProductMaster_model_1.default.create(req.body);
             res.status(201).json({
                 message: "Product master created successfully!",
@@ -97,11 +102,12 @@ const createProductMaster = (req, res, next) => __awaiter(void 0, void 0, void 0
             });
         }
         catch (error) {
-            console.log("error", error.message);
+            console.log("error===>", error);
             next(error);
         }
     }
-    else if (req.body.ProductType === "Variable") {
+    else if (req.body.ProductType.toString().toLocaleUpperCase() === "VARIABLE") {
+        console.log("req.body", req.body);
         try {
             const product = yield ProductMaster_model_1.default.create(req.body);
             res.status(201).json({
@@ -110,9 +116,13 @@ const createProductMaster = (req, res, next) => __awaiter(void 0, void 0, void 0
             });
         }
         catch (error) {
-            console.log("error", error.message);
             next(error);
         }
+    }
+    else {
+        res.status(400).json({
+            message: "Product type is required!",
+        });
     }
     // try {
     //   console.log("req.file.filename", req!.file);

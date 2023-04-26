@@ -41,10 +41,6 @@ let ProductMaster = class ProductMaster extends sequelize_typescript_1.Model {
     static generateProductGUID(instance) {
         return __awaiter(this, void 0, void 0, function* () {
             const nextGUID = ((yield this.max("ProductGUID")) || 0) + 1;
-            console.log({
-                ProductID: instance.ProductID,
-                nextGUID,
-            });
             // const productCategory = await ProductCategory.findByPk(
             //   instance.ProductCategoryGUID
             // );
@@ -66,6 +62,10 @@ let ProductMaster = class ProductMaster extends sequelize_typescript_1.Model {
             //   PRO + "-" + SUB + "-" + nextGUID.toString().padStart(4, "0");
             instance.ProductID =
                 "CAT" + "-" + "SUB" + "-" + nextGUID.toString().padStart(4, "0");
+            console.log({
+                ProductID: instance.ProductID,
+                nextGUID,
+            });
         });
     }
 };
@@ -94,50 +94,6 @@ __decorate([
 ], ProductMaster.prototype, "PhotoPath", void 0);
 __decorate([
     sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
-], ProductMaster.prototype, "ProductCategoryGUID", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
-], ProductMaster.prototype, "ProductSubCategoryGUID", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
-], ProductMaster.prototype, "Unit_Price", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
-], ProductMaster.prototype, "MRP", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
-], ProductMaster.prototype, "GST", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
-], ProductMaster.prototype, "Qty", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
-], ProductMaster.prototype, "UnitsInStock", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Boolean)
-], ProductMaster.prototype, "IsActive", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", String)
-], ProductMaster.prototype, "SKU", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", String)
-], ProductMaster.prototype, "UOM", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
-], ProductMaster.prototype, "UOMTypeGUID", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
     __metadata("design:type", String)
 ], ProductMaster.prototype, "ProductType", void 0);
 __decorate([
@@ -149,9 +105,9 @@ __decorate([
 ProductMaster = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: "tbl_ProductMaster",
-        timestamps: false,
+        timestamps: true,
         paranoid: false,
-        // createdAt: "CreatedDate",
+        createdAt: "CreatedDate",
         // updatedAt: "ModifiedDate",
         // deletedAt: "DeletedDate",
     })

@@ -290,11 +290,13 @@ export default class User extends Model {
   async authenticate(password: string): Promise<string> {
     if (!password) {
       return Promise.reject("Password is required");
-    } else if (this.Password_Attempt && this.Password_Attempt >= 3) {
-      return Promise.reject(
-        "Account is locked due to multiple incorrect password attempts"
-      );
-    } else if (this.Account_Deactivated) {
+    }
+    // else if (this.Password_Attempt && this.Password_Attempt >= 3) {
+    //   return Promise.reject(
+    //     "Account is locked due to multiple incorrect password attempts"
+    //   );
+    // }
+    else if (this.Account_Deactivated) {
       return Promise.reject("Account is deactivated");
     } else if (this.Status == 0) {
       return Promise.reject("Account is not activated");
@@ -356,9 +358,10 @@ export default class User extends Model {
 
       if (this.Account_Deactivated) {
         return Promise.reject("Account is deactivated by admin");
-      } else if (this.Password_Attempt && this.Password_Attempt >= 3) {
-        return Promise.reject("Account is locked due to multiple attempts");
       }
+      // else if (this.Password_Attempt && this.Password_Attempt >= 3) {
+      //   return Promise.reject("Account is locked due to multiple attempts");
+      // }
 
       const { OTP, OtpExpiryDate } = this.generateOTP();
       this.OTP = OTP;
@@ -418,6 +421,25 @@ export default class User extends Model {
       return this.save({
         fields: ["Password", "OTP", "OtpExpiryDate", "Password_Attempt"],
       });
+    } catch (error: any) {
+      return Promise.reject(error.message);
+    }
+  }
+
+  async forgetPassword(PhoneNumber: string) {
+    try {
+      const user = await User.findOne({
+        where: {
+          PhoneNumber: PhoneNumber,
+        },
+      });
+      if (!user) {
+        return Promise.reject("User not found");
+      }
+      const { OTP, OtpExpiryDate } = user.generateOTP();
+      user.OTP = OTP;
+      user.OtpExpiryDate = OtpExpiryDate ? OtpExpiryDate : null;
+      return await user.save();
     } catch (error: any) {
       return Promise.reject(error.message);
     }

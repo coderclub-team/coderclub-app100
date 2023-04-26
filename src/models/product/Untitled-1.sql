@@ -1,6 +1,8 @@
 exec sp_help tbl_ProductCategory
 
-
+select *
+from tbl_ProductMaster
+where ProductCategoryGUID = 117
 exec sp_help tbl_ProductMaster
 -- ProductGUID
 -- ProductID

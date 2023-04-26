@@ -49,7 +49,7 @@ exports.productImageUploadOptions = {
     limits: { fileSize: 1024 * 1024 * 2 },
     storage: multer_1.default.diskStorage({
         destination: (req, file, cb) => {
-            cb(null, "public/tmp");
+            cb(null, "public/products");
         },
         filename: (req, file, cb) => {
             // a unique name for the file with the original extension

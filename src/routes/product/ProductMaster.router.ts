@@ -32,7 +32,7 @@ const upload = multer({
 });
 
 router.get("/", getAllProductMasters);
-router.get("/:ProductMasterGUID", getProductMasterById);
+router.get("pa/:ProductMasterGUID", getProductMasterById);
 router.post(
   "/",
   upload.fields([
@@ -41,6 +41,9 @@ router.post(
       name: "GalleryPhotoPath1",
       maxCount: 1,
     },
+    { name: "GalleryPhotoPath2", maxCount: 1 },
+    { name: "GalleryPhotoPath3", maxCount: 1 },
+    { name: "GalleryPhotoPath4", maxCount: 1 },
   ]),
   createProductMaster,
   handleSequelizeError
