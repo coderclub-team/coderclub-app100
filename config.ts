@@ -50,7 +50,7 @@ export const productImageUploadOptions = {
 
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, "public/tmp");
+      cb(null, "public/products");
     },
     filename: (req, file, cb) => {
       // a unique name for the file with the original extension

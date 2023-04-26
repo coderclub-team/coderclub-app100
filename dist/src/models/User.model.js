@@ -102,11 +102,11 @@ let User = class User extends sequelize_typescript_1.Model {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("sendOTP-this", this);
             try {
-                if (this.Status == 0) {
-                    console.log("sendOTP-this.Status", this.Status);
-                    return Promise.reject("Account is not activated");
-                }
-                else if (this.Account_Deactivated) {
+                // if (this.Status == 0) {
+                //   console.log("sendOTP-this.Status", this.Status);
+                //   return Promise.reject("Account is not activated");
+                // } else
+                if (this.Account_Deactivated) {
                     return Promise.reject("Account is deactivated by admin");
                 }
                 else if (this.Password_Attempt && this.Password_Attempt >= 3) {

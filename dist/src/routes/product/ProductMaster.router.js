@@ -26,13 +26,16 @@ const upload = (0, multer_1.default)({
     },
 });
 router.get("/", productMaster_controller_1.getAllProductMasters);
-router.get("/:ProductMasterGUID", productMaster_controller_1.getProductMasterById);
+router.get("pa/:ProductMasterGUID", productMaster_controller_1.getProductMasterById);
 router.post("/", upload.fields([
     { name: "PhotoPath", maxCount: 1 },
     {
         name: "GalleryPhotoPath1",
         maxCount: 1,
     },
+    { name: "GalleryPhotoPath2", maxCount: 1 },
+    { name: "GalleryPhotoPath3", maxCount: 1 },
+    { name: "GalleryPhotoPath4", maxCount: 1 },
 ]), productMaster_controller_1.createProductMaster, handleSequelizeError_1.default);
 router.put("/:ProductMasterGUID", productMaster_controller_1.updateProductMaster, handleSequelizeError_1.default);
 router.delete("/:ProductMasterGUID", productMaster_controller_1.deleteProductMaster);

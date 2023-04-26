@@ -38,11 +38,10 @@ const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
             });
             createdUser.PhotoPath = node_path_1.default.join(req.protocol + "://" + req.get("host"), createdUser.PhotoPath);
         }
-        const token = yield createdUser.authenticate(req.body.Password);
+        // const token = await createdUser.authenticate(req.body.Password);
         return res.status(201).json({
             message: "User created successfully!",
             user: createdUser,
-            token: token,
         });
     }
     catch (error) {

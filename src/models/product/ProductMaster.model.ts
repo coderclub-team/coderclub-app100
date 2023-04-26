@@ -1,10 +1,13 @@
 import {
   BeforeCreate,
+  BelongsTo,
   Column,
+  ForeignKey,
   Model,
   PrimaryKey,
   Table,
 } from "sequelize-typescript";
+import { ProductVariant } from "./ProductVariant.model";
 // -- ProductGUID
 // -- ProductID
 // -- ProductName
@@ -26,9 +29,9 @@ import {
 
 @Table({
   tableName: "tbl_ProductMaster",
-  timestamps: false,
+  timestamps: true,
   paranoid: false,
-  // createdAt: "CreatedDate",
+  createdAt: "CreatedDate",
   // updatedAt: "ModifiedDate",
   // deletedAt: "DeletedDate",
 })
@@ -47,38 +50,26 @@ export default class ProductMaster extends Model {
   @Column
   PhotoPath!: string;
   @Column
-  ProductCategoryGUID!: number;
-  @Column
-  ProductSubCategoryGUID!: number;
-  @Column
-  Unit_Price!: number;
-  @Column
-  MRP!: number;
-  @Column
-  GST!: number;
-  @Column
-  Qty!: number;
-  @Column
-  UnitsInStock!: number;
-  @Column
-  IsActive!: boolean;
-  @Column
-  SKU!: string;
-  @Column
-  UOM!: string;
-  @Column
-  UOMTypeGUID!: number;
-  @Column
   ProductType!: string;
+
+  @ForeignKey(() => ProductVariant)
+  @Column
+  VariantRefGUID!: number;
+
+  @Column
+  GalleryPhotoPath1!: string;
+  @Column
+  GalleryPhotoPath2!: string;
+  @Column
+  GalleryPhotoPath3!: string;
+  @Column
+  GalleryPhotoPath4!: string;
 
   @BeforeCreate
   static async generateProductGUID(instance: ProductMaster) {
     const nextGUID =
       (((await this.max("ProductGUID")) as null | number) || 0) + 1;
-    console.log({
-      ProductID: instance.ProductID,
-      nextGUID,
-    });
+
     // const productCategory = await ProductCategory.findByPk(
     //   instance.ProductCategoryGUID
     // );
@@ -100,5 +91,10 @@ export default class ProductMaster extends Model {
     //   PRO + "-" + SUB + "-" + nextGUID.toString().padStart(4, "0");
     instance.ProductID =
       "CAT" + "-" + "SUB" + "-" + nextGUID.toString().padStart(4, "0");
+
+    console.log({
+      ProductID: instance.ProductID,
+      nextGUID,
+    });
   }
 }

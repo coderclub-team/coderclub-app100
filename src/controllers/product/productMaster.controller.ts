@@ -4,6 +4,8 @@ import ProductMaster from "../../models/product/ProductMaster.model";
 import decodeJWT from "../../utils/decodeJWT";
 import path from "node:path";
 import fs from "node:fs";
+import { sequelize } from "../../database";
+import { ProductVariant } from "../../models/product/ProductVariant.model";
 
 export const getAllProductMasters = async (req: Request, res: Response) => {
   try {
@@ -67,26 +69,93 @@ export const createProductMaster = async (
   res: Response,
   next: NextFunction
 ) => {
-  if (req.body.ProductType === "Simple") {
-    if (!req.files || Object.keys(req.files).length === 0) {
-      console.log("No files were uploaded.");
-    } else {
-      Object.entries(req.files).forEach(([key, value]) => {
-        console.log(key, value);
+  if (!req.body.ProductType) {
+    res.status(400).json({
+      message: "Product type is required!",
+    });
+  }
 
-        req.body[key] = path.join(
-          productImageUploadOptions.directory,
-          value[0].filename
-        );
-      });
-    }
-
+  if (req.body.ProductType.toString().toLocaleUpperCase() === "SIMPLE") {
     if (req.body.user) {
       req.body.CreatedGUID = req.body.user.UserGUID;
     } else {
       req.body.CreatedGUID = decodeJWT(req).UserGUID;
     }
+    const t = await sequelize.transaction();
+    try {
+      if (!req.files || Object.keys(req.files).length === 0) {
+        console.log("No files were uploaded.");
+      } else {
+        Object.entries(req.files).forEach(([key, value]) => {
+          console.log(key, value);
 
+          req.body[key] = path.join(
+            productImageUploadOptions.directory,
+            value[0].filename
+          );
+        });
+      }
+      console.log("req.body", req.body);
+      const {
+        ProductName,
+        ProductCode,
+        ProductType,
+        PhotoPath,
+        GalleryPhotoPath1,
+        GalleryPhotoPath2,
+        GalleryPhotoPath3,
+        GalleryPhotoPath4,
+        ...variant
+      } = req.body;
+
+      const productVariant = await ProductVariant.create(
+        {
+          ...variant,
+          CreatedGUID: req.body.CreatedGUID,
+        },
+        {
+          transaction: t,
+        }
+      );
+      const product = await ProductMaster.create(
+        {
+          ProductName,
+          ProductCode,
+          ProductType,
+          PhotoPath,
+          GalleryPhotoPath1,
+          GalleryPhotoPath2,
+          GalleryPhotoPath3,
+          GalleryPhotoPath4,
+          CreatedGUID: req.body.CreatedGUID,
+          VariantRefGUID: productVariant.ProductVariantGUID,
+        },
+        {
+          transaction: t,
+        }
+      );
+      t.commit()
+        .then(() => {
+          console.log("Transaction committed");
+          res.status(201).json({
+            message: "Product master created successfully!",
+            product,
+          });
+        })
+        .catch((error: any) => {
+          t.rollback();
+          console.log("error===>", error);
+          next(error);
+        });
+    } catch (error: any) {
+      t.rollback();
+      console.log("error===>", error);
+      next(error);
+    }
+  } else if (
+    req.body.ProductType.toString().toLocaleUpperCase() === "VARIABLE"
+  ) {
+    console.log("req.body", req.body);
     try {
       const product = await ProductMaster.create(req.body);
       res.status(201).json({
@@ -94,20 +163,12 @@ export const createProductMaster = async (
         product,
       });
     } catch (error: any) {
-      console.log("error", error.message);
       next(error);
     }
-  } else if (req.body.ProductType === "Variable") {
-    try {
-      const product = await ProductMaster.create(req.body);
-      res.status(201).json({
-        message: "Product master created successfully!",
-        product,
-      });
-    } catch (error: any) {
-      console.log("error", error.message);
-      next(error);
-    }
+  } else {
+    res.status(400).json({
+      message: "Product type is required!",
+    });
   }
 
   // try {
@@ -214,8 +275,8 @@ export const createAttribute = async (req: Request, res: Response) => {
   try {
     res.status(201).json({
       message: "Attribute created successfully!",
-      attribute: "",
-      ProductMasterGUID: productGUID,
+      // attribute
+      // ProductMasterGUID: productGUID,
     });
   } catch (error) {
     res.status(500).json(error);
