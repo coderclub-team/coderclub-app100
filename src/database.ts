@@ -4,8 +4,9 @@ import ProductMaster from "./models/product/ProductMaster.model";
 import User from "./models/User.model";
 import ProductCategory from "./models/product/ProductCategory.model";
 import ProductSubCategory from "./models/product/ProductSubCategory.model";
-import ProductCategoryMapping from "./models/product/ProductCategoryMapping.model";
 import { ProductVariant } from "./models/product/ProductVariant.model";
+import { ProductAttribute } from "./models/product/ProductAttribute.model";
+import ProductAndCategoryMap from "./models/product/ProductAndCategoryMap.model";
 
 export const sequelize = new Sequelize(sequelizeConnectionOptions);
 
@@ -28,15 +29,17 @@ export default async () => {
     ProductMaster,
     ProductCategory,
     ProductSubCategory,
-    ProductCategoryMapping,
     ProductVariant,
+    ProductAttribute,
+    ProductAndCategoryMap,
   ]);
   User.sync();
   ProductMaster.sync();
   ProductCategory.sync();
   ProductSubCategory.sync();
-  ProductCategoryMapping.sync();
   ProductVariant.sync();
+  ProductAttribute.sync();
+  ProductAndCategoryMap.sync();
 
   return sequelize;
 };

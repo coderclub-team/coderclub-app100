@@ -30,4 +30,5 @@ authRouter.post("/register", upload.single("file"), auth_controller_1.register, 
 authRouter.post("/verify-account", auth_controller_1.verifyAccount, handleSequelizeError_1.default);
 authRouter.post("/send-otp", auth_controller_1.sendOTP, handleSequelizeError_1.default);
 authRouter.post("/reset-password", auth_controller_1.resetPassword, handleSequelizeError_1.default);
+authRouter.post("/forget-password", auth_controller_1.forgotPassword, handleSequelizeError_1.default);
 exports.default = authRouter;

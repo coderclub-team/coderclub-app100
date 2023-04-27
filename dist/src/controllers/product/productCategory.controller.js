@@ -20,14 +20,7 @@ const decodeJWT_1 = __importDefault(require("../../utils/decodeJWT"));
 const getAllProductCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const productCategories = yield ProductCategory_model_1.default.findAll({
-            attributes: {
-                exclude: ["CreatedGUID", "CreatedDate"],
-            },
             paranoid: false,
-            // include: {
-            //   model: ProductSubCategory,
-            //   attributes: ["ProductSubCategoryName"],
-            // },
         });
         res.status(200).json({
             message: "Product categories fetched successfully!",

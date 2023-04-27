@@ -20,6 +20,8 @@ const User_model_1 = __importDefault(require("./models/User.model"));
 const ProductCategory_model_1 = __importDefault(require("./models/product/ProductCategory.model"));
 const ProductSubCategory_model_1 = __importDefault(require("./models/product/ProductSubCategory.model"));
 const ProductCategoryMapping_model_1 = __importDefault(require("./models/product/ProductCategoryMapping.model"));
+const ProductVariant_model_1 = require("./models/product/ProductVariant.model");
+const ProductAttribute_model_1 = require("./models/product/ProductAttribute.model");
 exports.sequelize = new sequelize_typescript_1.Sequelize(config_1.sequelizeConnectionOptions);
 exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
     exports.sequelize
@@ -40,11 +42,15 @@ exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
         ProductCategory_model_1.default,
         ProductSubCategory_model_1.default,
         ProductCategoryMapping_model_1.default,
+        ProductVariant_model_1.ProductVariant,
+        ProductAttribute_model_1.ProductAttribute,
     ]);
     User_model_1.default.sync();
     ProductMaster_model_1.default.sync();
     ProductCategory_model_1.default.sync();
     ProductSubCategory_model_1.default.sync();
     ProductCategoryMapping_model_1.default.sync();
+    ProductVariant_model_1.ProductVariant.sync();
+    ProductAttribute_model_1.ProductAttribute.sync();
     return exports.sequelize;
 });

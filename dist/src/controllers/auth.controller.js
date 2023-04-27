@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.signout = exports.resetPassword = exports.sendOTP = exports.verifyAccount = exports.login = exports.register = void 0;
+exports.signout = exports.resetPassword = exports.forgotPassword = exports.sendOTP = exports.verifyAccount = exports.login = exports.register = void 0;
 const node_path_1 = __importDefault(require("node:path"));
 const User_model_1 = __importDefault(require("../models/User.model"));
 const node_fs_1 = __importDefault(require("node:fs"));
@@ -135,6 +135,30 @@ const sendOTP = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.sendOTP = sendOTP;
+const forgotPassword = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { MobileNo } = req.body;
+    const { deleted } = req.query;
+    const paranoid = deleted === "true" ? false : true;
+    try {
+        const user = yield User_model_1.default.findOne({
+            where: {
+                MobileNo,
+            },
+            paranoid,
+        });
+        if (!user) {
+            throw new custom_error_1.UserNotFoundExceptionError("User not found!");
+        }
+        yield (user === null || user === void 0 ? void 0 : user.sendOTP());
+        res.status(200).json({
+            message: "OTP sent successfully!",
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.forgotPassword = forgotPassword;
 const resetPassword = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     // reset password by verifying OTP
     const { MobileNo, OTP, Password } = req.body;

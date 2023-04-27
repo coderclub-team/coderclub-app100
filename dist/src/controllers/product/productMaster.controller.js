@@ -17,6 +17,8 @@ const config_1 = require("../../../config");
 const ProductMaster_model_1 = __importDefault(require("../../models/product/ProductMaster.model"));
 const decodeJWT_1 = __importDefault(require("../../utils/decodeJWT"));
 const node_path_1 = __importDefault(require("node:path"));
+const database_1 = require("../../database");
+const ProductVariant_model_1 = require("../../models/product/ProductVariant.model");
 const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const productMasters = yield ProductMaster_model_1.default.findAll({
@@ -30,6 +32,15 @@ const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, fun
                     "DeletedDate",
                 ],
             },
+            nest: true,
+            include: [
+                {
+                    model: ProductVariant_model_1.ProductVariant,
+                    attributes: {
+                        exclude: ["CreatedGUID", "CreatedDate"],
+                    },
+                },
+            ],
         });
         res.status(200).json({
             message: "Product masters fetched successfully!",
@@ -56,6 +67,15 @@ const getProductMasterById = (req, res) => __awaiter(void 0, void 0, void 0, fun
                     "DeletedDate",
                 ],
             },
+            nest: true,
+            include: [
+                {
+                    model: ProductVariant_model_1.ProductVariant,
+                    attributes: {
+                        exclude: ["CreatedGUID", "CreatedDate"],
+                    },
+                },
+            ],
         });
         if (!productMaster) {
             return res.status(400).json({
@@ -85,6 +105,7 @@ const createProductMaster = (req, res, next) => __awaiter(void 0, void 0, void 0
         else {
             req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
         }
+        const t = yield database_1.sequelize.transaction();
         try {
             if (!req.files || Object.keys(req.files).length === 0) {
                 console.log("No files were uploaded.");
@@ -95,13 +116,41 @@ const createProductMaster = (req, res, next) => __awaiter(void 0, void 0, void 0
                     req.body[key] = node_path_1.default.join(config_1.productImageUploadOptions.directory, value[0].filename);
                 });
             }
-            const product = yield ProductMaster_model_1.default.create(req.body);
-            res.status(201).json({
-                message: "Product master created successfully!",
-                product,
+            console.log("req.body", req.body);
+            const { ProductName, ProductCode, ProductType, PhotoPath, GalleryPhotoPath1, GalleryPhotoPath2, GalleryPhotoPath3, GalleryPhotoPath4, variants, } = req.body;
+            const product = yield ProductMaster_model_1.default.create({
+                ProductName,
+                ProductCode,
+                ProductType,
+                PhotoPath,
+                GalleryPhotoPath1,
+                GalleryPhotoPath2,
+                GalleryPhotoPath3,
+                GalleryPhotoPath4,
+                CreatedGUID: req.body.CreatedGUID,
+            }, {
+                transaction: t,
+            });
+            let createdVariants = yield ProductVariant_model_1.ProductVariant.bulkCreate(variants.map((variant) => (Object.assign(Object.assign({}, variant), { ProductMasterRefGUID: product.ProductGUID, CreatedGUID: req.body.CreatedGUID }))), {
+                transaction: t,
+            });
+            yield t
+                .commit()
+                .then(() => {
+                console.log("Transaction committed");
+                res.status(201).json({
+                    message: "Product master created successfully!",
+                    product: Object.assign(Object.assign({}, product.toJSON()), { variants: createdVariants }),
+                });
+            })
+                .catch((error) => {
+                t.rollback();
+                console.log("error===>", error);
+                next(error);
             });
         }
         catch (error) {
+            t.rollback();
             console.log("error===>", error);
             next(error);
         }
@@ -218,8 +267,8 @@ const createAttribute = (req, res) => __awaiter(void 0, void 0, void 0, function
     try {
         res.status(201).json({
             message: "Attribute created successfully!",
-            attribute: "",
-            ProductMasterGUID: productGUID,
+            // attribute
+            // ProductMasterGUID: productGUID,
         });
     }
     catch (error) {

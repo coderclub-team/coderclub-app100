@@ -10,10 +10,8 @@ import ProductCategory from "./ProductCategory.model";
 
 @Table({
   tableName: "tbl_ProductSubCategory",
-  timestamps: true,
-  updatedAt: "ModifiedDate",
-  createdAt: "CreatedDate",
-  deletedAt: "DeletedDate",
+  timestamps: false,
+  paranoid: false,
 })
 export default class ProductSubCategory extends Model<ProductSubCategory> {
   @Column({
@@ -62,55 +60,4 @@ export default class ProductSubCategory extends Model<ProductSubCategory> {
     type: DataType.DATE,
   })
   CreatedDate!: Date;
-
-  @Column({
-    field: "ModifiedDate",
-    allowNull: true,
-    type: DataType.DATE,
-  })
-  ModifiedDate!: Date;
-
-  @Column({
-    field: "DeletedDate",
-    allowNull: true,
-    type: DataType.DATE,
-  })
-  DeletedDate!: Date;
-
-  @BelongsTo(() => User, {
-    foreignKey: "CreatedGUID",
-    targetKey: "UserGUID",
-    as: "CreatedUser",
-  })
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: false,
-  })
-  CreatedGUID!: number;
-
-  @BelongsTo(() => User, {
-    foreignKey: "ModifiedGUID",
-    targetKey: "UserGUID",
-    as: "ModifiedUser",
-  })
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: true,
-  })
-  ModifiedGUID!: number;
-
-  @BelongsTo(() => User, {
-    foreignKey: "DeletedGUID",
-    targetKey: "UserGUID",
-    as: "DeletedUser",
-  })
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: true,
-    references: {
-      model: "User",
-      key: "UserGUID",
-    },
-  })
-  DeletedGUID!: number;
 }

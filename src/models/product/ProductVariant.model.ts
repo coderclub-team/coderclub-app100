@@ -2,10 +2,12 @@ import {
   AutoIncrement,
   BelongsTo,
   Column,
+  ForeignKey,
   Model,
   PrimaryKey,
   Table,
 } from "sequelize-typescript";
+import ProductMaster from "./ProductMaster.model";
 
 @Table({
   tableName: "tbl_ProductVariant",
@@ -46,6 +48,22 @@ export class ProductVariant extends Model<ProductVariant> {
   Height!: number;
   @Column
   SaleRate!: number;
+
+  @ForeignKey(() => ProductMaster)
+  @Column
+  ProductMasterRefGUID!: number;
+
+  @Column
+  Size!: string;
+
+  @Column
+  Color!: string;
+
+  @Column
+  Flavour!: string;
+
+  @Column
+  CreatedGUID!: number;
 
   //   ProductAttributeRefGUID!: number;
 }

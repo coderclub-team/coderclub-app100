@@ -32,7 +32,7 @@ const upload = multer({
 });
 
 router.get("/", getAllProductMasters);
-router.get("pa/:ProductMasterGUID", getProductMasterById);
+router.get("/:ProductMasterGUID", getProductMasterById);
 router.post(
   "/",
   upload.fields([

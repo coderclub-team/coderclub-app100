@@ -19,6 +19,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_typescript_1 = require("sequelize-typescript");
+const ProductVariant_model_1 = require("./ProductVariant.model");
 // -- ProductGUID
 // -- ProductID
 // -- ProductName
@@ -62,7 +63,7 @@ let ProductMaster = class ProductMaster extends sequelize_typescript_1.Model {
             //   PRO + "-" + SUB + "-" + nextGUID.toString().padStart(4, "0");
             instance.ProductID =
                 "CAT" + "-" + "SUB" + "-" + nextGUID.toString().padStart(4, "0");
-            console.log({
+            console.log("@BeforeCreate", {
                 ProductID: instance.ProductID,
                 nextGUID,
             });
@@ -96,6 +97,26 @@ __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", String)
 ], ProductMaster.prototype, "ProductType", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
+], ProductMaster.prototype, "GalleryPhotoPath1", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
+], ProductMaster.prototype, "GalleryPhotoPath2", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
+], ProductMaster.prototype, "GalleryPhotoPath3", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
+], ProductMaster.prototype, "GalleryPhotoPath4", void 0);
+__decorate([
+    (0, sequelize_typescript_1.HasMany)(() => ProductVariant_model_1.ProductVariant, "ProductMasterRefGUID"),
+    __metadata("design:type", Array)
+], ProductMaster.prototype, "Variants", void 0);
 __decorate([
     sequelize_typescript_1.BeforeCreate,
     __metadata("design:type", Function),
