@@ -57,3 +57,5 @@ exec sp_help tbl_ProductVariant
 -- ProductMetaGUID
 -- ProductAttributeRefGUID
 -- IsActive
+
+exec sp_help tbl_ProductAndCategoryMap

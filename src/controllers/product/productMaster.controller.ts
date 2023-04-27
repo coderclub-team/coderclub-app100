@@ -6,6 +6,8 @@ import path from "node:path";
 import fs from "node:fs";
 import { sequelize } from "../../database";
 import { ProductVariant } from "../../models/product/ProductVariant.model";
+import { ProductAttribute } from "../../models/product/ProductAttribute.model";
+import ProductAndCategoryMap from "../../models/product/ProductAndCategoryMap.model";
 
 export const getAllProductMasters = async (req: Request, res: Response) => {
   try {
@@ -20,6 +22,15 @@ export const getAllProductMasters = async (req: Request, res: Response) => {
           "DeletedDate",
         ],
       },
+      nest: true,
+      include: [
+        {
+          model: ProductVariant,
+          attributes: {
+            exclude: ["CreatedGUID", "CreatedDate"],
+          },
+        },
+      ],
     });
 
     res.status(200).json({
@@ -47,6 +58,15 @@ export const getProductMasterById = async (req: Request, res: Response) => {
           "DeletedDate",
         ],
       },
+      nest: true,
+      include: [
+        {
+          model: ProductVariant,
+          attributes: {
+            exclude: ["CreatedGUID", "CreatedDate"],
+          },
+        },
+      ],
     });
 
     if (!productMaster) {
@@ -105,18 +125,9 @@ export const createProductMaster = async (
         GalleryPhotoPath2,
         GalleryPhotoPath3,
         GalleryPhotoPath4,
-        ...variant
+        variants,
       } = req.body;
 
-      const productVariant = await ProductVariant.create(
-        {
-          ...variant,
-          CreatedGUID: req.body.CreatedGUID,
-        },
-        {
-          transaction: t,
-        }
-      );
       const product = await ProductMaster.create(
         {
           ProductName,
@@ -128,18 +139,66 @@ export const createProductMaster = async (
           GalleryPhotoPath3,
           GalleryPhotoPath4,
           CreatedGUID: req.body.CreatedGUID,
-          VariantRefGUID: productVariant.ProductVariantGUID,
         },
         {
           transaction: t,
         }
       );
-      t.commit()
+
+      let createdVariants = await ProductVariant.bulkCreate(
+        variants.map((variant: any) => ({
+          ...variant,
+          ProductMasterRefGUID: product.ProductGUID,
+          CreatedGUID: req.body.CreatedGUID,
+        })),
+        {
+          transaction: t,
+        }
+      );
+      if (Array.isArray(req.body.ProductCategoryRefGUID)) {
+        let objects = req.body.ProductCategoryRefGUID.map((category: any) => ({
+          ProductCategoryRefGUID: +category,
+          ProductRefGUID: product.ProductGUID,
+        }));
+        console.log("objects", objects);
+        await ProductAndCategoryMap.bulkCreate(objects, {
+          transaction: t,
+        });
+      } else if (
+        req.body.ProductCategoryRefGUID &&
+        !isNaN(req.body.ProductCategoryRefGUID)
+      ) {
+        await ProductAndCategoryMap.create(
+          {
+            ProductCategoryRefGUID: req.body.ProductCategoryRefGUID,
+            ProductRefGUID: product.ProductGUID,
+          },
+          {
+            transaction: t,
+          }
+        );
+      } else if (req.body.ProductCategoryRefGUID === undefined) {
+        await ProductAndCategoryMap.create(
+          {
+            ProductCategoryRefGUID: 1,
+            ProductRefGUID: product.ProductGUID,
+          },
+          {
+            transaction: t,
+          }
+        );
+      }
+
+      await t
+        .commit()
         .then(() => {
           console.log("Transaction committed");
           res.status(201).json({
             message: "Product master created successfully!",
-            product,
+            product: {
+              ...product.toJSON(),
+              variants: createdVariants,
+            },
           });
         })
         .catch((error: any) => {

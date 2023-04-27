@@ -3,6 +3,7 @@ import {
   BelongsTo,
   Column,
   ForeignKey,
+  HasMany,
   Model,
   PrimaryKey,
   Table,
@@ -51,11 +52,6 @@ export default class ProductMaster extends Model {
   PhotoPath!: string;
   @Column
   ProductType!: string;
-
-  @ForeignKey(() => ProductVariant)
-  @Column
-  VariantRefGUID!: number;
-
   @Column
   GalleryPhotoPath1!: string;
   @Column
@@ -65,6 +61,8 @@ export default class ProductMaster extends Model {
   @Column
   GalleryPhotoPath4!: string;
 
+  @HasMany(() => ProductVariant, "ProductMasterRefGUID")
+  Variants!: ProductVariant[];
   @BeforeCreate
   static async generateProductGUID(instance: ProductMaster) {
     const nextGUID =
@@ -92,7 +90,7 @@ export default class ProductMaster extends Model {
     instance.ProductID =
       "CAT" + "-" + "SUB" + "-" + nextGUID.toString().padStart(4, "0");
 
-    console.log({
+    console.log("@BeforeCreate", {
       ProductID: instance.ProductID,
       nextGUID,
     });

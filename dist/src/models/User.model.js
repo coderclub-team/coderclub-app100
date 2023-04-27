@@ -20,13 +20,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var User_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_typescript_1 = require("sequelize-typescript");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const moment_1 = __importDefault(require("moment"));
 const sequelize_1 = require("sequelize");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-let User = class User extends sequelize_typescript_1.Model {
+let User = User_1 = class User extends sequelize_typescript_1.Model {
     get token() {
         return this.token;
     }
@@ -50,9 +51,11 @@ let User = class User extends sequelize_typescript_1.Model {
             if (!password) {
                 return Promise.reject("Password is required");
             }
-            else if (this.Password_Attempt && this.Password_Attempt >= 3) {
-                return Promise.reject("Account is locked due to multiple incorrect password attempts");
-            }
+            // else if (this.Password_Attempt && this.Password_Attempt >= 3) {
+            //   return Promise.reject(
+            //     "Account is locked due to multiple incorrect password attempts"
+            //   );
+            // }
             else if (this.Account_Deactivated) {
                 return Promise.reject("Account is deactivated");
             }
@@ -109,9 +112,9 @@ let User = class User extends sequelize_typescript_1.Model {
                 if (this.Account_Deactivated) {
                     return Promise.reject("Account is deactivated by admin");
                 }
-                else if (this.Password_Attempt && this.Password_Attempt >= 3) {
-                    return Promise.reject("Account is locked due to multiple attempts");
-                }
+                // else if (this.Password_Attempt && this.Password_Attempt >= 3) {
+                //   return Promise.reject("Account is locked due to multiple attempts");
+                // }
                 const { OTP, OtpExpiryDate } = this.generateOTP();
                 this.OTP = OTP;
                 this.OtpExpiryDate = OtpExpiryDate ? OtpExpiryDate : null;
@@ -175,6 +178,27 @@ let User = class User extends sequelize_typescript_1.Model {
                 return this.save({
                     fields: ["Password", "OTP", "OtpExpiryDate", "Password_Attempt"],
                 });
+            }
+            catch (error) {
+                return Promise.reject(error.message);
+            }
+        });
+    }
+    forgetPassword(PhoneNumber) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = yield User_1.findOne({
+                    where: {
+                        PhoneNumber: PhoneNumber,
+                    },
+                });
+                if (!user) {
+                    return Promise.reject("User not found");
+                }
+                const { OTP, OtpExpiryDate } = user.generateOTP();
+                user.OTP = OTP;
+                user.OtpExpiryDate = OtpExpiryDate ? OtpExpiryDate : null;
+                return yield user.save();
             }
             catch (error) {
                 return Promise.reject(error.message);
@@ -453,7 +477,7 @@ __decorate([
     __metadata("design:paramtypes", [User]),
     __metadata("design:returntype", Promise)
 ], User, "hashPassword", null);
-User = __decorate([
+User = User_1 = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: "tbl_Users",
         timestamps: true,

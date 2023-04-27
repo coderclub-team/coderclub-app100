@@ -4,19 +4,18 @@ import { NextFunction, Request, Response } from "express";
 import ProductCategory from "../../models/product/ProductCategory.model";
 import decodeJWT from "../../utils/decodeJWT";
 import ProductSubCategory from "../../models/product/ProductSubCategory.model";
+import ProductMaster from "../../models/product/ProductMaster.model";
 // import { productCategoryImageUploadOptions } from "../../config";
 
 export const getAllProductCategories = async (req: Request, res: Response) => {
   try {
     const productCategories = await ProductCategory.findAll({
-      attributes: {
-        exclude: ["CreatedGUID", "CreatedDate"],
-      },
-      paranoid: false,
-      // include: {
-      //   model: ProductSubCategory,
-      //   attributes: ["ProductSubCategoryName"],
-      // },
+      include: [
+        {
+          model: ProductCategory,
+          as: "ParentCategory",
+        },
+      ],
     });
 
     res.status(200).json({
