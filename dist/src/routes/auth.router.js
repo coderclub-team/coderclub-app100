@@ -31,4 +31,5 @@ authRouter.post("/verify-account", auth_controller_1.verifyAccount, handleSequel
 authRouter.post("/send-otp", auth_controller_1.sendOTP, handleSequelizeError_1.default);
 authRouter.post("/reset-password", auth_controller_1.resetPassword, handleSequelizeError_1.default);
 authRouter.post("/forget-password", auth_controller_1.forgotPassword, handleSequelizeError_1.default);
+authRouter.get("/current-user", auth_controller_1.getCurrentUser, handleSequelizeError_1.default);
 exports.default = authRouter;

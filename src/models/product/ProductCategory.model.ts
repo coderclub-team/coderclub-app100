@@ -5,10 +5,12 @@
 // 	[CreatedDate] [datetime] NULL
 
 import {
+  AfterFind,
   AutoIncrement,
   BeforeBulkCreate,
   BeforeBulkUpdate,
   BeforeCreate,
+  BeforeFind,
   BeforeUpdate,
   BelongsTo,
   BelongsToAssociation,
@@ -28,6 +30,7 @@ import {
   Sequelize,
   SequelizeScopeError,
   UniqueConstraintError,
+  VIRTUAL,
   WhereAttributeHashValue,
 } from "sequelize";
 import ProductAndCategoryMap from "./ProductAndCategoryMap.model";
@@ -64,6 +67,28 @@ export default class ProductCategory extends Model<ProductCategory> {
 
   @Column
   IsActive!: number;
+
+  @Column({
+    type: DataType.STRING(400),
+    allowNull: false,
+    field: "ProductCategorySlug",
+  })
+  ProductCategorySlug!: string;
+
+  @Column
+  MenuOrder!: number;
+
+  @Column
+  PhotoPath!: string;
+
+  @Column({
+    type: DataType.VIRTUAL,
+    get(this: ProductCategory) {
+      const random = Math.floor(Math.random() * 10) + 1;
+      return random;
+    },
+  })
+  NoOfProducts!: number;
 
   // check if the category name already exists before create
 

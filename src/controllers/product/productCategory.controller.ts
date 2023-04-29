@@ -3,13 +3,54 @@
 import { NextFunction, Request, Response } from "express";
 import ProductCategory from "../../models/product/ProductCategory.model";
 import decodeJWT from "../../utils/decodeJWT";
-import ProductSubCategory from "../../models/product/ProductSubCategory.model";
+import path from "node:path";
+import ProductAndCategoryMap from "../../models/product/ProductAndCategoryMap.model";
 import ProductMaster from "../../models/product/ProductMaster.model";
 // import { productCategoryImageUploadOptions } from "../../config";
 
 export const getAllProductCategories = async (req: Request, res: Response) => {
   try {
-    const productCategories = await ProductCategory.findAll({
+    const categories = await ProductCategory.findAll({
+      include: [
+        {
+          model: ProductCategory,
+          as: "ParentCategory",
+          nested: true,
+
+          include: [
+            {
+              model: ProductCategory,
+              as: "ParentCategory",
+              nested: true,
+            },
+          ],
+        },
+      ],
+    });
+    categories.forEach((category: ProductCategory) => {
+      const imageKey = "PhotoPath";
+      const imagePath = category[imageKey as keyof ProductCategory];
+      if (!imagePath) return;
+      const host = req.protocol + "://" + req.get("host");
+      const imageFullPath = path.join(host, imagePath);
+      category.setDataValue("PhotoPath", imageFullPath);
+    });
+
+    res.status(200).json({
+      message: "Product categories fetched successfully!",
+      categories,
+      total: categories.length,
+    });
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
+
+export const getProductCategoryById = async (req: Request, res: Response) => {
+  const { ProductCategoryGUID } = req.params;
+
+  try {
+    const category = await ProductCategory.findByPk(ProductCategoryGUID, {
       include: [
         {
           model: ProductCategory,
@@ -27,30 +68,14 @@ export const getAllProductCategories = async (req: Request, res: Response) => {
       ],
     });
 
-    res.status(200).json({
-      message: "Product categories fetched successfully!",
-      productCategories,
-      total: productCategories.length,
-    });
-  } catch (error) {
-    res.status(500).json(error);
-  }
-};
+    const imageKey = "PhotoPath";
+    const imagePath = category?.[imageKey as keyof ProductCategory];
+    if (!imagePath) return;
+    const host = req.protocol + "://" + req.get("host");
+    const imageFullPath = path.join(host, imagePath);
+    category.setDataValue("PhotoPath", imageFullPath);
 
-export const getProductCategoryById = async (req: Request, res: Response) => {
-  const { ProductCategoryGUID } = req.params;
-
-  try {
-    const productCategory = await ProductCategory.findByPk(
-      ProductCategoryGUID,
-      {
-        attributes: {
-          exclude: ["CreatedGUID", "CreatedDate"],
-        },
-      }
-    );
-
-    if (!productCategory) {
+    if (!category) {
       return res.status(400).json({
         message: "Product category not found!",
       });
@@ -58,7 +83,7 @@ export const getProductCategoryById = async (req: Request, res: Response) => {
 
     res.send({
       message: "Product category fetched successfully!",
-      productCategory,
+      category,
     });
   } catch (error) {
     res.status(500).json(error);

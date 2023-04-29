@@ -92,6 +92,38 @@ __decorate([
     __metadata("design:type", Number)
 ], ProductCategory.prototype, "IsActive", void 0);
 __decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING(400),
+        allowNull: false,
+        field: "ProductCategorySlug",
+    }),
+    __metadata("design:type", String)
+], ProductCategory.prototype, "ProductCategorySlug", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], ProductCategory.prototype, "MenuOrder", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
+], ProductCategory.prototype, "PhotoPath", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.VIRTUAL,
+        get: function () {
+            return __awaiter(this, void 0, void 0, function* () {
+                const count = yield ProductAndCategoryMap_model_1.default.count({
+                    where: {
+                        ProductCategoryRefGUID: this.ProductCategoryGUID,
+                    },
+                });
+                return count;
+            });
+        },
+    }),
+    __metadata("design:type", Number)
+], ProductCategory.prototype, "NoOfProducts", void 0);
+__decorate([
     (0, sequelize_typescript_1.BelongsToMany)(() => ProductMaster_model_1.default, () => ProductAndCategoryMap_model_1.default, "ProductCategoryRefGUID", "ProductRefGUID"),
     __metadata("design:type", Array)
 ], ProductCategory.prototype, "products", void 0);

@@ -4,6 +4,7 @@ import User from "../models/User.model";
 import fs from "node:fs";
 import { userImageUploadOptions } from "../../config";
 import { UserNotFoundExceptionError } from "../../custom.error";
+import decodeJWT from "../utils/decodeJWT";
 export const register = async (
   req: Request,
   res: Response,
@@ -71,6 +72,13 @@ export const login = async (
     if (!user) {
       throw new UserNotFoundExceptionError("User not found!");
     }
+    const imageKey = "PhotoPath";
+    const imagePath = user?.[imageKey as keyof User];
+    if (!imagePath) return;
+    const host = req.protocol + "://" + req.get("host");
+    const imageFullPath = path.join(host, imagePath);
+    user.setDataValue("PhotoPath", imageFullPath);
+
     const token = await user?.authenticate(Password);
     res.status(200).json({
       message: "Login successful!",
@@ -78,6 +86,41 @@ export const login = async (
       token,
     });
   } catch (error: any) {
+    next(error);
+  }
+};
+
+export const getCurrentUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  // get user fromtoken
+  try {
+    let authuser: User;
+    if (req.body.user) {
+      authuser = req.body.user;
+    } else {
+      authuser = decodeJWT(req) as User;
+    }
+    const user = await User.findByPk(authuser.UserGUID, {
+      attributes: {
+        exclude: ["Password"],
+      },
+    });
+
+    const imageKey = "PhotoPath";
+    const imagePath = user?.[imageKey as keyof User];
+    if (!imagePath) return;
+    const host = req.protocol + "://" + req.get("host");
+    const imageFullPath = path.join(host, imagePath);
+    user.setDataValue("PhotoPath", imageFullPath);
+
+    res.json({
+      message: "Current user fetched successfully!",
+      user: user,
+    });
+  } catch (error) {
     next(error);
   }
 };

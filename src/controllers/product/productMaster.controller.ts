@@ -19,7 +19,7 @@ export const getAllProductMasters = async (req: Request, res: Response) => {
       include: [
         {
           model: ProductCategory,
-          attributes: ["Name"],
+          attributes: ["ProductCategoryName"],
           as: "ProductCategory",
         },
       ],
@@ -77,80 +77,66 @@ export const getAllProductMasters = async (req: Request, res: Response) => {
     res.status(500).json(error);
   }
 };
-// export const getProductMasterById = async (req: Request, res: Response) => {
-//   const { ProductMasterGUID } = req.params;
-//   try {
-//     const productMaster = await ProductMaster.findByPk(ProductMasterGUID, {
-//       attributes: {
-//         exclude: [
-//           "CreatedGUID",
-//           "CreatedDate",
-//           "ModifiedGUID",
-//           "UpdatedDate",
-//           "DeletedGUID",
-//           "DeletedDate",
-//         ],
-//       },
-//       mapToModel: true,
-//       nest: true,
-//       include: [
-//         {
-//           model: ProductVariant,
-//           attributes: [
-//             "Unit_Price",
-//             "MRP",
-//             "GST",
-//             "Qty",
-//             "UnitsInStock",
-//             "IsActive",
-//             "SKU",
-//             "UOM",
-//             "Weight",
-//             "SaleRate",
-//             "Size",
-//             "Color",
-//             "Flavour",
-//             "Featured",
-//             [
-//               Sequelize.literal(
-//                 `CONCAT('{ "width": "', "Width", '", "height": "', "Height", '", "length": "', "Length", '" }')`
-//               ),
-//               "dimensions",
-//             ],
-//           ],
-//         },
-//       ],
-//     });
-//     // return 404 if product master not found
-//     if (!productMaster) {
-//       return res.status(400).json({
-//         message: "Product master not found!",
-//       });
-//     }
-//     // omit the gallery photo paths and explicit Width, Height, Length from the Variant object
-//     const product = {
-//       ...productMaster.toJSON(),
-//       Images: productMaster.images,
-//       GalleryPhotoPath1: undefined,
-//       GalleryPhotoPath2: undefined,
-//       GalleryPhotoPath3: undefined,
-//       GalleryPhotoPath4: undefined,
-//       Variants: productMaster.Variants.map((v) => ({
-//         ...v.toJSON(),
-//         Width: undefined,
-//         Height: undefined,
-//         Length: undefined,
-//       })),
-//     };
-//     // send the response
-//     res.send({
-//       message: "Product master fetched successfully!",
-//       product,
-//     });
-//   } catch (error) {
-//     res.status(500).json(error);
-//   }
-// };
+
+export const getProductMasterById = async (req: Request, res: Response) => {
+  const { ProductMasterGUID } = req.params;
+  const include: Includeable[] = [
+    {
+      model: ProductAndCategoryMap,
+      attributes: ["ProductCategoryRefGUID"],
+      nested: true,
+      as: "categories",
+      include: [
+        {
+          model: ProductCategory,
+          attributes: ["Name"],
+          as: "ProductCategory",
+        },
+      ],
+    },
+  ];
+  try {
+    const product = await ProductMaster.findByPk(ProductMasterGUID, {
+      include,
+    });
+    if (product) {
+      const images = [];
+      for (let i = 1; i <= 4; i++) {
+        const imageKey = `GalleryPhotoPath${i}`;
+        const imagePath = product[imageKey as keyof ProductMaster];
+        const host = req.protocol + "://" + req.get("host");
+        const imageFullPath = path.join(host, imagePath);
+        if (imagePath) {
+          images.push(imageFullPath);
+        }
+      }
+
+      product.categories.forEach((c: any) => {
+        c.setDataValue("Name", c.ProductCategory.ProductCategoryName);
+        c.setDataValue("ProductCategory", undefined);
+        c.setDataValue("ProductCategoryRefGUID", undefined);
+      });
+
+      product.setDataValue("GalleryPhotoPath1", undefined);
+      product.setDataValue("GalleryPhotoPath2", undefined);
+      product.setDataValue("GalleryPhotoPath3", undefined);
+      product.setDataValue("GalleryPhotoPath4", undefined);
+      product.setDataValue("images", images);
+
+      res.status(200).send({
+        message: "Product master fetched successfully!",
+        product,
+      });
+    } else {
+      res.status(404).send({
+        message: "Product master not found!",
+      });
+    }
+  } catch (error: any) {
+    console.log("---error", error.message);
+    res.status(500).json(error);
+  }
+};
 export const createProductMaster = async (
   req: Request,
   res: Response,

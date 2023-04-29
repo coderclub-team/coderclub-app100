@@ -16,10 +16,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteProductCategory = exports.updateProductCategory = exports.createProductCategory = exports.getProductCategoryById = exports.getAllProductCategories = void 0;
 const ProductCategory_model_1 = __importDefault(require("../../models/product/ProductCategory.model"));
 const decodeJWT_1 = __importDefault(require("../../utils/decodeJWT"));
+const node_path_1 = __importDefault(require("node:path"));
 // import { productCategoryImageUploadOptions } from "../../config";
 const getAllProductCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const productCategories = yield ProductCategory_model_1.default.findAll({
+        const categories = yield ProductCategory_model_1.default.findAll({
             include: [
                 {
                     model: ProductCategory_model_1.default,
@@ -35,10 +36,28 @@ const getAllProductCategories = (req, res) => __awaiter(void 0, void 0, void 0, 
                 },
             ],
         });
+        categories.forEach((category) => {
+            const imageKey = "PhotoPath";
+            const imagePath = category[imageKey];
+            if (!imagePath)
+                return;
+            const host = req.protocol + "://" + req.get("host");
+            const imageFullPath = node_path_1.default.join(host, imagePath);
+            category.setDataValue("PhotoPath", imageFullPath);
+            let count = category.getDataValue("NoOfProducts");
+            console.log("count", count);
+            category.setAttributes("NoOfProducts", count);
+            // const product_count = await ProductAndCategoryMap.count({
+            //   where: {
+            //     ProductCategoryRefGUID: category.ProductCategoryGUID,
+            //   },
+            // });
+            // console.log("product_count", product_count);
+        });
         res.status(200).json({
             message: "Product categories fetched successfully!",
-            productCategories,
-            total: productCategories.length,
+            categories,
+            total: categories.length,
         });
     }
     catch (error) {
@@ -49,19 +68,37 @@ exports.getAllProductCategories = getAllProductCategories;
 const getProductCategoryById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { ProductCategoryGUID } = req.params;
     try {
-        const productCategory = yield ProductCategory_model_1.default.findByPk(ProductCategoryGUID, {
-            attributes: {
-                exclude: ["CreatedGUID", "CreatedDate"],
-            },
+        const category = yield ProductCategory_model_1.default.findByPk(ProductCategoryGUID, {
+            include: [
+                {
+                    model: ProductCategory_model_1.default,
+                    as: "ParentCategory",
+                    nested: true,
+                    include: [
+                        {
+                            model: ProductCategory_model_1.default,
+                            as: "ParentCategory",
+                            nested: true,
+                        },
+                    ],
+                },
+            ],
         });
-        if (!productCategory) {
+        const imageKey = "PhotoPath";
+        const imagePath = category === null || category === void 0 ? void 0 : category[imageKey];
+        if (!imagePath)
+            return;
+        const host = req.protocol + "://" + req.get("host");
+        const imageFullPath = node_path_1.default.join(host, imagePath);
+        category.setDataValue("PhotoPath", imageFullPath);
+        if (!category) {
             return res.status(400).json({
                 message: "Product category not found!",
             });
         }
         res.send({
             message: "Product category fetched successfully!",
-            productCategory,
+            category,
         });
     }
     catch (error) {

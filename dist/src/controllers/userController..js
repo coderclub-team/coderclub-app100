@@ -33,6 +33,15 @@ const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             },
             paranoid,
         });
+        users.forEach((user) => {
+            const imageKey = "PhotoPath";
+            const imagePath = user === null || user === void 0 ? void 0 : user[imageKey];
+            if (!imagePath)
+                return;
+            const host = req.protocol + "://" + req.get("host");
+            const imageFullPath = node_path_1.default.join(host, imagePath);
+            user.setDataValue("PhotoPath", imageFullPath);
+        });
         return res.status(200).json({
             message: "Users fetched successfully!",
             users,
@@ -59,6 +68,13 @@ const getUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                 message: "User not found!",
             });
         }
+        const imageKey = "PhotoPath";
+        const imagePath = user === null || user === void 0 ? void 0 : user[imageKey];
+        if (!imagePath)
+            return;
+        const host = req.protocol + "://" + req.get("host");
+        const imageFullPath = node_path_1.default.join(host, imagePath);
+        user.setDataValue("PhotoPath", imageFullPath);
         return res.status(200).json({
             message: "User fetched successfully!",
             user,

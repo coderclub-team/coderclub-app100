@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createAttribute = exports.deleteProductMaster = exports.updateProductMaster = exports.createProductMaster = exports.getAllProductMasters = void 0;
+exports.createAttribute = exports.deleteProductMaster = exports.updateProductMaster = exports.createProductMaster = exports.getProductMasterById = exports.getAllProductMasters = void 0;
 const config_1 = require("../../../config");
 const ProductMaster_model_1 = __importDefault(require("../../models/product/ProductMaster.model"));
 const decodeJWT_1 = __importDefault(require("../../utils/decodeJWT"));
@@ -31,7 +31,7 @@ const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, fun
             include: [
                 {
                     model: ProductCategory_model_1.default,
-                    attributes: ["Name"],
+                    attributes: ["ProductCategoryName"],
                     as: "ProductCategory",
                 },
             ],
@@ -59,8 +59,10 @@ const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, fun
             for (let i = 1; i <= 4; i++) {
                 const imageKey = `GalleryPhotoPath${i}`;
                 const imagePath = product[imageKey];
+                const host = req.protocol + "://" + req.get("host");
+                const imageFullPath = node_path_1.default.join(host, imagePath);
                 if (imagePath) {
-                    images.push(node_path_1.default.join(__dirname, "public", imagePath));
+                    images.push(imageFullPath);
                 }
             }
             product.categories.forEach((c) => {
@@ -85,80 +87,65 @@ const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 exports.getAllProductMasters = getAllProductMasters;
-// export const getProductMasterById = async (req: Request, res: Response) => {
-//   const { ProductMasterGUID } = req.params;
-//   try {
-//     const productMaster = await ProductMaster.findByPk(ProductMasterGUID, {
-//       attributes: {
-//         exclude: [
-//           "CreatedGUID",
-//           "CreatedDate",
-//           "ModifiedGUID",
-//           "UpdatedDate",
-//           "DeletedGUID",
-//           "DeletedDate",
-//         ],
-//       },
-//       mapToModel: true,
-//       nest: true,
-//       include: [
-//         {
-//           model: ProductVariant,
-//           attributes: [
-//             "Unit_Price",
-//             "MRP",
-//             "GST",
-//             "Qty",
-//             "UnitsInStock",
-//             "IsActive",
-//             "SKU",
-//             "UOM",
-//             "Weight",
-//             "SaleRate",
-//             "Size",
-//             "Color",
-//             "Flavour",
-//             "Featured",
-//             [
-//               Sequelize.literal(
-//                 `CONCAT('{ "width": "', "Width", '", "height": "', "Height", '", "length": "', "Length", '" }')`
-//               ),
-//               "dimensions",
-//             ],
-//           ],
-//         },
-//       ],
-//     });
-//     // return 404 if product master not found
-//     if (!productMaster) {
-//       return res.status(400).json({
-//         message: "Product master not found!",
-//       });
-//     }
-//     // omit the gallery photo paths and explicit Width, Height, Length from the Variant object
-//     const product = {
-//       ...productMaster.toJSON(),
-//       Images: productMaster.images,
-//       GalleryPhotoPath1: undefined,
-//       GalleryPhotoPath2: undefined,
-//       GalleryPhotoPath3: undefined,
-//       GalleryPhotoPath4: undefined,
-//       Variants: productMaster.Variants.map((v) => ({
-//         ...v.toJSON(),
-//         Width: undefined,
-//         Height: undefined,
-//         Length: undefined,
-//       })),
-//     };
-//     // send the response
-//     res.send({
-//       message: "Product master fetched successfully!",
-//       product,
-//     });
-//   } catch (error) {
-//     res.status(500).json(error);
-//   }
-// };
+const getProductMasterById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { ProductMasterGUID } = req.params;
+    const include = [
+        {
+            model: ProductAndCategoryMap_model_1.default,
+            attributes: ["ProductCategoryRefGUID"],
+            nested: true,
+            as: "categories",
+            include: [
+                {
+                    model: ProductCategory_model_1.default,
+                    attributes: ["Name"],
+                    as: "ProductCategory",
+                },
+            ],
+        },
+    ];
+    try {
+        const product = yield ProductMaster_model_1.default.findByPk(ProductMasterGUID, {
+            include,
+        });
+        if (product) {
+            const images = [];
+            for (let i = 1; i <= 4; i++) {
+                const imageKey = `GalleryPhotoPath${i}`;
+                const imagePath = product[imageKey];
+                const host = req.protocol + "://" + req.get("host");
+                const imageFullPath = node_path_1.default.join(host, imagePath);
+                if (imagePath) {
+                    images.push(imageFullPath);
+                }
+            }
+            product.categories.forEach((c) => {
+                c.setDataValue("Name", c.ProductCategory.ProductCategoryName);
+                c.setDataValue("ProductCategory", undefined);
+                c.setDataValue("ProductCategoryRefGUID", undefined);
+            });
+            product.setDataValue("GalleryPhotoPath1", undefined);
+            product.setDataValue("GalleryPhotoPath2", undefined);
+            product.setDataValue("GalleryPhotoPath3", undefined);
+            product.setDataValue("GalleryPhotoPath4", undefined);
+            product.setDataValue("images", images);
+            res.status(200).send({
+                message: "Product master fetched successfully!",
+                product,
+            });
+        }
+        else {
+            res.status(404).send({
+                message: "Product master not found!",
+            });
+        }
+    }
+    catch (error) {
+        console.log("---error", error.message);
+        res.status(500).json(error);
+    }
+});
+exports.getProductMasterById = getProductMasterById;
 const createProductMaster = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.body.ProductType) {
         res.status(400).json({

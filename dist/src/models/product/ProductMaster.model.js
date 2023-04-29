@@ -170,6 +170,18 @@ __decorate([
 __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", String)
+], ProductMaster.prototype, "UOM", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
+], ProductMaster.prototype, "UOMTypeGUID", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
+], ProductMaster.prototype, "PhotoPath", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
 ], ProductMaster.prototype, "GalleryPhotoPath1", void 0);
 __decorate([
     sequelize_typescript_1.Column,

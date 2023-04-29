@@ -2,6 +2,7 @@ import {
   BeforeBulkCreate,
   BeforeBulkUpdate,
   BeforeCreate,
+  BeforeFind,
   BeforeUpdate,
   BelongsTo,
   BelongsToMany,
