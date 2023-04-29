@@ -16,12 +16,34 @@ exports.deleteProductSubCategory = exports.updateProductSubCategory = exports.cr
 const ProductSubCategory_model_1 = __importDefault(require("../../models/product/ProductSubCategory.model"));
 const decodeJWT_1 = __importDefault(require("../../utils/decodeJWT"));
 const ProductCategory_model_1 = __importDefault(require("../../models/product/ProductCategory.model"));
+const sequelize_1 = __importDefault(require("sequelize/types/sequelize"));
 const getAllProductSubCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const productSubCategories = yield ProductSubCategory_model_1.default.findAll({
-            attributes: {
-                exclude: ["CreatedGUID", "CreatedDate"],
-            },
+            attributes: [
+                "id",
+                "ProductMasterRefGUID",
+                "Unit_Price",
+                "MRP",
+                "GST",
+                "Qty",
+                "UnitsInStock",
+                "IsActive",
+                "SKU",
+                "UOM",
+                "Weight",
+                "Length",
+                "Width",
+                "SaleRate",
+                "Size",
+                "Color",
+                "Flavour",
+                // Include 'dimensions' property
+                [
+                    sequelize_1.default.literal(`JSON_OBJECT('Weight', COALESCE(Weight, 0), 'Length', COALESCE(Length, 0), 'Width', COALESCE(Width, 0))`),
+                    "dimensions",
+                ],
+            ],
             // ProductCategory refe
             include: {
                 model: ProductCategory_model_1.default,

@@ -10,6 +10,8 @@ import {
   BeforeUpdate,
   Unique,
   BeforeSave,
+  BeforeBulkCreate,
+  BeforeBulkUpdate,
 } from "sequelize-typescript";
 import bcrypt from "bcrypt";
 
@@ -443,5 +445,26 @@ export default class User extends Model {
     } catch (error: any) {
       return Promise.reject(error.message);
     }
+  }
+  @BeforeBulkCreate
+  @BeforeBulkUpdate
+  static beforeBulkCreateHook(instances: User[]) {
+    instances.forEach((instance) => {
+      Object.entries(instance.toJSON()).forEach(([key, value]) => {
+        if (typeof value === "string") {
+          instance.setDataValue(key as keyof User, value.trim());
+        }
+      });
+    });
+  }
+
+  @BeforeCreate
+  @BeforeUpdate
+  static beforeCreateHook(instance: User) {
+    Object.entries(instance.toJSON()).forEach(([key, value]) => {
+      if (typeof value === "string") {
+        instance.setDataValue(key as keyof User, value.trim());
+      }
+    });
   }
 }

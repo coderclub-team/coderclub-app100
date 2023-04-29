@@ -26,7 +26,7 @@ const upload = (0, multer_1.default)({
     },
 });
 router.get("/", productMaster_controller_1.getAllProductMasters);
-router.get("/:ProductMasterGUID", productMaster_controller_1.getProductMasterById);
+// router.get("/:ProductMasterGUID", getProductMasterById);
 router.post("/", upload.fields([
     { name: "PhotoPath", maxCount: 1 },
     {

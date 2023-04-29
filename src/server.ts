@@ -9,6 +9,7 @@ import cors from "cors";
 import userRouter from "./routes/user.router";
 import productCategoryRouter from "./routes/product/productCategory.router";
 import productMasterRouter from "./routes/product/ProductMaster.router";
+import trimRequestBody from "./middlewares/trimRequestBody.middleware";
 
 // Set the base URL and store it in app.locals
 const app = express();

@@ -22,22 +22,18 @@ export default class ProductAndCategoryMap extends Model {
   @Column
   ProductAndCategoryMapGUID!: number;
 
-  @ForeignKey(() => ProductCategory)
   @BelongsTo(() => ProductCategory, {
     foreignKey: "ProductCategoryRefGUID",
     targetKey: "ProductCategoryGUID",
     as: "ProductCategory",
   })
-  @Column
   ProductCategoryRefGUID!: number;
 
-  @ForeignKey(() => ProductMaster)
   @BelongsTo(() => ProductMaster, {
     foreignKey: "ProductRefGUID",
     targetKey: "ProductGUID",
     as: "Product",
   })
-  @Column
   ProductRefGUID!: number;
 
   // IsActive!: boolean;

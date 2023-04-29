@@ -1,5 +1,10 @@
 import {
   AutoIncrement,
+  BeforeBulkCreate,
+  BeforeBulkUpdate,
+  BeforeCreate,
+  BeforeFind,
+  BeforeUpdate,
   BelongsTo,
   Column,
   ForeignKey,
@@ -8,6 +13,13 @@ import {
   Table,
 } from "sequelize-typescript";
 import ProductMaster from "./ProductMaster.model";
+import { DataTypes, VIRTUAL } from "sequelize";
+import sequelize from "sequelize/types/sequelize";
+type StringProperties<T> = {
+  [K in keyof T]: T[K] extends string ? K : never;
+}[keyof T];
+
+type ProductVariantStringProperties = StringProperties<ProductVariant>;
 
 @Table({
   tableName: "tbl_ProductVariant",
@@ -63,7 +75,39 @@ export class ProductVariant extends Model<ProductVariant> {
   Flavour!: string;
 
   @Column
+  Featured!: boolean;
+
+  @Column
   CreatedGUID!: number;
 
-  //   ProductAttributeRefGUID!: number;
+  // Define the virtual field as a getter method that returns an object with the dimensions
+  get dimensions(): { width: number; height: number; length: number } {
+    return {
+      width: this.Width,
+      height: this.Height,
+      length: this.Length,
+    };
+  }
+
+  @BeforeBulkCreate
+  @BeforeBulkUpdate
+  static beforeBulkCreateHook(instances: ProductVariant[]) {
+    instances.forEach((instance) => {
+      Object.entries(instance.toJSON()).forEach(([key, value]) => {
+        if (typeof value === "string") {
+          instance.setDataValue(key as keyof ProductVariant, value.trim());
+        }
+      });
+    });
+  }
+
+  @BeforeCreate
+  @BeforeUpdate
+  static beforeCreateHook(instance: ProductVariant) {
+    Object.entries(instance.toJSON()).forEach(([key, value]) => {
+      if (typeof value === "string") {
+        instance.setDataValue(key as keyof ProductVariant, value.trim());
+      }
+    });
+  }
 }

@@ -14,6 +14,15 @@ export const getAllProductCategories = async (req: Request, res: Response) => {
         {
           model: ProductCategory,
           as: "ParentCategory",
+          nested: true,
+
+          include: [
+            {
+              model: ProductCategory,
+              as: "ParentCategory",
+              nested: true,
+            },
+          ],
         },
       ],
     });

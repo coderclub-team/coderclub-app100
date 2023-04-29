@@ -20,7 +20,20 @@ const decodeJWT_1 = __importDefault(require("../../utils/decodeJWT"));
 const getAllProductCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const productCategories = yield ProductCategory_model_1.default.findAll({
-            paranoid: false,
+            include: [
+                {
+                    model: ProductCategory_model_1.default,
+                    as: "ParentCategory",
+                    nested: true,
+                    include: [
+                        {
+                            model: ProductCategory_model_1.default,
+                            as: "ParentCategory",
+                            nested: true,
+                        },
+                    ],
+                },
+            ],
         });
         res.status(200).json({
             message: "Product categories fetched successfully!",

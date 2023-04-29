@@ -8,10 +8,11 @@ import {
   createProductMaster,
   deleteProductMaster,
   getAllProductMasters,
-  getProductMasterById,
+  // getProductMasterById,
   updateProductMaster,
 } from "../../controllers/product/productMaster.controller";
 import handleSequelizeError from "../../middlewares/handleSequelizeError";
+import trimRequestBody from "../../middlewares/trimRequestBody.middleware";
 
 const router = express.Router();
 const upload = multer({
@@ -32,7 +33,7 @@ const upload = multer({
 });
 
 router.get("/", getAllProductMasters);
-router.get("/:ProductMasterGUID", getProductMasterById);
+// router.get("/:ProductMasterGUID", getProductMasterById);
 router.post(
   "/",
   upload.fields([

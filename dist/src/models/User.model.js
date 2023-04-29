@@ -205,6 +205,22 @@ let User = User_1 = class User extends sequelize_typescript_1.Model {
             }
         });
     }
+    static beforeBulkCreateHook(instances) {
+        instances.forEach((instance) => {
+            Object.entries(instance.toJSON()).forEach(([key, value]) => {
+                if (typeof value === "string") {
+                    instance.setDataValue(key, value.trim());
+                }
+            });
+        });
+    }
+    static beforeCreateHook(instance) {
+        Object.entries(instance.toJSON()).forEach(([key, value]) => {
+            if (typeof value === "string") {
+                instance.setDataValue(key, value.trim());
+            }
+        });
+    }
 };
 User.fields = {
     password: { type: sequelize_1.DataTypes.STRING, allowNull: false, exclude: true },
@@ -477,6 +493,20 @@ __decorate([
     __metadata("design:paramtypes", [User]),
     __metadata("design:returntype", Promise)
 ], User, "hashPassword", null);
+__decorate([
+    sequelize_typescript_1.BeforeBulkCreate,
+    sequelize_typescript_1.BeforeBulkUpdate,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Array]),
+    __metadata("design:returntype", void 0)
+], User, "beforeBulkCreateHook", null);
+__decorate([
+    sequelize_typescript_1.BeforeCreate,
+    sequelize_typescript_1.BeforeUpdate,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [User]),
+    __metadata("design:returntype", void 0)
+], User, "beforeCreateHook", null);
 User = User_1 = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: "tbl_Users",

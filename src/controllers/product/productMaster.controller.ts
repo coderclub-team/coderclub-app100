@@ -3,87 +3,154 @@ import { productImageUploadOptions } from "../../../config";
 import ProductMaster from "../../models/product/ProductMaster.model";
 import decodeJWT from "../../utils/decodeJWT";
 import path from "node:path";
-import fs from "node:fs";
 import { sequelize } from "../../database";
 import { ProductVariant } from "../../models/product/ProductVariant.model";
-import { ProductAttribute } from "../../models/product/ProductAttribute.model";
 import ProductAndCategoryMap from "../../models/product/ProductAndCategoryMap.model";
+import { Includeable, Transaction } from "sequelize";
+import ProductCategory from "../../models/product/ProductCategory.model";
 
 export const getAllProductMasters = async (req: Request, res: Response) => {
-  try {
-    const productMasters = await ProductMaster.findAll({
-      attributes: {
-        exclude: [
-          "CreatedGUID",
-          "CreatedDate",
-          "ModifiedGUID",
-          "UpdatedDate",
-          "DeletedGUID",
-          "DeletedDate",
-        ],
-      },
-      nest: true,
+  const include: Includeable[] = [
+    {
+      model: ProductAndCategoryMap,
+      attributes: ["ProductCategoryRefGUID"],
+      nested: true,
+      as: "categories",
       include: [
         {
-          model: ProductVariant,
-          attributes: {
-            exclude: ["CreatedGUID", "CreatedDate"],
-          },
+          model: ProductCategory,
+          attributes: ["Name"],
+          as: "ProductCategory",
+        },
+      ],
+    },
+  ];
+  try {
+    var products = await ProductMaster.findAll({
+      include: [
+        {
+          model: ProductAndCategoryMap,
+          attributes: ["ProductCategoryRefGUID"],
+          isMultiAssociation: true,
+          include: [
+            {
+              model: ProductCategory,
+              attributes: ["ProductCategoryName"],
+              as: "ProductCategory",
+            },
+          ],
         },
       ],
     });
 
-    res.status(200).json({
+    products.forEach((product: ProductMaster) => {
+      const images = [];
+      for (let i = 1; i <= 4; i++) {
+        const imageKey = `GalleryPhotoPath${i}`;
+        const imagePath = product[imageKey as keyof ProductMaster];
+        const host = req.protocol + "://" + req.get("host");
+        const imageFullPath = path.join(host, imagePath);
+        if (imagePath) {
+          images.push(imageFullPath);
+        }
+      }
+
+      product.categories.forEach((c: any) => {
+        c.setDataValue("Name", c.ProductCategory.ProductCategoryName);
+        c.setDataValue("ProductCategory", undefined);
+        c.setDataValue("ProductCategoryRefGUID", undefined);
+      });
+
+      product.setDataValue("GalleryPhotoPath1", undefined);
+      product.setDataValue("GalleryPhotoPath2", undefined);
+      product.setDataValue("GalleryPhotoPath3", undefined);
+      product.setDataValue("GalleryPhotoPath4", undefined);
+      product.setDataValue("images", images);
+    });
+
+    res.status(200).send({
       message: "Product masters fetched successfully!",
-      productMasters,
+      products,
     });
   } catch (error: any) {
     console.log("---error", error.message);
     res.status(500).json(error);
   }
 };
-
-export const getProductMasterById = async (req: Request, res: Response) => {
-  const { ProductMasterGUID } = req.params;
-
-  try {
-    const productMaster = await ProductMaster.findByPk(ProductMasterGUID, {
-      attributes: {
-        exclude: [
-          "CreatedGUID",
-          "CreatedDate",
-          "ModifiedGUID",
-          "UpdatedDate",
-          "DeletedGUID",
-          "DeletedDate",
-        ],
-      },
-      nest: true,
-      include: [
-        {
-          model: ProductVariant,
-          attributes: {
-            exclude: ["CreatedGUID", "CreatedDate"],
-          },
-        },
-      ],
-    });
-
-    if (!productMaster) {
-      return res.status(400).json({
-        message: "Product master not found!",
-      });
-    }
-
-    res.send({
-      message: "Product master fetched successfully!",
-      productMaster,
-    });
-  } catch (error) {
-    res.status(500).json(error);
-  }
-};
-
+// export const getProductMasterById = async (req: Request, res: Response) => {
+//   const { ProductMasterGUID } = req.params;
+//   try {
+//     const productMaster = await ProductMaster.findByPk(ProductMasterGUID, {
+//       attributes: {
+//         exclude: [
+//           "CreatedGUID",
+//           "CreatedDate",
+//           "ModifiedGUID",
+//           "UpdatedDate",
+//           "DeletedGUID",
+//           "DeletedDate",
+//         ],
+//       },
+//       mapToModel: true,
+//       nest: true,
+//       include: [
+//         {
+//           model: ProductVariant,
+//           attributes: [
+//             "Unit_Price",
+//             "MRP",
+//             "GST",
+//             "Qty",
+//             "UnitsInStock",
+//             "IsActive",
+//             "SKU",
+//             "UOM",
+//             "Weight",
+//             "SaleRate",
+//             "Size",
+//             "Color",
+//             "Flavour",
+//             "Featured",
+//             [
+//               Sequelize.literal(
+//                 `CONCAT('{ "width": "', "Width", '", "height": "', "Height", '", "length": "', "Length", '" }')`
+//               ),
+//               "dimensions",
+//             ],
+//           ],
+//         },
+//       ],
+//     });
+//     // return 404 if product master not found
+//     if (!productMaster) {
+//       return res.status(400).json({
+//         message: "Product master not found!",
+//       });
+//     }
+//     // omit the gallery photo paths and explicit Width, Height, Length from the Variant object
+//     const product = {
+//       ...productMaster.toJSON(),
+//       Images: productMaster.images,
+//       GalleryPhotoPath1: undefined,
+//       GalleryPhotoPath2: undefined,
+//       GalleryPhotoPath3: undefined,
+//       GalleryPhotoPath4: undefined,
+//       Variants: productMaster.Variants.map((v) => ({
+//         ...v.toJSON(),
+//         Width: undefined,
+//         Height: undefined,
+//         Length: undefined,
+//       })),
+//     };
+//     // send the response
+//     res.send({
+//       message: "Product master fetched successfully!",
+//       product,
+//     });
+//   } catch (error) {
+//     res.status(500).json(error);
+//   }
+// };
 export const createProductMaster = async (
   req: Request,
   res: Response,
@@ -93,41 +160,48 @@ export const createProductMaster = async (
     res.status(400).json({
       message: "Product type is required!",
     });
+  } else if (
+    req.body.ProductType.toString().toLocaleUpperCase() === "SIMPLE" &&
+    req.body.variants.length > 1
+  ) {
+    res.status(400).json({
+      message: "Product type is simple, More than one variant not allowed!",
+    });
   }
-
-  if (req.body.ProductType.toString().toLocaleUpperCase() === "SIMPLE") {
-    if (req.body.user) {
-      req.body.CreatedGUID = req.body.user.UserGUID;
+  if (req.body.user) {
+    req.body.CreatedGUID = req.body.user.UserGUID;
+  } else {
+    req.body.CreatedGUID = decodeJWT(req).UserGUID;
+  }
+  console.log("req.body", req.body);
+  const {
+    ProductName,
+    ProductCode,
+    ProductType,
+    PhotoPath,
+    GalleryPhotoPath1,
+    GalleryPhotoPath2,
+    GalleryPhotoPath3,
+    GalleryPhotoPath4,
+    variants,
+  } = req.body;
+  let t: Transaction | undefined = undefined;
+  try {
+    if (!req.files || Object.keys(req.files).length === 0) {
+      console.log("No files were uploaded.");
     } else {
-      req.body.CreatedGUID = decodeJWT(req).UserGUID;
+      Object.entries(req.files).forEach(([key, value]) => {
+        console.log(key, value);
+        req.body[key] = path.join(
+          productImageUploadOptions.directory,
+          value[0].filename
+        );
+      });
     }
-    const t = await sequelize.transaction();
-    try {
-      if (!req.files || Object.keys(req.files).length === 0) {
-        console.log("No files were uploaded.");
-      } else {
-        Object.entries(req.files).forEach(([key, value]) => {
-          console.log(key, value);
 
-          req.body[key] = path.join(
-            productImageUploadOptions.directory,
-            value[0].filename
-          );
-        });
-      }
-      console.log("req.body", req.body);
-      const {
-        ProductName,
-        ProductCode,
-        ProductType,
-        PhotoPath,
-        GalleryPhotoPath1,
-        GalleryPhotoPath2,
-        GalleryPhotoPath3,
-        GalleryPhotoPath4,
-        variants,
-      } = req.body;
+    t = await sequelize.transaction();
 
+    if (req.body.ProductType.toString().toLocaleUpperCase() === "SIMPLE") {
       const product = await ProductMaster.create(
         {
           ProductName,
@@ -144,7 +218,6 @@ export const createProductMaster = async (
           transaction: t,
         }
       );
-
       let createdVariants = await ProductVariant.bulkCreate(
         variants.map((variant: any) => ({
           ...variant,
@@ -177,7 +250,7 @@ export const createProductMaster = async (
             transaction: t,
           }
         );
-      } else if (req.body.ProductCategoryRefGUID === undefined) {
+      } else {
         await ProductAndCategoryMap.create(
           {
             ProductCategoryRefGUID: 1,
@@ -188,51 +261,84 @@ export const createProductMaster = async (
           }
         );
       }
+      await t.commit();
 
-      await t
-        .commit()
-        .then(() => {
-          console.log("Transaction committed");
-          res.status(201).json({
-            message: "Product master created successfully!",
-            product: {
-              ...product.toJSON(),
-              variants: createdVariants,
-            },
-          });
-        })
-        .catch((error: any) => {
-          t.rollback();
-          console.log("error===>", error);
-          next(error);
-        });
-    } catch (error: any) {
-      t.rollback();
-      console.log("error===>", error);
-      next(error);
-    }
-  } else if (
-    req.body.ProductType.toString().toLocaleUpperCase() === "VARIABLE"
-  ) {
-    console.log("req.body", req.body);
-    try {
-      const product = await ProductMaster.create(req.body);
       res.status(201).json({
         message: "Product master created successfully!",
-        product,
+        product: {
+          ...product.toJSON(),
+          variants: createdVariants,
+        },
       });
-    } catch (error: any) {
-      next(error);
-    }
-  } else {
-    res.status(400).json({
-      message: "Product type is required!",
-    });
-  }
+    } else if (
+      req.body.ProductType.toString().toLocaleUpperCase() === "VARIABLE"
+    ) {
+      variants.forEach((variant: any) => {
+        // check if the variant has a Size or Color or Flavour otherwise throw error
+        if (!variant.Size && !variant.Color && !variant.Flavour) {
+          throw new Error(
+            "Size or Color or Flavour is required for each variant!"
+          );
+        }
+      });
 
+      const product = await ProductMaster.create(req.body);
+      const objects = [];
+
+      if (Array.isArray(req.body.ProductCategoryRefGUID)) {
+        let objs = req.body.ProductCategoryRefGUID.map((category: any) => ({
+          ProductCategoryRefGUID: +category,
+          ProductRefGUID: product.ProductGUID,
+        }));
+        console.log("objects", objs);
+        objects.push(...objs);
+      } else if (
+        req.body.ProductCategoryRefGUID &&
+        !isNaN(req.body.ProductCategoryRefGUID)
+      ) {
+        objects.push({
+          ProductCategoryRefGUID: req.body.ProductCategoryRefGUID,
+          ProductRefGUID: product.ProductGUID,
+        });
+      } else {
+        objects.push({
+          ProductCategoryRefGUID: 1,
+          ProductRefGUID: product.ProductGUID,
+        });
+      }
+
+      await ProductAndCategoryMap.bulkCreate(objects, {
+        transaction: t,
+      });
+      let createdVariants = await ProductVariant.bulkCreate(
+        variants.map((variant: any) => ({
+          ...variant,
+          ProductMasterRefGUID: product.ProductGUID,
+          CreatedGUID: req.body.CreatedGUID,
+        })),
+        {
+          transaction: t,
+        }
+      );
+      await t.commit().catch((error) => {
+        console.error("Error occurred while committing transaction:", error);
+        t?.rollback();
+      });
+
+      res.status(201).json({
+        message: "Product master created successfully!",
+        product: {
+          ...product.toJSON(),
+          variants: createdVariants,
+        },
+      });
+    }
+  } catch (error: any) {
+    next(error);
+  } finally {
+  }
   // try {
   //   console.log("req.file.filename", req!.file);
-
   //   if (req.file) {
   //     const { filename, path: tmpPath } = req.file;
   //     req.body.tmpPath = tmpPath;
@@ -245,9 +351,7 @@ export const createProductMaster = async (
   //       filename
   //     );
   //   }
-
   //   const ceratedPhoto = await ProductMaster.create(req.body);
-
   //   if (req.body.tmpPath && req.body.uploadPath) {
   //     fs.rename(req.body.tmpPath, req.body.uploadPath, (err) => {
   //       if (err) console.log(err);
@@ -258,7 +362,6 @@ export const createProductMaster = async (
   //         );
   //     });
   //   }
-
   //   res.status(201).json({
   //     message: "Product master created successfully!",
   //   });
@@ -266,27 +369,21 @@ export const createProductMaster = async (
   //   next(error);
   // }
 };
-
 export const updateProductMaster = async (req: Request, res: Response) => {
   const { ProductMasterGUID } = req.params;
-
   if (req.body.user.UserGUID) {
     req.body.ModifiedGUID = req.body.user.UserGUID;
   } else {
     req.body.ModifiedGUID = decodeJWT(req).UserGUID;
   }
-
   try {
     const productMaster = await ProductMaster.findByPk(ProductMasterGUID);
-
     if (!productMaster) {
       return res.status(400).json({
         message: "Product master not found!",
       });
     }
-
     await productMaster.update(req.body);
-
     res.send({
       message: "Product master updated successfully!",
       productMaster,
@@ -295,31 +392,25 @@ export const updateProductMaster = async (req: Request, res: Response) => {
     res.status(500).json(error);
   }
 };
-
 export const deleteProductMaster = async (req: Request, res: Response) => {
   if (req.body.user.UserGUID) {
     req.body.DeletedGUID = req.body.user.UserGUID;
   } else {
     req.body.DeletedGUID = decodeJWT(req).UserGUID;
   }
-
   const { ProductMasterGUID } = req.params;
-
   try {
     const productMaster = await ProductMaster.findByPk(ProductMasterGUID);
-
     if (!productMaster) {
       return res.status(400).json({
         message: "Product master not found!!",
       });
     }
-
     await ProductMaster.destroy({
       where: {
         ProductMasterGUID,
       },
     });
-
     res.send({
       message: "Product master deleted successfully!",
     });
@@ -327,7 +418,6 @@ export const deleteProductMaster = async (req: Request, res: Response) => {
     res.status(500).json(error);
   }
 };
-
 export const createAttribute = async (req: Request, res: Response) => {
   // get productGUID from params
   const { productGUID } = req.params;

@@ -6,8 +6,13 @@
 
 import {
   AutoIncrement,
+  BeforeBulkCreate,
+  BeforeBulkUpdate,
   BeforeCreate,
+  BeforeUpdate,
   BelongsTo,
+  BelongsToAssociation,
+  BelongsToMany,
   Column,
   DataType,
   ForeignKey,
@@ -25,6 +30,8 @@ import {
   UniqueConstraintError,
   WhereAttributeHashValue,
 } from "sequelize";
+import ProductAndCategoryMap from "./ProductAndCategoryMap.model";
+import ProductMaster from "./ProductMaster.model";
 
 // Path: src/models/ProductCategory.ts
 
@@ -39,7 +46,11 @@ export default class ProductCategory extends Model<ProductCategory> {
   @Column
   ProductCategoryGUID!: number;
 
-  @Column
+  @Column({
+    type: DataType.STRING(400),
+    allowNull: false,
+    field: "ProductCategoryName",
+  })
   ProductCategoryName!: string;
 
   @ForeignKey(() => ProductCategory)
@@ -68,5 +79,34 @@ export default class ProductCategory extends Model<ProductCategory> {
     if (count) {
       throw new Error("Category already exists");
     }
+  }
+  @BelongsToMany(
+    () => ProductMaster,
+    () => ProductAndCategoryMap,
+    "ProductCategoryRefGUID",
+    "ProductRefGUID"
+  )
+  products!: ProductMaster[];
+
+  @BeforeBulkCreate
+  @BeforeBulkUpdate
+  static beforeBulkCreateHook(instances: ProductCategory[]) {
+    instances.forEach((instance) => {
+      Object.entries(instance.toJSON()).forEach(([key, value]) => {
+        if (typeof value === "string") {
+          instance.setDataValue(key as keyof ProductCategory, value.trim());
+        }
+      });
+    });
+  }
+
+  @BeforeCreate
+  @BeforeUpdate
+  static beforeCreateHook(instance: ProductCategory) {
+    Object.entries(instance.toJSON()).forEach(([key, value]) => {
+      if (typeof value === "string") {
+        instance.setDataValue(key as keyof ProductCategory, value.trim());
+      }
+    });
   }
 }

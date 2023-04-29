@@ -4,6 +4,7 @@ import { Op } from "sequelize";
 import decodeJWT from "../../utils/decodeJWT";
 import ProductCategory from "../../models/product/ProductCategory.model";
 import { ProductCategoryNotFoundException } from "../../../custom.error";
+import sequelize from "sequelize/types/sequelize";
 
 export const getAllProductSubCategories = async (
   req: Request,
@@ -11,9 +12,32 @@ export const getAllProductSubCategories = async (
 ) => {
   try {
     const productSubCategories = await ProductSubCategory.findAll({
-      attributes: {
-        exclude: ["CreatedGUID", "CreatedDate"],
-      },
+      attributes: [
+        "id",
+        "ProductMasterRefGUID",
+        "Unit_Price",
+        "MRP",
+        "GST",
+        "Qty",
+        "UnitsInStock",
+        "IsActive",
+        "SKU",
+        "UOM",
+        "Weight",
+        "Length",
+        "Width",
+        "SaleRate",
+        "Size",
+        "Color",
+        "Flavour",
+        // Include 'dimensions' property
+        [
+          sequelize.literal(
+            `JSON_OBJECT('Weight', COALESCE(Weight, 0), 'Length', COALESCE(Length, 0), 'Width', COALESCE(Width, 0))`
+          ),
+          "dimensions",
+        ],
+      ],
       // ProductCategory refe
       include: {
         model: ProductCategory,
