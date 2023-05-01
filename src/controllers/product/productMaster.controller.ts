@@ -5,138 +5,58 @@ import decodeJWT from "../../utils/decodeJWT";
 import path from "node:path";
 import { sequelize } from "../../database";
 import { ProductVariant } from "../../models/product/ProductVariant.model";
-import ProductAndCategoryMap from "../../models/product/ProductAndCategoryMap.model";
-import { Includeable, Transaction } from "sequelize";
+import { Sequelize } from "sequelize-typescript";
+import { Op, Transaction } from "sequelize";
 import ProductCategory from "../../models/product/ProductCategory.model";
 
+type attribute = {
+  [key: string]: string;
+};
+
 export const getAllProductMasters = async (req: Request, res: Response) => {
-  const include: Includeable[] = [
-    {
-      model: ProductAndCategoryMap,
-      attributes: ["ProductCategoryRefGUID"],
-      nested: true,
-      as: "categories",
-      include: [
-        {
-          model: ProductCategory,
-          attributes: ["ProductCategoryName"],
-          as: "ProductCategory",
-        },
-      ],
-    },
-  ];
   try {
     var products = await ProductMaster.findAll({
       include: [
         {
-          model: ProductAndCategoryMap,
-          attributes: ["ProductCategoryRefGUID"],
-          isMultiAssociation: true,
-          include: [
-            {
-              model: ProductCategory,
-              attributes: ["ProductCategoryName"],
-              as: "ProductCategory",
-            },
-          ],
+          model: ProductCategory,
+          attributes: ["ProductCategoryName", "PhotoPath"],
         },
       ],
     });
+    const mappedProducts = mapAllProducts(products, req);
 
-    products.forEach((product: ProductMaster) => {
-      const images = [];
-      for (let i = 1; i <= 4; i++) {
-        const imageKey = `GalleryPhotoPath${i}`;
-        const imagePath = product[imageKey as keyof ProductMaster];
-        const host = req.protocol + "://" + req.get("host");
-        const imageFullPath = path.join(host, imagePath);
-        if (imagePath) {
-          images.push(imageFullPath);
-        }
-      }
-
-      product.categories.forEach((c: any) => {
-        c.setDataValue("Name", c.ProductCategory.ProductCategoryName);
-        c.setDataValue("ProductCategory", undefined);
-        c.setDataValue("ProductCategoryRefGUID", undefined);
-      });
-
-      product.setDataValue("GalleryPhotoPath1", undefined);
-      product.setDataValue("GalleryPhotoPath2", undefined);
-      product.setDataValue("GalleryPhotoPath3", undefined);
-      product.setDataValue("GalleryPhotoPath4", undefined);
-      product.setDataValue("images", images);
-    });
-
-    res.status(200).send({
-      message: "Product masters fetched successfully!",
-      products,
-    });
+    res.status(200).json(mappedProducts);
   } catch (error: any) {
     console.log("---error", error.message);
     res.status(500).json(error);
   }
 };
 
-export const getProductMasterById = async (req: Request, res: Response) => {
-  const { ProductMasterGUID } = req.params;
-  const include: Includeable[] = [
-    {
-      model: ProductAndCategoryMap,
-      attributes: ["ProductCategoryRefGUID"],
-      nested: true,
-      as: "categories",
-      include: [
-        {
-          model: ProductCategory,
-          attributes: ["Name"],
-          as: "ProductCategory",
-        },
-      ],
-    },
-  ];
+export const getProductByQuery = async (req: Request, res: Response) => {
   try {
-    const product = await ProductMaster.findByPk(ProductMasterGUID, {
-      include,
+    const { ProductName, SKU } = req.query;
+    var product = await ProductMaster.findOne({
+      where: {
+        ProductName: {
+          [Op.like]: `%${ProductName}%`,
+        },
+        SKU,
+      },
     });
-    if (product) {
-      const images = [];
-      for (let i = 1; i <= 4; i++) {
-        const imageKey = `GalleryPhotoPath${i}`;
-        const imagePath = product[imageKey as keyof ProductMaster];
-        const host = req.protocol + "://" + req.get("host");
-        const imageFullPath = path.join(host, imagePath);
-        if (imagePath) {
-          images.push(imageFullPath);
-        }
-      }
 
-      product.categories.forEach((c: any) => {
-        c.setDataValue("Name", c.ProductCategory.ProductCategoryName);
-        c.setDataValue("ProductCategory", undefined);
-        c.setDataValue("ProductCategoryRefGUID", undefined);
-      });
-
-      product.setDataValue("GalleryPhotoPath1", undefined);
-      product.setDataValue("GalleryPhotoPath2", undefined);
-      product.setDataValue("GalleryPhotoPath3", undefined);
-      product.setDataValue("GalleryPhotoPath4", undefined);
-      product.setDataValue("images", images);
-
-      res.status(200).send({
-        message: "Product master fetched successfully!",
-        product,
-      });
-    } else {
-      res.status(404).send({
-        message: "Product master not found!",
+    if (!product) {
+      return res.status(400).json({
+        message: "Product not found!",
       });
     }
+
+    res.status(200).json(product);
   } catch (error: any) {
     console.log("---error", error.message);
     res.status(500).json(error);
   }
 };
+
 export const createProductMaster = async (
   req: Request,
   res: Response,
@@ -214,39 +134,7 @@ export const createProductMaster = async (
           transaction: t,
         }
       );
-      if (Array.isArray(req.body.ProductCategoryRefGUID)) {
-        let objects = req.body.ProductCategoryRefGUID.map((category: any) => ({
-          ProductCategoryRefGUID: +category,
-          ProductRefGUID: product.ProductGUID,
-        }));
-        console.log("objects", objects);
-        await ProductAndCategoryMap.bulkCreate(objects, {
-          transaction: t,
-        });
-      } else if (
-        req.body.ProductCategoryRefGUID &&
-        !isNaN(req.body.ProductCategoryRefGUID)
-      ) {
-        await ProductAndCategoryMap.create(
-          {
-            ProductCategoryRefGUID: req.body.ProductCategoryRefGUID,
-            ProductRefGUID: product.ProductGUID,
-          },
-          {
-            transaction: t,
-          }
-        );
-      } else {
-        await ProductAndCategoryMap.create(
-          {
-            ProductCategoryRefGUID: 1,
-            ProductRefGUID: product.ProductGUID,
-          },
-          {
-            transaction: t,
-          }
-        );
-      }
+
       await t.commit();
 
       res.status(201).json({
@@ -293,19 +181,6 @@ export const createProductMaster = async (
         });
       }
 
-      await ProductAndCategoryMap.bulkCreate(objects, {
-        transaction: t,
-      });
-      let createdVariants = await ProductVariant.bulkCreate(
-        variants.map((variant: any) => ({
-          ...variant,
-          ProductMasterRefGUID: product.ProductGUID,
-          CreatedGUID: req.body.CreatedGUID,
-        })),
-        {
-          transaction: t,
-        }
-      );
       await t.commit().catch((error) => {
         console.error("Error occurred while committing transaction:", error);
         t?.rollback();
@@ -315,7 +190,6 @@ export const createProductMaster = async (
         message: "Product master created successfully!",
         product: {
           ...product.toJSON(),
-          variants: createdVariants,
         },
       });
     }
@@ -417,3 +291,78 @@ export const createAttribute = async (req: Request, res: Response) => {
     res.status(500).json(error);
   }
 };
+
+function mapAllProducts(products: ProductMaster[], req: Request) {
+  products.forEach((product: ProductMaster) => {
+    product.Categories = [
+      {
+        name: product.ProductCategory.ProductCategoryName,
+      },
+    ];
+    const images = [];
+    for (let i = 1; i <= 4; i++) {
+      const imageKey = `GalleryPhotoPath${i}`;
+      const imagePath = product[imageKey as keyof ProductMaster];
+      const host = req.protocol + "://" + req.get("host");
+      const imageFullPath = path.join(host, imagePath);
+      if (imagePath) {
+        images.push({
+          id: i,
+          src: imageFullPath,
+          name: path.basename(imagePath),
+          alt: path.basename(imagePath),
+        });
+      }
+    }
+    product.setDataValue("GalleryPhotoPath1", undefined);
+    product.setDataValue("GalleryPhotoPath2", undefined);
+    product.setDataValue("GalleryPhotoPath3", undefined);
+    product.setDataValue("GalleryPhotoPath4", undefined);
+    product.setDataValue("Images", images);
+  });
+
+  const updatedProducts = products.reduce((acc: ProductMaster[], curr) => {
+    const matchingProduct = acc.find((p) => p.ProductName === curr.ProductName);
+
+    if (matchingProduct) {
+      matchingProduct.attributes.push({
+        name: "Qty",
+        options: [curr.SKU + curr.UOM],
+      });
+    } else {
+      let _curr = {
+        ...curr.toJSON(),
+        attributes: [
+          {
+            name: "Qty",
+            options: [curr.SKU + curr.UOM],
+          },
+        ],
+      };
+      acc.push(_curr);
+    }
+
+    return acc;
+  }, []);
+  updatedProducts.forEach((p) => {
+    p.attributes = p.attributes.reduce((acc: any, curr: any) => {
+      const matchingAttribute = acc.find((a: any) => a.name === curr.name);
+      if (matchingAttribute) {
+        matchingAttribute.options.push(curr.options[0]);
+      } else {
+        acc.push(curr);
+      }
+      return acc;
+    }, []);
+
+    p.Dimensions = {
+      height: p.Height || 0,
+      width: p.Width || 0,
+      length: p.Length || 0,
+    };
+    delete p.Height;
+    delete p.Width;
+    delete p.Length;
+  });
+  return updatedProducts;
+}

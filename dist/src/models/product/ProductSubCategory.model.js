@@ -30,7 +30,7 @@ __decorate([
     (0, sequelize_typescript_1.BelongsTo)(() => ProductCategory_model_1.default, {
         foreignKey: "ProductCategoryGUID",
         targetKey: "ProductCategoryGUID",
-        as: "ProductCategory",
+        as: "Parent",
     }),
     (0, sequelize_typescript_1.Column)({
         field: "ProductCategoryGUID",

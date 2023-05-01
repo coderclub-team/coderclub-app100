@@ -5,7 +5,6 @@ import {
   Model,
   Table,
 } from "sequelize-typescript";
-import User from "../User.model";
 import ProductCategory from "./ProductCategory.model";
 
 @Table({
@@ -26,7 +25,7 @@ export default class ProductSubCategory extends Model<ProductSubCategory> {
   @BelongsTo(() => ProductCategory, {
     foreignKey: "ProductCategoryGUID",
     targetKey: "ProductCategoryGUID",
-    as: "ProductCategory",
+    as: "Parent",
   })
   @Column({
     field: "ProductCategoryGUID",

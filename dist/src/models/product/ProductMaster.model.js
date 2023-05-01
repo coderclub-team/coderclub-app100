@@ -22,30 +22,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_typescript_1 = require("sequelize-typescript");
-const ProductAndCategoryMap_model_1 = __importDefault(require("./ProductAndCategoryMap.model"));
+const ProductCategory_model_1 = __importDefault(require("./ProductCategory.model"));
+const ProductSubCategory_model_1 = __importDefault(require("./ProductSubCategory.model"));
 let ProductMaster = class ProductMaster extends sequelize_typescript_1.Model {
     static generateProductGUID(instance) {
+        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             const nextGUID = ((yield this.max("ProductGUID")) || 0) + 1;
-            // const productCategory = await ProductCategory.findByPk(
-            //   instance.ProductCategoryGUID
-            // );
-            // const productSubCategory = await ProductSubCategory.findByPk(
-            //   instance.ProductSubCategoryGUID
-            // );
-            // if (!productCategory || !productSubCategory)
-            //   return (instance.ProductID =
-            //     "ABC-XYZ-" + nextGUID.toString().padStart(4, "0"));
-            // const PRO = productCategory?.ProductCategoryName.substring(
-            //   0,
-            //   3
-            // )?.toUpperCase();
-            // const SUB = productSubCategory?.ProductSubCategoryName.substring(
-            //   0,
-            //   3
-            // )?.toUpperCase();
-            // instance.ProductID =
-            //   PRO + "-" + SUB + "-" + nextGUID.toString().padStart(4, "0");
+            const productCategory = yield ProductCategory_model_1.default.findByPk(instance.ProductCategoryGUID);
+            const productSubCategory = yield ProductSubCategory_model_1.default.findByPk(instance.ProductSubCategoryGUID);
+            if (!productCategory || !productSubCategory)
+                return (instance.ProductID =
+                    "ABC-XYZ-" + nextGUID.toString().padStart(4, "0"));
+            const PRO = (_a = productCategory === null || productCategory === void 0 ? void 0 : productCategory.ProductCategoryName.substring(0, 3)) === null || _a === void 0 ? void 0 : _a.toUpperCase();
+            const SUB = (_b = productSubCategory === null || productSubCategory === void 0 ? void 0 : productSubCategory.ProductSubCategoryName.substring(0, 3)) === null || _b === void 0 ? void 0 : _b.toUpperCase();
+            instance.ProductID =
+                PRO + "-" + SUB + "-" + nextGUID.toString().padStart(4, "0");
             instance.ProductID =
                 "CAT" + "-" + "SUB" + "-" + nextGUID.toString().padStart(4, "0");
             instance.ProductCode = instance.ProductID;
@@ -182,6 +174,10 @@ __decorate([
 __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", String)
+], ProductMaster.prototype, "ProductType", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
 ], ProductMaster.prototype, "GalleryPhotoPath1", void 0);
 __decorate([
     sequelize_typescript_1.Column,
@@ -196,9 +192,68 @@ __decorate([
     __metadata("design:type", String)
 ], ProductMaster.prototype, "GalleryPhotoPath4", void 0);
 __decorate([
-    (0, sequelize_typescript_1.HasMany)(() => ProductAndCategoryMap_model_1.default, "ProductrefGUID"),
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
+], ProductMaster.prototype, "ProductDescription", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], ProductMaster.prototype, "IsFeatured", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], ProductMaster.prototype, "OnSale", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], ProductMaster.prototype, "Width", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], ProductMaster.prototype, "Height", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], ProductMaster.prototype, "Length", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], ProductMaster.prototype, "Weight", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
+], ProductMaster.prototype, "ProductSlug", void 0);
+__decorate([
+    (0, sequelize_typescript_1.ForeignKey)(() => ProductCategory_model_1.default),
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], ProductMaster.prototype, "ProductCategoryGUID", void 0);
+__decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => ProductCategory_model_1.default),
+    __metadata("design:type", ProductCategory_model_1.default)
+], ProductMaster.prototype, "ProductCategory", void 0);
+__decorate([
+    (0, sequelize_typescript_1.ForeignKey)(() => ProductSubCategory_model_1.default),
+    __metadata("design:type", Number)
+], ProductMaster.prototype, "ProductSubCategoryGUID", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.VIRTUAL,
+    }),
     __metadata("design:type", Array)
-], ProductMaster.prototype, "categories", void 0);
+], ProductMaster.prototype, "attributes", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.VIRTUAL,
+    }),
+    __metadata("design:type", Object)
+], ProductMaster.prototype, "Dimensions", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.VIRTUAL,
+    }),
+    __metadata("design:type", Array)
+], ProductMaster.prototype, "Categories", void 0);
 __decorate([
     sequelize_typescript_1.BeforeCreate,
     __metadata("design:type", Function),
@@ -225,7 +280,7 @@ ProductMaster = __decorate([
         timestamps: true,
         paranoid: false,
         createdAt: "CreatedDate",
-        // updatedAt: "ModifiedDate",
+        updatedAt: "UpdatedAt",
         // deletedAt: "DeletedDate",
     })
 ], ProductMaster);

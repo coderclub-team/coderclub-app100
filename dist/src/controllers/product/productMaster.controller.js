@@ -12,74 +12,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createAttribute = exports.deleteProductMaster = exports.updateProductMaster = exports.createProductMaster = exports.getProductMasterById = exports.getAllProductMasters = void 0;
+exports.createAttribute = exports.deleteProductMaster = exports.updateProductMaster = exports.createProductMaster = exports.getProductByQuery = exports.getAllProductMasters = void 0;
 const config_1 = require("../../../config");
 const ProductMaster_model_1 = __importDefault(require("../../models/product/ProductMaster.model"));
 const decodeJWT_1 = __importDefault(require("../../utils/decodeJWT"));
 const node_path_1 = __importDefault(require("node:path"));
 const database_1 = require("../../database");
 const ProductVariant_model_1 = require("../../models/product/ProductVariant.model");
-const ProductAndCategoryMap_model_1 = __importDefault(require("../../models/product/ProductAndCategoryMap.model"));
+const sequelize_1 = require("sequelize");
 const ProductCategory_model_1 = __importDefault(require("../../models/product/ProductCategory.model"));
 const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const include = [
-        {
-            model: ProductAndCategoryMap_model_1.default,
-            attributes: ["ProductCategoryRefGUID"],
-            nested: true,
-            as: "categories",
-            include: [
-                {
-                    model: ProductCategory_model_1.default,
-                    attributes: ["ProductCategoryName"],
-                    as: "ProductCategory",
-                },
-            ],
-        },
-    ];
     try {
         var products = yield ProductMaster_model_1.default.findAll({
             include: [
                 {
-                    model: ProductAndCategoryMap_model_1.default,
-                    attributes: ["ProductCategoryRefGUID"],
-                    isMultiAssociation: true,
-                    include: [
-                        {
-                            model: ProductCategory_model_1.default,
-                            attributes: ["ProductCategoryName"],
-                            as: "ProductCategory",
-                        },
-                    ],
+                    model: ProductCategory_model_1.default,
+                    attributes: ["ProductCategoryName", "PhotoPath"],
                 },
             ],
         });
-        products.forEach((product) => {
-            const images = [];
-            for (let i = 1; i <= 4; i++) {
-                const imageKey = `GalleryPhotoPath${i}`;
-                const imagePath = product[imageKey];
-                const host = req.protocol + "://" + req.get("host");
-                const imageFullPath = node_path_1.default.join(host, imagePath);
-                if (imagePath) {
-                    images.push(imageFullPath);
-                }
-            }
-            product.categories.forEach((c) => {
-                c.setDataValue("Name", c.ProductCategory.ProductCategoryName);
-                c.setDataValue("ProductCategory", undefined);
-                c.setDataValue("ProductCategoryRefGUID", undefined);
-            });
-            product.setDataValue("GalleryPhotoPath1", undefined);
-            product.setDataValue("GalleryPhotoPath2", undefined);
-            product.setDataValue("GalleryPhotoPath3", undefined);
-            product.setDataValue("GalleryPhotoPath4", undefined);
-            product.setDataValue("images", images);
-        });
-        res.status(200).send({
-            message: "Product masters fetched successfully!",
-            products,
-        });
+        const mappedProducts = mapAllProducts(products, req);
+        res.status(200).json(mappedProducts);
     }
     catch (error) {
         console.log("---error", error.message);
@@ -87,65 +40,24 @@ const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 exports.getAllProductMasters = getAllProductMasters;
-const getProductMasterById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { ProductMasterGUID } = req.params;
-    const include = [
-        {
-            model: ProductAndCategoryMap_model_1.default,
-            attributes: ["ProductCategoryRefGUID"],
-            nested: true,
-            as: "categories",
-            include: [
-                {
-                    model: ProductCategory_model_1.default,
-                    attributes: ["Name"],
-                    as: "ProductCategory",
-                },
-            ],
-        },
-    ];
+const getProductByQuery = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const product = yield ProductMaster_model_1.default.findByPk(ProductMasterGUID, {
-            include,
+        const { query } = req.params;
+        var products = yield ProductMaster_model_1.default.findAll({
+            where: {
+                ProductName: {
+                    [sequelize_1.Op.like]: `%${query}%`,
+                },
+            },
         });
-        if (product) {
-            const images = [];
-            for (let i = 1; i <= 4; i++) {
-                const imageKey = `GalleryPhotoPath${i}`;
-                const imagePath = product[imageKey];
-                const host = req.protocol + "://" + req.get("host");
-                const imageFullPath = node_path_1.default.join(host, imagePath);
-                if (imagePath) {
-                    images.push(imageFullPath);
-                }
-            }
-            product.categories.forEach((c) => {
-                c.setDataValue("Name", c.ProductCategory.ProductCategoryName);
-                c.setDataValue("ProductCategory", undefined);
-                c.setDataValue("ProductCategoryRefGUID", undefined);
-            });
-            product.setDataValue("GalleryPhotoPath1", undefined);
-            product.setDataValue("GalleryPhotoPath2", undefined);
-            product.setDataValue("GalleryPhotoPath3", undefined);
-            product.setDataValue("GalleryPhotoPath4", undefined);
-            product.setDataValue("images", images);
-            res.status(200).send({
-                message: "Product master fetched successfully!",
-                product,
-            });
-        }
-        else {
-            res.status(404).send({
-                message: "Product master not found!",
-            });
-        }
+        res.status(200).json(products[0]);
     }
     catch (error) {
         console.log("---error", error.message);
         res.status(500).json(error);
     }
 });
-exports.getProductMasterById = getProductMasterById;
+exports.getProductByQuery = getProductByQuery;
 const createProductMaster = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.body.ProductType) {
         res.status(400).json({
@@ -195,33 +107,6 @@ const createProductMaster = (req, res, next) => __awaiter(void 0, void 0, void 0
             let createdVariants = yield ProductVariant_model_1.ProductVariant.bulkCreate(variants.map((variant) => (Object.assign(Object.assign({}, variant), { ProductMasterRefGUID: product.ProductGUID, CreatedGUID: req.body.CreatedGUID }))), {
                 transaction: t,
             });
-            if (Array.isArray(req.body.ProductCategoryRefGUID)) {
-                let objects = req.body.ProductCategoryRefGUID.map((category) => ({
-                    ProductCategoryRefGUID: +category,
-                    ProductRefGUID: product.ProductGUID,
-                }));
-                console.log("objects", objects);
-                yield ProductAndCategoryMap_model_1.default.bulkCreate(objects, {
-                    transaction: t,
-                });
-            }
-            else if (req.body.ProductCategoryRefGUID &&
-                !isNaN(req.body.ProductCategoryRefGUID)) {
-                yield ProductAndCategoryMap_model_1.default.create({
-                    ProductCategoryRefGUID: req.body.ProductCategoryRefGUID,
-                    ProductRefGUID: product.ProductGUID,
-                }, {
-                    transaction: t,
-                });
-            }
-            else {
-                yield ProductAndCategoryMap_model_1.default.create({
-                    ProductCategoryRefGUID: 1,
-                    ProductRefGUID: product.ProductGUID,
-                }, {
-                    transaction: t,
-                });
-            }
             yield t.commit();
             res.status(201).json({
                 message: "Product master created successfully!",
@@ -258,19 +143,13 @@ const createProductMaster = (req, res, next) => __awaiter(void 0, void 0, void 0
                     ProductRefGUID: product.ProductGUID,
                 });
             }
-            yield ProductAndCategoryMap_model_1.default.bulkCreate(objects, {
-                transaction: t,
-            });
-            let createdVariants = yield ProductVariant_model_1.ProductVariant.bulkCreate(variants.map((variant) => (Object.assign(Object.assign({}, variant), { ProductMasterRefGUID: product.ProductGUID, CreatedGUID: req.body.CreatedGUID }))), {
-                transaction: t,
-            });
             yield t.commit().catch((error) => {
                 console.error("Error occurred while committing transaction:", error);
                 t === null || t === void 0 ? void 0 : t.rollback();
             });
             res.status(201).json({
                 message: "Product master created successfully!",
-                product: Object.assign(Object.assign({}, product.toJSON()), { variants: createdVariants }),
+                product: Object.assign({}, product.toJSON()),
             });
         }
     }
@@ -382,3 +261,72 @@ const createAttribute = (req, res) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.createAttribute = createAttribute;
+function mapAllProducts(products, req) {
+    products.forEach((product) => {
+        product.Categories = [
+            {
+                name: product.ProductCategory.ProductCategoryName,
+            },
+        ];
+        const images = [];
+        for (let i = 1; i <= 4; i++) {
+            const imageKey = `GalleryPhotoPath${i}`;
+            const imagePath = product[imageKey];
+            const host = req.protocol + "://" + req.get("host");
+            const imageFullPath = node_path_1.default.join(host, imagePath);
+            if (imagePath) {
+                images.push({
+                    id: i,
+                    src: imageFullPath,
+                    name: node_path_1.default.basename(imagePath),
+                    alt: node_path_1.default.basename(imagePath),
+                });
+            }
+        }
+        product.setDataValue("GalleryPhotoPath1", undefined);
+        product.setDataValue("GalleryPhotoPath2", undefined);
+        product.setDataValue("GalleryPhotoPath3", undefined);
+        product.setDataValue("GalleryPhotoPath4", undefined);
+        product.setDataValue("Images", images);
+    });
+    const updatedProducts = products.reduce((acc, curr) => {
+        const matchingProduct = acc.find((p) => p.ProductName === curr.ProductName);
+        if (matchingProduct) {
+            matchingProduct.attributes.push({
+                name: "Qty",
+                options: [curr.SKU + curr.UOM],
+            });
+        }
+        else {
+            let _curr = Object.assign(Object.assign({}, curr.toJSON()), { attributes: [
+                    {
+                        name: "Qty",
+                        options: [curr.SKU + curr.UOM],
+                    },
+                ] });
+            acc.push(_curr);
+        }
+        return acc;
+    }, []);
+    updatedProducts.forEach((p) => {
+        p.attributes = p.attributes.reduce((acc, curr) => {
+            const matchingAttribute = acc.find((a) => a.name === curr.name);
+            if (matchingAttribute) {
+                matchingAttribute.options.push(curr.options[0]);
+            }
+            else {
+                acc.push(curr);
+            }
+            return acc;
+        }, []);
+        p.Dimensions = {
+            height: p.Height || 0,
+            width: p.Width || 0,
+            length: p.Length || 0,
+        };
+        delete p.Height;
+        delete p.Width;
+        delete p.Length;
+    });
+    return updatedProducts;
+}

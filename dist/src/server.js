@@ -45,6 +45,7 @@ const node_path_1 = __importDefault(require("node:path"));
 const cors_1 = __importDefault(require("cors"));
 const user_router_1 = __importDefault(require("./routes/user.router"));
 const productCategory_router_1 = __importDefault(require("./routes/product/productCategory.router"));
+const productSubCategory_router_1 = __importDefault(require("./routes/product/productSubCategory.router"));
 const ProductMaster_router_1 = __importDefault(require("./routes/product/ProductMaster.router"));
 // Set the base URL and store it in app.locals
 const app = (0, express_1.default)();
@@ -66,6 +67,7 @@ app.use("/api", auth_router_1.default);
 app.use("/api/users", authGaurd_middleware_1.default, user_router_1.default);
 app.use("/api/productMasters", authGaurd_middleware_1.default, ProductMaster_router_1.default);
 app.use("/api/productcategories", productCategory_router_1.default);
+app.use("/api/productsubcategories", productSubCategory_router_1.default);
 app.listen(3000, () => {
     console.log("Server started on port 3000");
 });

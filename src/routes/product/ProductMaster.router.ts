@@ -8,7 +8,8 @@ import {
   createProductMaster,
   deleteProductMaster,
   getAllProductMasters,
-  getProductMasterById,
+  getProductByQuery,
+
   // getProductMasterById,
   updateProductMaster,
 } from "../../controllers/product/productMaster.controller";
@@ -34,7 +35,7 @@ const upload = multer({
 });
 
 router.get("/", getAllProductMasters);
-router.get("/:ProductMasterGUID", getProductMasterById);
+router.get("/searchproduct", getProductByQuery);
 router.post(
   "/",
   upload.fields([

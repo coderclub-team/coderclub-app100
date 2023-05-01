@@ -30,10 +30,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
       user.setDataValue("PhotoPath", imageFullPath);
     });
 
-    return res.status(200).json({
-      message: "Users fetched successfully!",
-      users,
-    });
+    return res.status(200).json(users);
   } catch (error) {
     return res.status(500).json(error);
   }
@@ -63,10 +60,7 @@ export const getUserById = async (req: Request, res: Response) => {
     const imageFullPath = path.join(host, imagePath);
     user.setDataValue("PhotoPath", imageFullPath);
 
-    return res.status(200).json({
-      message: "User fetched successfully!",
-      user,
-    });
+    return res.status(200).json(user);
   } catch (error) {
     return res.status(500).json(error);
   }

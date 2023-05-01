@@ -16,44 +16,16 @@ exports.deleteProductSubCategory = exports.updateProductSubCategory = exports.cr
 const ProductSubCategory_model_1 = __importDefault(require("../../models/product/ProductSubCategory.model"));
 const decodeJWT_1 = __importDefault(require("../../utils/decodeJWT"));
 const ProductCategory_model_1 = __importDefault(require("../../models/product/ProductCategory.model"));
-const sequelize_1 = __importDefault(require("sequelize/types/sequelize"));
 const getAllProductSubCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const productSubCategories = yield ProductSubCategory_model_1.default.findAll({
-            attributes: [
-                "id",
-                "ProductMasterRefGUID",
-                "Unit_Price",
-                "MRP",
-                "GST",
-                "Qty",
-                "UnitsInStock",
-                "IsActive",
-                "SKU",
-                "UOM",
-                "Weight",
-                "Length",
-                "Width",
-                "SaleRate",
-                "Size",
-                "Color",
-                "Flavour",
-                // Include 'dimensions' property
-                [
-                    sequelize_1.default.literal(`JSON_OBJECT('Weight', COALESCE(Weight, 0), 'Length', COALESCE(Length, 0), 'Width', COALESCE(Width, 0))`),
-                    "dimensions",
-                ],
-            ],
             // ProductCategory refe
             include: {
                 model: ProductCategory_model_1.default,
                 attributes: ["ProductCategoryName"],
             },
         });
-        res.status(200).json({
-            message: "Product sub categories fetched successfully!",
-            productSubCategories,
-        });
+        res.status(200).json(productSubCategories);
     }
     catch (error) {
         res.status(500).json(error);
@@ -64,9 +36,6 @@ const getProductSubCategoryById = (req, res) => __awaiter(void 0, void 0, void 0
     const { ProductSubCategoryGUID } = req.params;
     try {
         const productSubCategory = yield ProductSubCategory_model_1.default.findByPk(ProductSubCategoryGUID, {
-            attributes: {
-                exclude: ["CreatedGUID", "CreatedDate"],
-            },
             include: {
                 model: ProductCategory_model_1.default,
                 attributes: ["ProductCategoryName"],

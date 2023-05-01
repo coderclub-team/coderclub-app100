@@ -42,10 +42,7 @@ const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             const imageFullPath = node_path_1.default.join(host, imagePath);
             user.setDataValue("PhotoPath", imageFullPath);
         });
-        return res.status(200).json({
-            message: "Users fetched successfully!",
-            users,
-        });
+        return res.status(200).json(users);
     }
     catch (error) {
         return res.status(500).json(error);
@@ -75,10 +72,7 @@ const getUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         const host = req.protocol + "://" + req.get("host");
         const imageFullPath = node_path_1.default.join(host, imagePath);
         user.setDataValue("PhotoPath", imageFullPath);
-        return res.status(200).json({
-            message: "User fetched successfully!",
-            user,
-        });
+        return res.status(200).json(user);
     }
     catch (error) {
         return res.status(500).json(error);

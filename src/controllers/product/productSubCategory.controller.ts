@@ -1,10 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import ProductSubCategory from "../../models/product/ProductSubCategory.model";
-import { Op } from "sequelize";
 import decodeJWT from "../../utils/decodeJWT";
 import ProductCategory from "../../models/product/ProductCategory.model";
-import { ProductCategoryNotFoundException } from "../../../custom.error";
-import sequelize from "sequelize/types/sequelize";
 
 export const getAllProductSubCategories = async (
   req: Request,
@@ -12,32 +9,6 @@ export const getAllProductSubCategories = async (
 ) => {
   try {
     const productSubCategories = await ProductSubCategory.findAll({
-      attributes: [
-        "id",
-        "ProductMasterRefGUID",
-        "Unit_Price",
-        "MRP",
-        "GST",
-        "Qty",
-        "UnitsInStock",
-        "IsActive",
-        "SKU",
-        "UOM",
-        "Weight",
-        "Length",
-        "Width",
-        "SaleRate",
-        "Size",
-        "Color",
-        "Flavour",
-        // Include 'dimensions' property
-        [
-          sequelize.literal(
-            `JSON_OBJECT('Weight', COALESCE(Weight, 0), 'Length', COALESCE(Length, 0), 'Width', COALESCE(Width, 0))`
-          ),
-          "dimensions",
-        ],
-      ],
       // ProductCategory refe
       include: {
         model: ProductCategory,
@@ -45,10 +16,7 @@ export const getAllProductSubCategories = async (
       },
     });
 
-    res.status(200).json({
-      message: "Product sub categories fetched successfully!",
-      productSubCategories,
-    });
+    res.status(200).json(productSubCategories);
   } catch (error) {
     res.status(500).json(error);
   }
@@ -64,9 +32,6 @@ export const getProductSubCategoryById = async (
     const productSubCategory = await ProductSubCategory.findByPk(
       ProductSubCategoryGUID,
       {
-        attributes: {
-          exclude: ["CreatedGUID", "CreatedDate"],
-        },
         include: {
           model: ProductCategory,
           attributes: ["ProductCategoryName"],

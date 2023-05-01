@@ -8,6 +8,7 @@ import path from "node:path";
 import cors from "cors";
 import userRouter from "./routes/user.router";
 import productCategoryRouter from "./routes/product/productCategory.router";
+import productSubCategoryRouter from "./routes/product/productSubCategory.router";
 import productMasterRouter from "./routes/product/ProductMaster.router";
 import trimRequestBody from "./middlewares/trimRequestBody.middleware";
 
@@ -35,6 +36,7 @@ app.use("/api", authRouter);
 app.use("/api/users", authGaurd, userRouter);
 app.use("/api/productMasters", authGaurd, productMasterRouter);
 app.use("/api/productcategories", productCategoryRouter);
+app.use("/api/productsubcategories", productSubCategoryRouter);
 
 app.listen(3000, () => {
   console.log("Server started on port 3000");

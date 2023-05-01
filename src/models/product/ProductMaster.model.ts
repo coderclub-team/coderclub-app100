@@ -10,20 +10,21 @@ import {
   DataType,
   ForeignKey,
   HasMany,
+  HasOne,
   Model,
   PrimaryKey,
   Table,
 } from "sequelize-typescript";
 import ProductCategory from "./ProductCategory.model";
-import ProductAndCategoryMap from "./ProductAndCategoryMap.model";
-import { sequelize } from "../../database";
+import ProductSubCategory from "./ProductSubCategory.model";
 
 @Table({
   tableName: "tbl_ProductMaster",
   timestamps: true,
   paranoid: false,
   createdAt: "CreatedDate",
-  // updatedAt: "ModifiedDate",
+  updatedAt: "UpdatedAt",
+
   // deletedAt: "DeletedDate",
 })
 class ProductMaster extends Model {
@@ -104,6 +105,7 @@ class ProductMaster extends Model {
   UOMTypeGUID!: string;
   @Column
   PhotoPath!: string;
+  @Column
   ProductType!: string;
   @Column
   GalleryPhotoPath1?: string;
@@ -113,42 +115,82 @@ class ProductMaster extends Model {
   GalleryPhotoPath3?: string;
   @Column
   GalleryPhotoPath4?: string;
+  @Column
   ProductDescription!: string;
+  @Column
   IsFeatured!: number;
+  @Column
   OnSale!: number;
-  Width!: number;
-  Height!: number;
-  Length!: number;
+  @Column
+  Width?: number;
+  @Column
+  Height?: number;
+  @Column
+  Length?: number;
+  @Column
   Weight!: number;
+  @Column
   ProductSlug!: string;
 
-  @HasMany(() => ProductAndCategoryMap, "ProductrefGUID")
-  categories!: ProductCategory[];
+  @ForeignKey(() => ProductCategory)
+  @Column
+  ProductCategoryGUID!: number;
+
+  @BelongsTo(() => ProductCategory)
+  ProductCategory!: ProductCategory;
+
+  @ForeignKey(() => ProductSubCategory)
+  ProductSubCategoryGUID!: number;
+
+  @Column({
+    type: DataType.VIRTUAL,
+  })
+  attributes!: {
+    [x: string]: any;
+    name: string;
+    options: string[]; // [key: string]: string;];
+  }[];
+
+  @Column({
+    type: DataType.VIRTUAL,
+  })
+  Dimensions!: {
+    width: number;
+    height: number;
+    length: number;
+  };
+
+  @Column({
+    type: DataType.VIRTUAL,
+  })
+  Categories?: {
+    name: string;
+  }[];
 
   @BeforeCreate
   static async generateProductGUID(instance: ProductMaster) {
     const nextGUID =
       (((await this.max("ProductGUID")) as null | number) || 0) + 1;
 
-    // const productCategory = await ProductCategory.findByPk(
-    //   instance.ProductCategoryGUID
-    // );
-    // const productSubCategory = await ProductSubCategory.findByPk(
-    //   instance.ProductSubCategoryGUID
-    // );
-    // if (!productCategory || !productSubCategory)
-    //   return (instance.ProductID =
-    //     "ABC-XYZ-" + nextGUID.toString().padStart(4, "0"));
-    // const PRO = productCategory?.ProductCategoryName.substring(
-    //   0,
-    //   3
-    // )?.toUpperCase();
-    // const SUB = productSubCategory?.ProductSubCategoryName.substring(
-    //   0,
-    //   3
-    // )?.toUpperCase();
-    // instance.ProductID =
-    //   PRO + "-" + SUB + "-" + nextGUID.toString().padStart(4, "0");
+    const productCategory = await ProductCategory.findByPk(
+      instance.ProductCategoryGUID
+    );
+    const productSubCategory = await ProductSubCategory.findByPk(
+      instance.ProductSubCategoryGUID
+    );
+    if (!productCategory || !productSubCategory)
+      return (instance.ProductID =
+        "ABC-XYZ-" + nextGUID.toString().padStart(4, "0"));
+    const PRO = productCategory?.ProductCategoryName.substring(
+      0,
+      3
+    )?.toUpperCase();
+    const SUB = productSubCategory?.ProductSubCategoryName.substring(
+      0,
+      3
+    )?.toUpperCase();
+    instance.ProductID =
+      PRO + "-" + SUB + "-" + nextGUID.toString().padStart(4, "0");
     instance.ProductID =
       "CAT" + "-" + "SUB" + "-" + nextGUID.toString().padStart(4, "0");
     instance.ProductCode = instance.ProductID;
