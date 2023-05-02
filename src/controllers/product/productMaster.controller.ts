@@ -6,7 +6,7 @@ import path from "node:path";
 import { sequelize } from "../../database";
 import { ProductVariant } from "../../models/product/ProductVariant.model";
 import { Sequelize } from "sequelize-typescript";
-import { Op, Transaction } from "sequelize";
+import { Filterable, Op, Transaction } from "sequelize";
 import ProductCategory from "../../models/product/ProductCategory.model";
 
 type attribute = {
@@ -14,8 +14,16 @@ type attribute = {
 };
 
 export const getAllProductMasters = async (req: Request, res: Response) => {
+  const { ProductName, SKU } = req.query;
+
   try {
     var products = await ProductMaster.findAll({
+      where: {
+        ProductName: {
+          [Op.like]: `%${ProductName}%`,
+        },
+        SKU,
+      },
       include: [
         {
           model: ProductCategory,

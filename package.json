@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "ts-node-dev --respawn  src/server.ts",
+    "dev": "node   dist/src/server.js",
     "build": "tsc",
     "prestart": "npm run build",
     "migrate": "npx sequelize-cli db:migrate",

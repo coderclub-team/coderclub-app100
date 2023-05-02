@@ -22,8 +22,15 @@ const ProductVariant_model_1 = require("../../models/product/ProductVariant.mode
 const sequelize_1 = require("sequelize");
 const ProductCategory_model_1 = __importDefault(require("../../models/product/ProductCategory.model"));
 const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { ProductName, SKU } = req.query;
     try {
         var products = yield ProductMaster_model_1.default.findAll({
+            where: {
+                ProductName: {
+                    [sequelize_1.Op.like]: `%${ProductName}%`,
+                },
+                SKU,
+            },
             include: [
                 {
                     model: ProductCategory_model_1.default,
@@ -42,15 +49,21 @@ const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, fun
 exports.getAllProductMasters = getAllProductMasters;
 const getProductByQuery = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { query } = req.params;
-        var products = yield ProductMaster_model_1.default.findAll({
+        const { ProductName, SKU } = req.query;
+        var product = yield ProductMaster_model_1.default.findOne({
             where: {
                 ProductName: {
-                    [sequelize_1.Op.like]: `%${query}%`,
+                    [sequelize_1.Op.like]: `%${ProductName}%`,
                 },
+                SKU,
             },
         });
-        res.status(200).json(products[0]);
+        if (!product) {
+            return res.status(400).json({
+                message: "Product not found!",
+            });
+        }
+        res.status(200).json(product);
     }
     catch (error) {
         console.log("---error", error.message);
