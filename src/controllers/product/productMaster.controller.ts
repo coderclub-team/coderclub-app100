@@ -14,16 +14,8 @@ type attribute = {
 };
 
 export const getAllProductMasters = async (req: Request, res: Response) => {
-  const { ProductName, SKU } = req.query;
-
   try {
     var products = await ProductMaster.findAll({
-      where: {
-        ProductName: {
-          [Op.like]: `%${ProductName}%`,
-        },
-        SKU,
-      },
       include: [
         {
           model: ProductCategory,

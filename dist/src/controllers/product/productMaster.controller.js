@@ -22,15 +22,8 @@ const ProductVariant_model_1 = require("../../models/product/ProductVariant.mode
 const sequelize_1 = require("sequelize");
 const ProductCategory_model_1 = __importDefault(require("../../models/product/ProductCategory.model"));
 const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { ProductName, SKU } = req.query;
     try {
         var products = yield ProductMaster_model_1.default.findAll({
-            where: {
-                ProductName: {
-                    [sequelize_1.Op.like]: `%${ProductName}%`,
-                },
-                SKU,
-            },
             include: [
                 {
                     model: ProductCategory_model_1.default,
