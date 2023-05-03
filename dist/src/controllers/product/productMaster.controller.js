@@ -19,7 +19,6 @@ const decodeJWT_1 = __importDefault(require("../../utils/decodeJWT"));
 const node_path_1 = __importDefault(require("node:path"));
 const database_1 = require("../../database");
 const ProductVariant_model_1 = require("../../models/product/ProductVariant.model");
-const sequelize_typescript_1 = require("sequelize-typescript");
 const sequelize_1 = require("sequelize");
 const ProductCategory_model_1 = __importDefault(require("../../models/product/ProductCategory.model"));
 const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -32,7 +31,7 @@ const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, fun
         where.ProductID = ProductID;
     }
     if (ProductName) {
-        where.ProductName = "Cow Milk Bottle";
+        where.ProductName = ProductName;
     }
     if (ProductCode) {
         where.ProductCode = {
@@ -48,16 +47,8 @@ const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, fun
         where.SKU = SKU;
     }
     try {
-        const count = yield ProductMaster_model_1.default.count({
-            where: {
-                ProductName: "Cow Milk Bottle",
-            },
-        });
-        console.log("ProductMaster.count", count);
         var products = yield ProductMaster_model_1.default.findAll({
-            where: {
-                ProductName: "Cow Milk Bottle",
-            },
+            where,
             include: [
                 {
                     model: ProductCategory_model_1.default,
@@ -65,9 +56,7 @@ const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, fun
                 },
             ],
         });
-        const options = yield getProductOptions();
-        console.log("options", options);
-        const mappedProducts = mapAllProducts(products, req);
+        const mappedProducts = yield mapAllProducts(products, req);
         res.status(200).json(mappedProducts);
     }
     catch (error) {
@@ -304,116 +293,82 @@ const createAttribute = (req, res) => __awaiter(void 0, void 0, void 0, function
 });
 exports.createAttribute = createAttribute;
 function mapAllProducts(products, req) {
-    products.forEach((product) => {
-        if (product.ProductCategory)
-            product.Categories = [
-                {
-                    name: product.ProductCategory.ProductCategoryName,
-                },
-            ];
-        const images = [];
-        for (let i = 1; i <= 4; i++) {
-            const imageKey = `GalleryPhotoPath${i}`;
-            const imagePath = product[imageKey];
-            const host = req.protocol + "://" + req.get("host");
-            const imageFullPath = node_path_1.default.join(host, imagePath);
-            if (imagePath) {
-                images.push({
-                    id: i,
-                    src: imageFullPath,
-                    name: node_path_1.default.basename(imagePath),
-                    alt: node_path_1.default.basename(imagePath),
-                });
+    return __awaiter(this, void 0, void 0, function* () {
+        const options = yield getProductOptions();
+        products.forEach((product) => {
+            // adding attributes to product
+            const found = options.find((o) => o.ProductName === product.ProductName);
+            if (found) {
+                product.attributes = [
+                    {
+                        name: "Qty",
+                        options: found.options.replace(/\s/g, "").split(","),
+                        variation: true,
+                        visible: true,
+                    },
+                ];
             }
-        }
-        product.setDataValue("GalleryPhotoPath1", undefined);
-        product.setDataValue("GalleryPhotoPath2", undefined);
-        product.setDataValue("GalleryPhotoPath3", undefined);
-        product.setDataValue("GalleryPhotoPath4", undefined);
-        product.setDataValue("Images", images);
+            // adding categories to product
+            if (product.ProductCategory)
+                product.Categories = [
+                    {
+                        name: product.ProductCategory.ProductCategoryName,
+                    },
+                ];
+            const images = [];
+            for (let i = 1; i <= 4; i++) {
+                const imageKey = `GalleryPhotoPath${i}`;
+                const imagePath = product[imageKey];
+                const host = req.protocol + "://" + req.get("host");
+                const imageFullPath = node_path_1.default.join(host, imagePath);
+                if (imagePath) {
+                    images.push({
+                        id: i,
+                        src: imageFullPath,
+                        name: node_path_1.default.basename(imagePath),
+                        alt: node_path_1.default.basename(imagePath),
+                    });
+                }
+            }
+            product.setDataValue("GalleryPhotoPath1", undefined);
+            product.setDataValue("GalleryPhotoPath2", undefined);
+            product.setDataValue("GalleryPhotoPath3", undefined);
+            product.setDataValue("GalleryPhotoPath4", undefined);
+            product.setDataValue("Images", images);
+        });
+        products.forEach((p) => {
+            p.attributes = p.attributes.reduce((acc, curr) => {
+                const matchingAttribute = acc.find((a) => a.name === curr.name);
+                if (matchingAttribute) {
+                    matchingAttribute.options.push(curr.options[0]);
+                }
+                else {
+                    acc.push(curr);
+                }
+                return acc;
+            }, []);
+            p.Dimensions = {
+                height: p.Height || 0,
+                width: p.Width || 0,
+                length: p.Length || 0,
+            };
+            delete p.Height;
+            delete p.Width;
+            delete p.Length;
+        });
+        return products;
     });
-    // const data = products.reduceRight((acc: ProductMaster[], curr) => {
-    //   const matchingProduct = acc.find((p) => p.ProductName === curr.ProductName);
-    //   if (matchingProduct?.ProductGUID) {
-    //     console.log("matchingProduct", matchingProduct.ProductName);
-    //     matchingProduct.attributes.push({
-    //       name: "Qty",
-    //       options: [curr.SKU + curr.UOM],
-    //     });
-    //     return acc;
-    //   } else {
-    //     console.log("curr", curr.ProductName);
-    //     let _curr = {
-    //       ...curr.toJSON(),
-    //       attributes: [
-    //         {
-    //           name: "Qty",
-    //           options: [curr.SKU + curr.UOM],
-    //         },
-    //       ],
-    //     };
-    //     acc.push(_curr);
-    //     return acc;
-    //   }
-    // }, []);
-    // console.log(
-    //   "data",
-    //   data.map((d) => JSON.stringify(d.attributes))
-    // );
-    // updatedProducts.forEach((p) => {
-    //   p.attributes = p.attributes.reduce((acc: any, curr: any) => {
-    //     const matchingAttribute = acc.find((a: any) => a.name === curr.name);
-    //     if (matchingAttribute) {
-    //       matchingAttribute.options.push(curr.options[0]);
-    //     } else {
-    //       acc.push(curr);
-    //     }
-    //     return acc;
-    //   }, []);
-    //   p.Dimensions = {
-    //     height: p.Height || 0,
-    //     width: p.Width || 0,
-    //     length: p.Length || 0,
-    //   };
-    //   delete p.Height;
-    //   delete p.Width;
-    //   delete p.Length;
-    // });
-    return products;
-}
-function mergeAttributes(products) {
-    const mergedProducts = [];
-    for (let i = 0; i < products.length; i++) {
-        const product = products[i];
-        let found = false;
-        for (let j = 0; j < mergedProducts.length; j++) {
-            const mergedProduct = mergedProducts[j];
-            if (product.ProductName === mergedProduct.ProductName) {
-                mergedProduct.attributes[0].options.push(...product.attributes[0].options);
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            mergedProducts.push(product);
-        }
-    }
-    return mergedProducts;
 }
 function getProductOptions() {
-    return ProductMaster_model_1.default.findAll({
-        attributes: [
-            "ProductName",
-            [
-                sequelize_typescript_1.Sequelize.fn("STUFF", [
-                    sequelize_typescript_1.Sequelize.literal(`(SELECT ', ' + CONCAT(SKU,UOM) FROM tbl_ProductMaster p2 WHERE p1.ProductName = p2.ProductName FOR XML PATH(''))`),
-                    1,
-                    2,
-                    "",
-                ]),
-                "options",
-            ],
-        ],
-        group: ["ProductName"],
+    const query = `
+SELECT  ProductName, 
+STUFF((SELECT ', ' + CONCAT(SKU,UOM)
+FROM tbl_ProductMaster as p2
+WHERE p1.ProductName = p2.ProductName
+FOR XML PATH('')), 1, 2, '') AS options
+from tbl_ProductMaster as p1 GROUP by ProductName
+`;
+    return database_1.sequelize.query(query, {
+        type: sequelize_1.QueryTypes.SELECT,
     });
 }
