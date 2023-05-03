@@ -6,16 +6,49 @@ import path from "node:path";
 import { sequelize } from "../../database";
 import { ProductVariant } from "../../models/product/ProductVariant.model";
 import { Sequelize } from "sequelize-typescript";
-import { Filterable, Op, Transaction } from "sequelize";
+import {
+  Filterable,
+  Op,
+  QueryTypes,
+  Transaction,
+  WhereOptions,
+} from "sequelize";
 import ProductCategory from "../../models/product/ProductCategory.model";
 
-type attribute = {
-  [key: string]: string;
-};
+type MyWhereType = Filterable<any>["where"] & WhereOptions<any>;
 
 export const getAllProductMasters = async (req: Request, res: Response) => {
+  const { ProductGUID, ProductID, ProductName, ProductCode, ProductType, SKU } =
+    req.query;
+
+  const where: MyWhereType = {};
+  if (ProductGUID) {
+    where.ProductGUID = ProductGUID;
+  }
+
+  if (ProductID) {
+    where.ProductID = ProductID;
+  }
+  if (ProductName) {
+    where.ProductName = ProductName;
+  }
+  if (ProductCode) {
+    where.ProductCode = {
+      [Op.like]: `%${ProductCode}%`,
+    };
+  }
+  if (ProductType) {
+    where.ProductType = {
+      [Op.like]: `%${ProductType}%`,
+    };
+  }
+  if (SKU) {
+    where.SKU = SKU;
+  }
+
   try {
     var products = await ProductMaster.findAll({
+      where,
       include: [
         {
           model: ProductCategory,
@@ -23,8 +56,8 @@ export const getAllProductMasters = async (req: Request, res: Response) => {
         },
       ],
     });
-    const mappedProducts = mapAllProducts(products, req);
 
+    const mappedProducts = await mapAllProducts(products, req);
     res.status(200).json(mappedProducts);
   } catch (error: any) {
     console.log("---error", error.message);
@@ -292,13 +325,30 @@ export const createAttribute = async (req: Request, res: Response) => {
   }
 };
 
-function mapAllProducts(products: ProductMaster[], req: Request) {
+async function mapAllProducts(products: ProductMaster[], req: Request) {
+  const options = await getProductOptions();
+
   products.forEach((product: ProductMaster) => {
-    product.Categories = [
-      {
-        name: product.ProductCategory.ProductCategoryName,
-      },
-    ];
+    // adding attributes to product
+    const found = options.find((o) => o.ProductName === product.ProductName);
+    if (found) {
+      product.attributes = [
+        {
+          name: "Qty",
+          options: found.options.replace(/\s/g, "").split(","),
+          variation: true,
+          visible: true,
+        },
+      ];
+    }
+    // adding categories to product
+
+    if (product.ProductCategory)
+      product.Categories = [
+        {
+          name: product.ProductCategory.ProductCategoryName,
+        },
+      ];
     const images = [];
     for (let i = 1; i <= 4; i++) {
       const imageKey = `GalleryPhotoPath${i}`;
@@ -321,30 +371,7 @@ function mapAllProducts(products: ProductMaster[], req: Request) {
     product.setDataValue("Images", images);
   });
 
-  const updatedProducts = products.reduce((acc: ProductMaster[], curr) => {
-    const matchingProduct = acc.find((p) => p.ProductName === curr.ProductName);
-
-    if (matchingProduct) {
-      matchingProduct.attributes.push({
-        name: "Qty",
-        options: [curr.SKU + curr.UOM],
-      });
-    } else {
-      let _curr = {
-        ...curr.toJSON(),
-        attributes: [
-          {
-            name: "Qty",
-            options: [curr.SKU + curr.UOM],
-          },
-        ],
-      };
-      acc.push(_curr);
-    }
-
-    return acc;
-  }, []);
-  updatedProducts.forEach((p) => {
+  products.forEach((p) => {
     p.attributes = p.attributes.reduce((acc: any, curr: any) => {
       const matchingAttribute = acc.find((a: any) => a.name === curr.name);
       if (matchingAttribute) {
@@ -364,5 +391,24 @@ function mapAllProducts(products: ProductMaster[], req: Request) {
     delete p.Width;
     delete p.Length;
   });
-  return updatedProducts;
+  return products;
+}
+
+function getProductOptions(): Promise<
+  {
+    ProductName: string;
+    options: string;
+  }[]
+> {
+  const query = `
+SELECT  ProductName, 
+STUFF((SELECT ', ' + CONCAT(SKU,UOM)
+FROM tbl_ProductMaster as p2
+WHERE p1.ProductName = p2.ProductName
+FOR XML PATH('')), 1, 2, '') AS options
+from tbl_ProductMaster as p1 GROUP by ProductName
+`;
+  return sequelize.query(query, {
+    type: QueryTypes.SELECT,
+  });
 }

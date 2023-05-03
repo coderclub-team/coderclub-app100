@@ -146,7 +146,8 @@ class ProductMaster extends Model {
     type: DataType.VIRTUAL,
   })
   attributes!: {
-    [x: string]: any;
+    visible?: boolean;
+    variation?: boolean;
     name: string;
     options: string[]; // [key: string]: string;];
   }[];
