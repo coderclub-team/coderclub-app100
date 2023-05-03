@@ -75,10 +75,15 @@ let User = User_1 = class User extends sequelize_typescript_1.Model {
                 return Promise.reject("Incorrect password");
             }
             try {
-                const token = jsonwebtoken_1.default.sign(this.get({ plain: true }), process.env.JWT_SECRET, {
-                    expiresIn: "1d",
-                });
-                return Promise.resolve(token);
+                if (process.env.JWT_SECRET) {
+                    const token = jsonwebtoken_1.default.sign(this.get({ plain: true }), process.env.JWT_SECRET, {
+                        expiresIn: "1d",
+                    });
+                    return Promise.resolve(token);
+                }
+                else {
+                    throw new Error("JWT_SECRET not found");
+                }
             }
             catch (error) {
                 return Promise.reject(error);

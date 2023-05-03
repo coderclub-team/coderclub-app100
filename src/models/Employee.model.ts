@@ -10,7 +10,7 @@ import {
   UpdatedAt,
 } from "sequelize-typescript";
 import { Op } from "sequelize";
-import { IEmployee } from "../../custom";
+
 import os from "node:os";
 os.hostname();
 
@@ -20,7 +20,7 @@ os.hostname();
   paranoid: true,
   deletedAt: "DeletedDate",
 })
-export default class Employee extends Model<IEmployee> {
+export default class Employee extends Model<Employee> {
   @Column({
     primaryKey: true,
     type: DataType.NUMBER,
