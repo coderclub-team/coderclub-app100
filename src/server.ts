@@ -13,39 +13,14 @@ import productMasterRouter from "./routes/product/ProductMaster.router";
 import trimRequestBody from "./middlewares/trimRequestBody.middleware";
 
 import { IAppConfig } from "../custom";
+import fs from "node:fs";
 
-const appconfig = {
-  splashlogo: [
-    {
-      image: "splashscreen/splash_logo.gif",
-    },
-  ],
-  applogo: [
-    {
-      image: "assets/icons/milk_bottle.png",
-    },
-  ],
-  walkthrogh: [
-    {
-      title: "Pick up",
-      description:
-        "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
-      image: "walkthrough/pickup.png",
-    },
-    {
-      title: "Transport",
-      description:
-        "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
-      image: "walkthrough/transport.png",
-    },
-    {
-      title: "Dellivery",
-      description:
-        "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
-      image: "walkthrough/delivery.png",
-    },
-  ],
-};
+const app_config = fs.readFileSync(
+  path.join(__dirname, "../public/data/app_config.json"),
+  "utf-8"
+);
+
+const appconfig: IAppConfig = JSON.parse(app_config);
 
 // Set the base URL and store it in app.locals
 const app = express();
@@ -73,6 +48,13 @@ app.use("/api/productMasters", authGaurd, productMasterRouter);
 app.use("/api/productcategories", productCategoryRouter);
 app.use("/api/productsubcategories", productSubCategoryRouter);
 app.get("/api/app/config", (req: Request, res: Response) => {
+  const host = req.protocol + "://" + req.get("host");
+  appconfig.applogo[0].image = host + "/" + appconfig.applogo[0].image;
+  appconfig.splashlogo[0].image = host + "/" + appconfig.splashlogo[0].image;
+  appconfig.walkthrogh.forEach((item) => {
+    item.image = host + "/" + item.image;
+  });
+
   res.status(200).json(appconfig);
 });
 

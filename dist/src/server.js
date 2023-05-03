@@ -47,8 +47,9 @@ const user_router_1 = __importDefault(require("./routes/user.router"));
 const productCategory_router_1 = __importDefault(require("./routes/product/productCategory.router"));
 const productSubCategory_router_1 = __importDefault(require("./routes/product/productSubCategory.router"));
 const ProductMaster_router_1 = __importDefault(require("./routes/product/ProductMaster.router"));
-const app_config_json_1 = __importDefault(require("../public/data/app_config.json"));
-const app_config = app_config_json_1.default;
+const node_fs_1 = __importDefault(require("node:fs"));
+const app_config = node_fs_1.default.readFileSync(node_path_1.default.join(__dirname, "../public/data/app_config.json"), "utf-8");
+const appconfig = JSON.parse(app_config);
 // Set the base URL and store it in app.locals
 const app = (0, express_1.default)();
 app.use(express_1.default.static("public"));
@@ -71,7 +72,13 @@ app.use("/api/productMasters", authGaurd_middleware_1.default, ProductMaster_rou
 app.use("/api/productcategories", productCategory_router_1.default);
 app.use("/api/productsubcategories", productSubCategory_router_1.default);
 app.get("/api/app/config", (req, res) => {
-    res.status(200).json(app_config_json_1.default);
+    const host = req.protocol + "://" + req.get("host");
+    appconfig.applogo[0].image = host + "/" + appconfig.applogo[0].image;
+    appconfig.splashlogo[0].image = host + "/" + appconfig.splashlogo[0].image;
+    appconfig.walkthrogh.forEach((item) => {
+        item.image = host + "/" + item.image;
+    });
+    res.status(200).json(appconfig);
 });
 app.listen(3000, () => {
     console.log("Server started on port 3000");
