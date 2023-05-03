@@ -356,7 +356,8 @@ async function mapAllProducts(products: ProductMaster[], req: Request) {
       const imagePath = product[imageKey as keyof ProductMaster];
 
       if (imagePath) {
-        const imageFullPath = path.join(host, imagePath);
+        const imageFullPath = new URL(path.join(host, imagePath)).toString();
+
         if (imagePath) {
           images.push({
             id: i,
@@ -368,7 +369,10 @@ async function mapAllProducts(products: ProductMaster[], req: Request) {
       }
     }
     if (product.PhotoPath)
-      product.setDataValue("PhotoPath", path.join(host, product.PhotoPath));
+      product.setDataValue(
+        "PhotoPath",
+        new URL(path.join(host, product.PhotoPath).toString())
+      );
 
     product.setDataValue("GalleryPhotoPath1", undefined);
     product.setDataValue("GalleryPhotoPath2", undefined);

@@ -321,7 +321,7 @@ function mapAllProducts(products, req) {
                 const imageKey = `GalleryPhotoPath${i}`;
                 const imagePath = product[imageKey];
                 if (imagePath) {
-                    const imageFullPath = node_path_1.default.join(host, imagePath);
+                    const imageFullPath = new URL(node_path_1.default.join(host, imagePath)).toString();
                     if (imagePath) {
                         images.push({
                             id: i,
@@ -333,7 +333,7 @@ function mapAllProducts(products, req) {
                 }
             }
             if (product.PhotoPath)
-                product.setDataValue("PhotoPath", node_path_1.default.join(host, product.PhotoPath));
+                product.setDataValue("PhotoPath", new URL(node_path_1.default.join(host, product.PhotoPath).toString()));
             product.setDataValue("GalleryPhotoPath1", undefined);
             product.setDataValue("GalleryPhotoPath2", undefined);
             product.setDataValue("GalleryPhotoPath3", undefined);
