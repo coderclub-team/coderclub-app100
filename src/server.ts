@@ -14,8 +14,38 @@ import trimRequestBody from "./middlewares/trimRequestBody.middleware";
 
 import { IAppConfig } from "../custom";
 
-import appconfig from "../public/data/app_config.json";
-const app_config: IAppConfig = appconfig as IAppConfig;
+const appconfig = {
+  splashlogo: [
+    {
+      image: "splashscreen/splash_logo.gif",
+    },
+  ],
+  applogo: [
+    {
+      image: "assets/icons/milk_bottle.png",
+    },
+  ],
+  walkthrogh: [
+    {
+      title: "Pick up",
+      description:
+        "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
+      image: "walkthrough/pickup.png",
+    },
+    {
+      title: "Transport",
+      description:
+        "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
+      image: "walkthrough/transport.png",
+    },
+    {
+      title: "Dellivery",
+      description:
+        "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
+      image: "walkthrough/delivery.png",
+    },
+  ],
+};
 
 // Set the base URL and store it in app.locals
 const app = express();
