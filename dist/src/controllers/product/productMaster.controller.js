@@ -295,6 +295,7 @@ exports.createAttribute = createAttribute;
 function mapAllProducts(products, req) {
     return __awaiter(this, void 0, void 0, function* () {
         const options = yield getProductOptions();
+        const host = req.protocol + "://" + req.get("host");
         products.forEach((product) => {
             // adding attributes to product
             const found = options.find((o) => o.ProductName === product.ProductName);
@@ -319,7 +320,6 @@ function mapAllProducts(products, req) {
             for (let i = 1; i <= 4; i++) {
                 const imageKey = `GalleryPhotoPath${i}`;
                 const imagePath = product[imageKey];
-                const host = req.protocol + "://" + req.get("host");
                 const imageFullPath = node_path_1.default.join(host, imagePath);
                 if (imagePath) {
                     images.push({
@@ -330,6 +330,8 @@ function mapAllProducts(products, req) {
                     });
                 }
             }
+            if (product.PhotoPath)
+                product.setDataValue("PhotoPath", node_path_1.default.join(host, product.PhotoPath));
             product.setDataValue("GalleryPhotoPath1", undefined);
             product.setDataValue("GalleryPhotoPath2", undefined);
             product.setDataValue("GalleryPhotoPath3", undefined);

@@ -327,6 +327,7 @@ export const createAttribute = async (req: Request, res: Response) => {
 
 async function mapAllProducts(products: ProductMaster[], req: Request) {
   const options = await getProductOptions();
+  const host = req.protocol + "://" + req.get("host");
 
   products.forEach((product: ProductMaster) => {
     // adding attributes to product
@@ -353,7 +354,7 @@ async function mapAllProducts(products: ProductMaster[], req: Request) {
     for (let i = 1; i <= 4; i++) {
       const imageKey = `GalleryPhotoPath${i}`;
       const imagePath = product[imageKey as keyof ProductMaster];
-      const host = req.protocol + "://" + req.get("host");
+
       const imageFullPath = path.join(host, imagePath);
       if (imagePath) {
         images.push({
@@ -364,6 +365,9 @@ async function mapAllProducts(products: ProductMaster[], req: Request) {
         });
       }
     }
+    if (product.PhotoPath)
+      product.setDataValue("PhotoPath", path.join(host, product.PhotoPath));
+
     product.setDataValue("GalleryPhotoPath1", undefined);
     product.setDataValue("GalleryPhotoPath2", undefined);
     product.setDataValue("GalleryPhotoPath3", undefined);
