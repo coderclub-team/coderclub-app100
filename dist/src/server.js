@@ -47,7 +47,36 @@ const user_router_1 = __importDefault(require("./routes/user.router"));
 const productCategory_router_1 = __importDefault(require("./routes/product/productCategory.router"));
 const productSubCategory_router_1 = __importDefault(require("./routes/product/productSubCategory.router"));
 const ProductMaster_router_1 = __importDefault(require("./routes/product/ProductMaster.router"));
-const app_config_1 = __importDefault(require("./data/app_config"));
+const app_config = {
+    splashlogo: [
+        {
+            image: "splashscreen/splash_logo.gif",
+        },
+    ],
+    applogo: [
+        {
+            image: "icons/milk_bottle.png",
+        },
+    ],
+    walkthrogh: [
+        {
+            title: "Pick up",
+            description: "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
+            image: "walkthrough/pickup.png",
+        },
+        {
+            title: "Transport",
+            description: "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
+            image: "walkthrough/transport.png",
+        },
+        {
+            title: "Dellivery",
+            description: "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
+            image: "walkthrough/delivery.png",
+        },
+    ],
+};
+// const fs = require("fs");
 // const app_config = fs.readFileSync(
 //   path.join(__dirname, "../public/data/app_config.json"),
 //   "utf-8"
@@ -75,12 +104,12 @@ app.use("/api/productcategories", productCategory_router_1.default);
 app.use("/api/productsubcategories", productSubCategory_router_1.default);
 app.get("/api/app/config", (req, res) => {
     const host = req.protocol + "://" + req.get("host");
-    app_config_1.default.applogo[0].image = host + "/" + app_config_1.default.applogo[0].image;
-    app_config_1.default.splashlogo[0].image = host + "/" + app_config_1.default.splashlogo[0].image;
-    app_config_1.default.walkthrogh.forEach((item) => {
+    app_config.applogo[0].image = host + "/" + app_config.applogo[0].image;
+    app_config.splashlogo[0].image = host + "/" + app_config.splashlogo[0].image;
+    app_config.walkthrogh.forEach((item) => {
         item.image = host + "/" + item.image;
     });
-    res.status(200).json(app_config_1.default);
+    res.status(200).json(app_config);
 });
 app.listen(3000, () => {
     console.log("Server started on port 3000");

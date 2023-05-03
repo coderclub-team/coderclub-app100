@@ -10,6 +10,39 @@ import userRouter from "./routes/user.router";
 import productCategoryRouter from "./routes/product/productCategory.router";
 import productSubCategoryRouter from "./routes/product/productSubCategory.router";
 import productMasterRouter from "./routes/product/ProductMaster.router";
+const app_config = {
+  splashlogo: [
+    {
+      image: "splashscreen/splash_logo.gif",
+    },
+  ],
+  applogo: [
+    {
+      image: "icons/milk_bottle.png",
+    },
+  ],
+  walkthrogh: [
+    {
+      title: "Pick up",
+      description:
+        "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
+      image: "walkthrough/pickup.png",
+    },
+    {
+      title: "Transport",
+      description:
+        "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
+      image: "walkthrough/transport.png",
+    },
+    {
+      title: "Dellivery",
+      description:
+        "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
+      image: "walkthrough/delivery.png",
+    },
+  ],
+};
+// const fs = require("fs");
 
 // const app_config = fs.readFileSync(
 //   path.join(__dirname, "../public/data/app_config.json"),
@@ -49,38 +82,7 @@ app.get("/api/app/config", (req: Request, res: Response) => {
     item.image = host + "/" + item.image;
   });
 
-  res.status(200).json({
-    splashlogo: [
-      {
-        image: "splashscreen/splash_logo.gif",
-      },
-    ],
-    applogo: [
-      {
-        image: "icons/milk_bottle.png",
-      },
-    ],
-    walkthrogh: [
-      {
-        title: "Pick up",
-        description:
-          "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
-        image: "walkthrough/pickup.png",
-      },
-      {
-        title: "Transport",
-        description:
-          "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
-        image: "walkthrough/transport.png",
-      },
-      {
-        title: "Dellivery",
-        description:
-          "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
-        image: "walkthrough/delivery.png",
-      },
-    ],
-  });
+  res.status(200).json(app_config);
 });
 
 app.listen(3000, () => {
