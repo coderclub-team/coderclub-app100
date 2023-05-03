@@ -22,14 +22,12 @@ export interface IAppConfig {
       image: string;
     }
   ];
-  walkthrogh: [
-    {
-      // title: "Pick up";
-      // description: "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.";
-      // image: "assets/images/walkthrough/pickup.png";
-      title: string;
-      description: string;
-      image: string;
-    }
-  ];
+  walkthrogh: {
+    // title: "Pick up";
+    // description: "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.";
+    // image: "assets/images/walkthrough/pickup.png";
+    title: string;
+    description: string;
+    image: string;
+  }[];
 }

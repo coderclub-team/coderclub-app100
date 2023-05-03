@@ -10,17 +10,12 @@ import userRouter from "./routes/user.router";
 import productCategoryRouter from "./routes/product/productCategory.router";
 import productSubCategoryRouter from "./routes/product/productSubCategory.router";
 import productMasterRouter from "./routes/product/ProductMaster.router";
-import trimRequestBody from "./middlewares/trimRequestBody.middleware";
+import app_config from "./data/app_config";
 
-import { IAppConfig } from "../custom";
-import fs from "node:fs";
-
-const app_config = fs.readFileSync(
-  path.join(__dirname, "../public/data/app_config.json"),
-  "utf-8"
-);
-
-const appconfig: IAppConfig = JSON.parse(app_config);
+// const app_config = fs.readFileSync(
+//   path.join(__dirname, "../public/data/app_config.json"),
+//   "utf-8"
+// );
 
 // Set the base URL and store it in app.locals
 const app = express();
@@ -49,13 +44,13 @@ app.use("/api/productcategories", productCategoryRouter);
 app.use("/api/productsubcategories", productSubCategoryRouter);
 app.get("/api/app/config", (req: Request, res: Response) => {
   const host = req.protocol + "://" + req.get("host");
-  appconfig.applogo[0].image = host + "/" + appconfig.applogo[0].image;
-  appconfig.splashlogo[0].image = host + "/" + appconfig.splashlogo[0].image;
-  appconfig.walkthrogh.forEach((item) => {
+  app_config.applogo[0].image = host + "/" + app_config.applogo[0].image;
+  app_config.splashlogo[0].image = host + "/" + app_config.splashlogo[0].image;
+  app_config.walkthrogh.forEach((item) => {
     item.image = host + "/" + item.image;
   });
 
-  res.status(200).json(appconfig);
+  res.status(200).json(app_config);
 });
 
 app.listen(3000, () => {
