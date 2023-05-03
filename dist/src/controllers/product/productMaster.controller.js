@@ -320,14 +320,16 @@ function mapAllProducts(products, req) {
             for (let i = 1; i <= 4; i++) {
                 const imageKey = `GalleryPhotoPath${i}`;
                 const imagePath = product[imageKey];
-                const imageFullPath = node_path_1.default.join(host, imagePath);
                 if (imagePath) {
-                    images.push({
-                        id: i,
-                        src: imageFullPath,
-                        name: node_path_1.default.basename(imagePath),
-                        alt: node_path_1.default.basename(imagePath),
-                    });
+                    const imageFullPath = node_path_1.default.join(host, imagePath);
+                    if (imagePath) {
+                        images.push({
+                            id: i,
+                            src: imageFullPath,
+                            name: node_path_1.default.basename(imagePath),
+                            alt: node_path_1.default.basename(imagePath),
+                        });
+                    }
                 }
             }
             if (product.PhotoPath)

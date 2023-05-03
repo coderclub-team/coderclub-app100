@@ -355,14 +355,16 @@ async function mapAllProducts(products: ProductMaster[], req: Request) {
       const imageKey = `GalleryPhotoPath${i}`;
       const imagePath = product[imageKey as keyof ProductMaster];
 
-      const imageFullPath = path.join(host, imagePath);
       if (imagePath) {
-        images.push({
-          id: i,
-          src: imageFullPath,
-          name: path.basename(imagePath),
-          alt: path.basename(imagePath),
-        });
+        const imageFullPath = path.join(host, imagePath);
+        if (imagePath) {
+          images.push({
+            id: i,
+            src: imageFullPath,
+            name: path.basename(imagePath),
+            alt: path.basename(imagePath),
+          });
+        }
       }
     }
     if (product.PhotoPath)
