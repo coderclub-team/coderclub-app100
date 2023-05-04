@@ -19,6 +19,10 @@ const ProductMaster_model_1 = __importDefault(require("./models/product/ProductM
 const User_model_1 = __importDefault(require("./models/User.model"));
 const ProductCategory_model_1 = __importDefault(require("./models/product/ProductCategory.model"));
 const ProductSubCategory_model_1 = __importDefault(require("./models/product/ProductSubCategory.model"));
+const Sale_model_1 = __importDefault(require("./models/Sale.model"));
+const SaleDetail_model_1 = __importDefault(require("./models/SaleDetail.model"));
+const GlobalType_model_1 = __importDefault(require("./models/GlobalType.model"));
+const GlobalTypeCategory_nodel_1 = __importDefault(require("./models/GlobalTypeCategory.nodel"));
 exports.sequelize = new sequelize_typescript_1.Sequelize(config_1.sequelizeConnectionOptions);
 exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
     exports.sequelize
@@ -38,10 +42,20 @@ exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
         ProductCategory_model_1.default,
         ProductSubCategory_model_1.default,
         ProductMaster_model_1.default,
+        GlobalTypeCategory_nodel_1.default,
+        GlobalType_model_1.default,
+        Sale_model_1.default,
+        SaleDetail_model_1.default,
     ]);
     User_model_1.default.sync();
     ProductCategory_model_1.default.sync();
+    GlobalTypeCategory_nodel_1.default.sync();
+    GlobalType_model_1.default.sync();
     ProductSubCategory_model_1.default.sync();
     ProductMaster_model_1.default.sync();
+    Sale_model_1.default.sync({
+        schema: "dbo",
+    });
+    SaleDetail_model_1.default.sync();
     return exports.sequelize;
 });

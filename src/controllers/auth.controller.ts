@@ -5,6 +5,9 @@ import fs from "node:fs";
 import { userImageUploadOptions } from "../../config";
 import { UserNotFoundExceptionError } from "../../custom.error";
 import decodeJWT from "../utils/decodeJWT";
+import Sale from "../models/Sale.model";
+import GlobalType from "../models/GlobalType.model";
+import SaleDetail from "../models/SaleDetail.model";
 export const register = async (
   req: Request,
   res: Response,
@@ -246,4 +249,49 @@ export const signout = async (req: Request, res: Response) => {
   res.json({
     message: "Signout should be implemented at the Frontend side!",
   });
+};
+
+export const getOrders = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const salemasters = await Sale.findAll({
+    where: {
+      CustomerGUID: req.body.user.UserGUID,
+    },
+    attributes: {
+      exclude: ["CustomerGUID", "SaleTypeRef"],
+    },
+
+    include: [
+      {
+        model: User,
+        as: "Customer",
+      },
+      {
+        model: GlobalType,
+        as: "SaleTypeRef",
+
+        //  Sale type shoudl be astring value of arributes.GlobaleTypeName
+        attributes: {
+          include: ["GlobalTypeName"],
+          exclude: ["GlobalTypeGUID"],
+        },
+      },
+      {
+        model: SaleDetail,
+        all: true,
+      },
+    ],
+  });
+
+  salemasters.forEach((sale) => {
+    if (sale.SaleTypeRef) {
+      sale.setDataValue("SaleType", sale.SaleTypeRef.GlobalTypeName);
+      sale.setDataValue("SaleTypeRef", undefined);
+    }
+  });
+
+  res.json(salemasters);
 };

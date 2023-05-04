@@ -101,6 +101,13 @@ Content-Type: application/json
     }
     
 
+###
+GET {{baseUrl}}/api/sales
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+
 
 
 

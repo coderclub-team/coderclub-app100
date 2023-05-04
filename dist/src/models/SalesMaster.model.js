@@ -10,45 +10,37 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_typescript_1 = require("sequelize-typescript");
-let GlobalType = class GlobalType extends sequelize_typescript_1.Model {
+let SalesMaster = class SalesMaster extends sequelize_typescript_1.Model {
 };
 __decorate([
-    sequelize_typescript_1.PrimaryKey,
-    sequelize_typescript_1.Column,
+    (0, sequelize_typescript_1.Column)({
+        autoIncrement: true,
+        primaryKey: true,
+        allowNull: false,
+        autoIncrementIdentity: true,
+        type: sequelize_typescript_1.DataType.INTEGER,
+    }),
     __metadata("design:type", Number)
-], GlobalType.prototype, "GlobalTypeGUID", void 0);
+], SalesMaster.prototype, "SalesMasterGUID", void 0);
 __decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", String)
-], GlobalType.prototype, "GlobalTypeName", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", String)
-], GlobalType.prototype, "Description", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.INTEGER,
+        allowNull: false,
+        references: {
+            model: "tbl_GlobalType",
+            key: "GlobalTypeGUID",
+        },
+    }),
     __metadata("design:type", Number)
-], GlobalType.prototype, "GlobalTypeCategoryGUID", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
-], GlobalType.prototype, "CreatedGUID", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Date)
-], GlobalType.prototype, "CreatedDate", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
-], GlobalType.prototype, "IsActive", void 0);
-GlobalType = __decorate([
+], SalesMaster.prototype, "SaleType", void 0);
+SalesMaster = __decorate([
     (0, sequelize_typescript_1.Table)({
-        tableName: "tbl_GlobalType",
+        tableName: "tbl_SalesMaster",
         timestamps: true,
-        paranoid: false,
         createdAt: "CreatedDate",
         updatedAt: false,
         deletedAt: false,
+        paranoid: false,
     })
-], GlobalType);
-exports.default = GlobalType;
+], SalesMaster);
+exports.default = SalesMaster;

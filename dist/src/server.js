@@ -22,15 +22,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -47,6 +38,7 @@ const user_router_1 = __importDefault(require("./routes/user.router"));
 const productCategory_router_1 = __importDefault(require("./routes/product/productCategory.router"));
 const productSubCategory_router_1 = __importDefault(require("./routes/product/productSubCategory.router"));
 const ProductMaster_router_1 = __importDefault(require("./routes/product/ProductMaster.router"));
+const sale_router_1 = __importDefault(require("./routes/sale.router"));
 const app_config = {
     splashlogo: [
         {
@@ -96,8 +88,6 @@ console.log("Connecting to DB", node_path_1.default.join("public"));
     .catch((err) => {
     console.log("Error connecting to DB", err);
 });
-app.get("/api", (req, res) => __awaiter(void 0, void 0, void 0, function* () { }));
-app.use("/api", auth_router_1.default);
 app.use("/api/users", authGaurd_middleware_1.default, user_router_1.default);
 app.use("/api/productMasters", authGaurd_middleware_1.default, ProductMaster_router_1.default);
 app.use("/api/productcategories", productCategory_router_1.default);
@@ -111,6 +101,8 @@ app.get("/api/app/config", (req, res) => {
     });
     res.status(200).json(app_config);
 });
+app.use("/api/sales", authGaurd_middleware_1.default, sale_router_1.default);
+app.use("/api", auth_router_1.default);
 app.listen(3000, () => {
     console.log("Server started on port 3000");
 });

@@ -10,6 +10,7 @@ import userRouter from "./routes/user.router";
 import productCategoryRouter from "./routes/product/productCategory.router";
 import productSubCategoryRouter from "./routes/product/productSubCategory.router";
 import productMasterRouter from "./routes/product/ProductMaster.router";
+import saleRouter from "./routes/sale.router";
 const app_config = {
   splashlogo: [
     {
@@ -68,8 +69,6 @@ ConnectDB()
     console.log("Error connecting to DB", err);
   });
 
-app.get("/api", async (req, res) => {});
-app.use("/api", authRouter);
 app.use("/api/users", authGaurd, userRouter);
 app.use("/api/productMasters", authGaurd, productMasterRouter);
 app.use("/api/productcategories", productCategoryRouter);
@@ -84,6 +83,9 @@ app.get("/api/app/config", (req: Request, res: Response) => {
 
   res.status(200).json(app_config);
 });
+
+app.use("/api/sales", authGaurd, saleRouter);
+app.use("/api", authRouter);
 
 app.listen(3000, () => {
   console.log("Server started on port 3000");
