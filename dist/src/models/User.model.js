@@ -75,10 +75,15 @@ let User = User_1 = class User extends sequelize_typescript_1.Model {
                 return Promise.reject("Incorrect password");
             }
             try {
-                const token = jsonwebtoken_1.default.sign(this.get({ plain: true }), process.env.JWT_SECRET, {
-                    expiresIn: "1d",
-                });
-                return Promise.resolve(token);
+                if (process.env.JWT_SECRET) {
+                    const token = jsonwebtoken_1.default.sign(this.get({ plain: true }), process.env.JWT_SECRET, {
+                        expiresIn: "1d",
+                    });
+                    return Promise.resolve(token);
+                }
+                else {
+                    throw new Error("JWT_SECRET not found");
+                }
             }
             catch (error) {
                 return Promise.reject(error);
@@ -202,6 +207,22 @@ let User = User_1 = class User extends sequelize_typescript_1.Model {
             }
             catch (error) {
                 return Promise.reject(error.message);
+            }
+        });
+    }
+    static beforeBulkCreateHook(instances) {
+        instances.forEach((instance) => {
+            Object.entries(instance.toJSON()).forEach(([key, value]) => {
+                if (typeof value === "string") {
+                    instance.setDataValue(key, value.trim());
+                }
+            });
+        });
+    }
+    static beforeCreateHook(instance) {
+        Object.entries(instance.toJSON()).forEach(([key, value]) => {
+            if (typeof value === "string") {
+                instance.setDataValue(key, value.trim());
             }
         });
     }
@@ -477,6 +498,20 @@ __decorate([
     __metadata("design:paramtypes", [User]),
     __metadata("design:returntype", Promise)
 ], User, "hashPassword", null);
+__decorate([
+    sequelize_typescript_1.BeforeBulkCreate,
+    sequelize_typescript_1.BeforeBulkUpdate,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Array]),
+    __metadata("design:returntype", void 0)
+], User, "beforeBulkCreateHook", null);
+__decorate([
+    sequelize_typescript_1.BeforeCreate,
+    sequelize_typescript_1.BeforeUpdate,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [User]),
+    __metadata("design:returntype", void 0)
+], User, "beforeCreateHook", null);
 User = User_1 = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: "tbl_Users",

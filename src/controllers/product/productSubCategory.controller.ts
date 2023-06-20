@@ -1,9 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import ProductSubCategory from "../../models/product/ProductSubCategory.model";
-import { Op } from "sequelize";
 import decodeJWT from "../../utils/decodeJWT";
 import ProductCategory from "../../models/product/ProductCategory.model";
-import { ProductCategoryNotFoundException } from "../../../custom.error";
 
 export const getAllProductSubCategories = async (
   req: Request,
@@ -11,9 +9,6 @@ export const getAllProductSubCategories = async (
 ) => {
   try {
     const productSubCategories = await ProductSubCategory.findAll({
-      attributes: {
-        exclude: ["CreatedGUID", "CreatedDate"],
-      },
       // ProductCategory refe
       include: {
         model: ProductCategory,
@@ -21,10 +16,7 @@ export const getAllProductSubCategories = async (
       },
     });
 
-    res.status(200).json({
-      message: "Product sub categories fetched successfully!",
-      productSubCategories,
-    });
+    res.status(200).json(productSubCategories);
   } catch (error) {
     res.status(500).json(error);
   }
@@ -40,9 +32,6 @@ export const getProductSubCategoryById = async (
     const productSubCategory = await ProductSubCategory.findByPk(
       ProductSubCategoryGUID,
       {
-        attributes: {
-          exclude: ["CreatedGUID", "CreatedDate"],
-        },
         include: {
           model: ProductCategory,
           attributes: ["ProductCategoryName"],

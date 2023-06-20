@@ -9,6 +9,7 @@ const multer_1 = __importDefault(require("multer"));
 const config_1 = require("../../config");
 const auth_controller_1 = require("../controllers/auth.controller");
 const handleSequelizeError_1 = __importDefault(require("../middlewares/handleSequelizeError"));
+const authGaurd_middleware_1 = __importDefault(require("../middlewares/authGaurd.middleware"));
 const authRouter = (0, express_1.Router)();
 const upload = (0, multer_1.default)({
     storage: config_1.userImageUploadOptions.storage,
@@ -31,4 +32,6 @@ authRouter.post("/verify-account", auth_controller_1.verifyAccount, handleSequel
 authRouter.post("/send-otp", auth_controller_1.sendOTP, handleSequelizeError_1.default);
 authRouter.post("/reset-password", auth_controller_1.resetPassword, handleSequelizeError_1.default);
 authRouter.post("/forget-password", auth_controller_1.forgotPassword, handleSequelizeError_1.default);
+authRouter.get("/current-user", auth_controller_1.getCurrentUser, handleSequelizeError_1.default);
+authRouter.get("/auth/orders", authGaurd_middleware_1.default, auth_controller_1.getOrders);
 exports.default = authRouter;

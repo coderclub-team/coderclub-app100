@@ -2,30 +2,22 @@ import { Request, Response } from "express";
 import StoreMaster from "../models/StoreMaster.model";
 import User from "../models/User.model";
 import decodeJWT from "../utils/decodeJWT";
+import ProductCategory from "../models/product/ProductCategory.model";
 
 export const getAllStoreMasters = async (req: Request, res: Response) => {
   try {
     const storeMasters = await StoreMaster.findAll({
-      //   include: [
-      //     {
-      //       model: User,
-      //       as: "CreatedBy",
-      //       attributes: ["UserID", "UserName"],
-      //     },
-      //     {
-      //       model: User,
-      //       as: "ModifiedBy",
-      //       attributes: ["UserID", "UserName"],
-      //     },
-      //     {
-      //       model: User,
-      //       as: "DeletedBy",
-      //       attributes: ["UserID", "UserName"],
-      //     },
-      //   ],
       attributes: {
         exclude: ["CreatedByGUID", "ModifiedByGUID", "DeletedByGUID"],
       },
+      include: [
+        {
+          model: ProductCategory,
+          as: "ProductCategory",
+        },
+      ],
+      raw: true,
+      nest: true,
     });
     res.status(200).json({
       message: "Store Masters fetched successfully!",

@@ -1,31 +1,15 @@
-// [ProductCategoryGUID] [int] IDENTITY(1,1) NOT NULL,
-// 	[ProductCategoryName] [varchar](400) NULL,
-// 	[IsActive] [bit] NULL,
-// 	[CreatedGUID] [int] NULL,
-// 	[CreatedDate] [datetime] NULL
-
 import {
   AutoIncrement,
+  BeforeBulkCreate,
+  BeforeBulkUpdate,
   BeforeCreate,
-  BelongsTo,
+  BeforeUpdate,
   Column,
   DataType,
-  ForeignKey,
-  HasMany,
   Model,
   PrimaryKey,
   Table,
-  Validate,
 } from "sequelize-typescript";
-import ProductSubCategory from "./ProductSubCategory.model";
-import {
-  Op,
-  Sequelize,
-  SequelizeScopeError,
-  UniqueConstraintError,
-  WhereAttributeHashValue,
-} from "sequelize";
-
 // Path: src/models/ProductCategory.ts
 
 @Table({
@@ -39,34 +23,71 @@ export default class ProductCategory extends Model<ProductCategory> {
   @Column
   ProductCategoryGUID!: number;
 
-  @Column
-  ProductCategoryName!: string;
-
-  @ForeignKey(() => ProductCategory)
-  @BelongsTo(() => ProductCategory, {
-    foreignKey: "ParentCategoryRefGUID",
-    targetKey: "ProductCategoryGUID",
-    as: "ParentCategory",
+  @Column({
+    type: DataType.STRING(400),
+    allowNull: false,
+    field: "ProductCategoryName",
   })
-  @Column
-  ParentCategoryRefGUID!: number;
+  ProductCategoryName!: string;
 
   @Column
   IsActive!: number;
 
+  @Column
+  SortOrder!: number;
+
+  @Column
+  PhotoPath!: string;
+
+  @Column
+  ProductCategoryDescription!: string;
+
+  @Column
+  ProductCategorySlug!: string;
+
+  @Column({
+    type: DataType.VIRTUAL,
+    get() {
+      return this.getDataValue("ProductCount");
+    },
+  })
+  ProductCount!: number;
+
   // check if the category name already exists before create
 
-  @BeforeCreate
-  static async checkIfCategoryExists(instance: ProductCategory) {
-    const count = await ProductCategory.count({
-      where: {
-        ProductCategoryName: instance.ProductCategoryName,
-        ParentCategoryRefGUID:
-          null as unknown as WhereAttributeHashValue<number>,
-      },
+  // @BeforeCreate
+  // static async checkIfCategoryExists(instance: ProductCategory) {
+  //   const count = await ProductCategory.count({
+  //     where: {
+  //       ProductCategoryName: instance.ProductCategoryName,
+  //       ParentCategoryRefGUID:
+  //         null as unknown as WhereAttributeHashValue<number>,
+  //     },
+  //   });
+  //   if (count) {
+  //     throw new Error("Category already exists");
+  //   }
+  // }
+
+  @BeforeBulkCreate
+  @BeforeBulkUpdate
+  static beforeBulkCreateHook(instances: ProductCategory[]) {
+    instances.forEach((instance) => {
+      Object.entries(instance.toJSON()).forEach(([key, value]) => {
+        if (typeof value === "string") {
+          instance.setDataValue(key as keyof ProductCategory, value.trim());
+        }
+      });
     });
-    if (count) {
-      throw new Error("Category already exists");
-    }
+  }
+
+  @BeforeCreate
+  @BeforeUpdate
+  static beforeCreateHook(instance: ProductCategory) {
+    Object.entries(instance.toJSON()).forEach(([key, value]) => {
+      if (typeof value === "string") {
+        instance.setDataValue(key as keyof ProductCategory, value.trim());
+      }
+    });
   }
 }

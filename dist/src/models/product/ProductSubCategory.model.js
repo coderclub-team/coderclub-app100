@@ -13,7 +13,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_typescript_1 = require("sequelize-typescript");
-const User_model_1 = __importDefault(require("../User.model"));
 const ProductCategory_model_1 = __importDefault(require("./ProductCategory.model"));
 let ProductSubCategory = class ProductSubCategory extends sequelize_typescript_1.Model {
 };
@@ -31,7 +30,7 @@ __decorate([
     (0, sequelize_typescript_1.BelongsTo)(() => ProductCategory_model_1.default, {
         foreignKey: "ProductCategoryGUID",
         targetKey: "ProductCategoryGUID",
-        as: "ProductCategory",
+        as: "Parent",
     }),
     (0, sequelize_typescript_1.Column)({
         field: "ProductCategoryGUID",
@@ -69,69 +68,11 @@ __decorate([
     }),
     __metadata("design:type", Date)
 ], ProductSubCategory.prototype, "CreatedDate", void 0);
-__decorate([
-    (0, sequelize_typescript_1.Column)({
-        field: "ModifiedDate",
-        allowNull: true,
-        type: sequelize_typescript_1.DataType.DATE,
-    }),
-    __metadata("design:type", Date)
-], ProductSubCategory.prototype, "ModifiedDate", void 0);
-__decorate([
-    (0, sequelize_typescript_1.Column)({
-        field: "DeletedDate",
-        allowNull: true,
-        type: sequelize_typescript_1.DataType.DATE,
-    }),
-    __metadata("design:type", Date)
-], ProductSubCategory.prototype, "DeletedDate", void 0);
-__decorate([
-    (0, sequelize_typescript_1.BelongsTo)(() => User_model_1.default, {
-        foreignKey: "CreatedGUID",
-        targetKey: "UserGUID",
-        as: "CreatedUser",
-    }),
-    (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.INTEGER,
-        allowNull: false,
-    }),
-    __metadata("design:type", Number)
-], ProductSubCategory.prototype, "CreatedGUID", void 0);
-__decorate([
-    (0, sequelize_typescript_1.BelongsTo)(() => User_model_1.default, {
-        foreignKey: "ModifiedGUID",
-        targetKey: "UserGUID",
-        as: "ModifiedUser",
-    }),
-    (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.INTEGER,
-        allowNull: true,
-    }),
-    __metadata("design:type", Number)
-], ProductSubCategory.prototype, "ModifiedGUID", void 0);
-__decorate([
-    (0, sequelize_typescript_1.BelongsTo)(() => User_model_1.default, {
-        foreignKey: "DeletedGUID",
-        targetKey: "UserGUID",
-        as: "DeletedUser",
-    }),
-    (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.INTEGER,
-        allowNull: true,
-        references: {
-            model: "User",
-            key: "UserGUID",
-        },
-    }),
-    __metadata("design:type", Number)
-], ProductSubCategory.prototype, "DeletedGUID", void 0);
 ProductSubCategory = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: "tbl_ProductSubCategory",
-        timestamps: true,
-        updatedAt: "ModifiedDate",
-        createdAt: "CreatedDate",
-        deletedAt: "DeletedDate",
+        timestamps: false,
+        paranoid: false,
     })
 ], ProductSubCategory);
 exports.default = ProductSubCategory;

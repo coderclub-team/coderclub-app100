@@ -21,11 +21,16 @@ export const getAllUsers = async (req: Request, res: Response) => {
       },
       paranoid,
     });
-
-    return res.status(200).json({
-      message: "Users fetched successfully!",
-      users,
+    users.forEach((user) => {
+      const imageKey = "PhotoPath";
+      const imagePath = user?.[imageKey as keyof User];
+      if (!imagePath) return;
+      const host = req.protocol + "://" + req.get("host");
+      const imageFullPath = path.join(host, imagePath);
+      user.setDataValue("PhotoPath", imageFullPath);
     });
+
+    return res.status(200).json(users);
   } catch (error) {
     return res.status(500).json(error);
   }
@@ -48,11 +53,14 @@ export const getUserById = async (req: Request, res: Response) => {
         message: "User not found!",
       });
     }
+    const imageKey = "PhotoPath";
+    const imagePath = user?.[imageKey as keyof User];
+    if (!imagePath) return;
+    const host = req.protocol + "://" + req.get("host");
+    const imageFullPath = path.join(host, imagePath);
+    user.setDataValue("PhotoPath", imageFullPath);
 
-    return res.status(200).json({
-      message: "User fetched successfully!",
-      user,
-    });
+    return res.status(200).json(user);
   } catch (error) {
     return res.status(500).json(error);
   }

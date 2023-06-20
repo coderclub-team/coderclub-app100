@@ -1,4 +1,12 @@
-import { Model, Table, Column } from "sequelize-typescript";
+import {
+  Table,
+  Column,
+  PrimaryKey,
+  AutoIncrement,
+  Model,
+  HasMany,
+} from "sequelize-typescript";
+import Sale from "./Sale.model";
 
 @Table({
   tableName: "tbl_GlobalType",
@@ -8,19 +16,20 @@ import { Model, Table, Column } from "sequelize-typescript";
   updatedAt: false,
   deletedAt: false,
 })
-export class GlobalType extends Model {
-  @Column({})
+export default class GlobalType extends Model<GlobalType> {
+  @PrimaryKey
+  @Column
   GlobalTypeGUID!: number;
-  @Column({})
+  @Column
   GlobalTypeName!: string;
-  @Column({})
+  @Column
   Description!: string;
-  @Column({})
+  @Column
   GlobalTypeCategoryGUID!: number;
-  @Column({})
+  @Column
   CreatedGUID!: number;
-  @Column({})
+  @Column
   CreatedDate!: Date;
-  @Column({})
+  @Column
   IsActive!: number;
 }

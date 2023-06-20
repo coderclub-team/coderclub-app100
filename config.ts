@@ -22,14 +22,14 @@ export const sequelizeConnectionOptions: SequelizeOptions = {
 };
 
 export const employeeImageUploadOptions = {
-  directory: path.join("uploads"),
-  relativePath: "public/uploads/",
+  directory: path.join("users"),
+  relativePath: "public/users/",
   limits: { fileSize: 1024 * 1024 * 1 },
 };
 export const userImageUploadOptions = {
-  directory: path.join("uploads"),
+  directory: path.join("users"),
   tmpFilePath: path.join("public/tmp"),
-  relativePath: "public/uploads/",
+  relativePath: "public/users/",
   limits: { fileSize: 1024 * 1024 * 1 },
 
   storage: multer.diskStorage({
@@ -51,6 +51,23 @@ export const productImageUploadOptions = {
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
       cb(null, "public/products");
+    },
+    filename: (req, file, cb) => {
+      // a unique name for the file with the original extension
+      cb(null, `${Date.now()}.${file.originalname.split(".").pop()}`);
+    },
+  }),
+};
+
+export const CategoryImageUploadOptions = {
+  directory: path.join("categories"),
+  tmpFilePath: path.join("public/tmp"),
+  relativePath: "public/categories/",
+  limits: { fileSize: 1024 * 1024 * 2 },
+
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, "public/categories");
     },
     filename: (req, file, cb) => {
       // a unique name for the file with the original extension

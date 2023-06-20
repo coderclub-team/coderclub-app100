@@ -9,36 +9,36 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GlobalType = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
 let GlobalType = class GlobalType extends sequelize_typescript_1.Model {
 };
 __decorate([
-    (0, sequelize_typescript_1.Column)({}),
+    sequelize_typescript_1.PrimaryKey,
+    sequelize_typescript_1.Column,
     __metadata("design:type", Number)
 ], GlobalType.prototype, "GlobalTypeGUID", void 0);
 __decorate([
-    (0, sequelize_typescript_1.Column)({}),
+    sequelize_typescript_1.Column,
     __metadata("design:type", String)
 ], GlobalType.prototype, "GlobalTypeName", void 0);
 __decorate([
-    (0, sequelize_typescript_1.Column)({}),
+    sequelize_typescript_1.Column,
     __metadata("design:type", String)
 ], GlobalType.prototype, "Description", void 0);
 __decorate([
-    (0, sequelize_typescript_1.Column)({}),
+    sequelize_typescript_1.Column,
     __metadata("design:type", Number)
 ], GlobalType.prototype, "GlobalTypeCategoryGUID", void 0);
 __decorate([
-    (0, sequelize_typescript_1.Column)({}),
+    sequelize_typescript_1.Column,
     __metadata("design:type", Number)
 ], GlobalType.prototype, "CreatedGUID", void 0);
 __decorate([
-    (0, sequelize_typescript_1.Column)({}),
+    sequelize_typescript_1.Column,
     __metadata("design:type", Date)
 ], GlobalType.prototype, "CreatedDate", void 0);
 __decorate([
-    (0, sequelize_typescript_1.Column)({}),
+    sequelize_typescript_1.Column,
     __metadata("design:type", Number)
 ], GlobalType.prototype, "IsActive", void 0);
 GlobalType = __decorate([
@@ -51,4 +51,4 @@ GlobalType = __decorate([
         deletedAt: false,
     })
 ], GlobalType);
-exports.GlobalType = GlobalType;
+exports.default = GlobalType;

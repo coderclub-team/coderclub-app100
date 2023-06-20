@@ -12,12 +12,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.signout = exports.resetPassword = exports.forgotPassword = exports.sendOTP = exports.verifyAccount = exports.login = exports.register = void 0;
+exports.getOrders = exports.signout = exports.resetPassword = exports.forgotPassword = exports.sendOTP = exports.verifyAccount = exports.getCurrentUser = exports.login = exports.register = void 0;
 const node_path_1 = __importDefault(require("node:path"));
 const User_model_1 = __importDefault(require("../models/User.model"));
 const node_fs_1 = __importDefault(require("node:fs"));
 const config_1 = require("../../config");
 const custom_error_1 = require("../../custom.error");
+const decodeJWT_1 = __importDefault(require("../utils/decodeJWT"));
+const Sale_model_1 = __importDefault(require("../models/Sale.model"));
+const GlobalType_model_1 = __importDefault(require("../models/GlobalType.model"));
+const SaleDetail_model_1 = __importDefault(require("../models/SaleDetail.model"));
 const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.file) {
         const { filename, path: tmpPath } = req.file;
@@ -71,6 +75,13 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
         if (!user) {
             throw new custom_error_1.UserNotFoundExceptionError("User not found!");
         }
+        const imageKey = "PhotoPath";
+        const imagePath = user === null || user === void 0 ? void 0 : user[imageKey];
+        if (!imagePath)
+            return;
+        const host = req.protocol + "://" + req.get("host");
+        const imageFullPath = node_path_1.default.join(host, imagePath);
+        user.setDataValue("PhotoPath", imageFullPath);
         const token = yield (user === null || user === void 0 ? void 0 : user.authenticate(Password));
         res.status(200).json({
             message: "Login successful!",
@@ -83,6 +94,38 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.login = login;
+const getCurrentUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    // get user fromtoken
+    try {
+        let authuser;
+        if (req.body.user) {
+            authuser = req.body.user;
+        }
+        else {
+            authuser = (0, decodeJWT_1.default)(req);
+        }
+        const user = yield User_model_1.default.findByPk(authuser.UserGUID, {
+            attributes: {
+                exclude: ["Password"],
+            },
+        });
+        const imageKey = "PhotoPath";
+        const imagePath = user === null || user === void 0 ? void 0 : user[imageKey];
+        if (!imagePath)
+            return;
+        const host = req.protocol + "://" + req.get("host");
+        const imageFullPath = node_path_1.default.join(host, imagePath);
+        user.setDataValue("PhotoPath", imageFullPath);
+        res.json({
+            message: "Current user fetched successfully!",
+            user: user,
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.getCurrentUser = getCurrentUser;
 const verifyAccount = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { MobileNo, OTP } = req.body;
     const { deleted } = req.query;
@@ -193,3 +236,40 @@ const signout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     });
 });
 exports.signout = signout;
+const getOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const salemasters = yield Sale_model_1.default.findAll({
+        where: {
+            CustomerGUID: req.body.user.UserGUID,
+        },
+        attributes: {
+            exclude: ["CustomerGUID", "SaleTypeRef"],
+        },
+        include: [
+            {
+                model: User_model_1.default,
+                as: "Customer",
+            },
+            {
+                model: GlobalType_model_1.default,
+                as: "SaleTypeRef",
+                //  Sale type shoudl be astring value of arributes.GlobaleTypeName
+                attributes: {
+                    include: ["GlobalTypeName"],
+                    exclude: ["GlobalTypeGUID"],
+                },
+            },
+            {
+                model: SaleDetail_model_1.default,
+                all: true,
+            },
+        ],
+    });
+    salemasters.forEach((sale) => {
+        if (sale.SaleTypeRef) {
+            sale.setDataValue("SaleType", sale.SaleTypeRef.GlobalTypeName);
+            sale.setDataValue("SaleTypeRef", undefined);
+        }
+    });
+    res.json(salemasters);
+});
+exports.getOrders = getOrders;

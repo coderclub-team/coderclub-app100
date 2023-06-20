@@ -12,40 +12,52 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createAttribute = exports.deleteProductMaster = exports.updateProductMaster = exports.createProductMaster = exports.getProductMasterById = exports.getAllProductMasters = void 0;
+exports.createAttribute = exports.deleteProductMaster = exports.updateProductMaster = exports.createProductMaster = exports.getProductByQuery = exports.getAllProductMasters = void 0;
 const config_1 = require("../../../config");
 const ProductMaster_model_1 = __importDefault(require("../../models/product/ProductMaster.model"));
 const decodeJWT_1 = __importDefault(require("../../utils/decodeJWT"));
 const node_path_1 = __importDefault(require("node:path"));
 const database_1 = require("../../database");
 const ProductVariant_model_1 = require("../../models/product/ProductVariant.model");
+const sequelize_1 = require("sequelize");
+const ProductCategory_model_1 = __importDefault(require("../../models/product/ProductCategory.model"));
 const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { ProductGUID, ProductID, ProductName, ProductCode, ProductType, SKU } = req.query;
+    const where = {};
+    if (ProductGUID) {
+        where.ProductGUID = ProductGUID;
+    }
+    if (ProductID) {
+        where.ProductID = ProductID;
+    }
+    if (ProductName) {
+        where.ProductName = ProductName;
+    }
+    if (ProductCode) {
+        where.ProductCode = {
+            [sequelize_1.Op.like]: `%${ProductCode}%`,
+        };
+    }
+    if (ProductType) {
+        where.ProductType = {
+            [sequelize_1.Op.like]: `%${ProductType}%`,
+        };
+    }
+    if (SKU) {
+        where.SKU = SKU;
+    }
     try {
-        const productMasters = yield ProductMaster_model_1.default.findAll({
-            attributes: {
-                exclude: [
-                    "CreatedGUID",
-                    "CreatedDate",
-                    "ModifiedGUID",
-                    "UpdatedDate",
-                    "DeletedGUID",
-                    "DeletedDate",
-                ],
-            },
-            nest: true,
+        var products = yield ProductMaster_model_1.default.findAll({
+            where,
             include: [
                 {
-                    model: ProductVariant_model_1.ProductVariant,
-                    attributes: {
-                        exclude: ["CreatedGUID", "CreatedDate"],
-                    },
+                    model: ProductCategory_model_1.default,
+                    attributes: ["ProductCategoryName", "PhotoPath"],
                 },
             ],
         });
-        res.status(200).json({
-            message: "Product masters fetched successfully!",
-            productMasters,
-        });
+        const mappedProducts = yield mapAllProducts(products, req);
+        res.status(200).json(mappedProducts);
     }
     catch (error) {
         console.log("---error", error.message);
@@ -53,71 +65,63 @@ const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 exports.getAllProductMasters = getAllProductMasters;
-const getProductMasterById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { ProductMasterGUID } = req.params;
+const getProductByQuery = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const productMaster = yield ProductMaster_model_1.default.findByPk(ProductMasterGUID, {
-            attributes: {
-                exclude: [
-                    "CreatedGUID",
-                    "CreatedDate",
-                    "ModifiedGUID",
-                    "UpdatedDate",
-                    "DeletedGUID",
-                    "DeletedDate",
-                ],
-            },
-            nest: true,
-            include: [
-                {
-                    model: ProductVariant_model_1.ProductVariant,
-                    attributes: {
-                        exclude: ["CreatedGUID", "CreatedDate"],
-                    },
+        const { ProductName, SKU } = req.query;
+        var product = yield ProductMaster_model_1.default.findOne({
+            where: {
+                ProductName: {
+                    [sequelize_1.Op.like]: `%${ProductName}%`,
                 },
-            ],
+                SKU,
+            },
         });
-        if (!productMaster) {
+        if (!product) {
             return res.status(400).json({
-                message: "Product master not found!",
+                message: "Product not found!",
             });
         }
-        res.send({
-            message: "Product master fetched successfully!",
-            productMaster,
-        });
+        res.status(200).json(product);
     }
     catch (error) {
+        console.log("---error", error.message);
         res.status(500).json(error);
     }
 });
-exports.getProductMasterById = getProductMasterById;
+exports.getProductByQuery = getProductByQuery;
 const createProductMaster = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.body.ProductType) {
         res.status(400).json({
             message: "Product type is required!",
         });
     }
-    if (req.body.ProductType.toString().toLocaleUpperCase() === "SIMPLE") {
-        if (req.body.user) {
-            req.body.CreatedGUID = req.body.user.UserGUID;
+    else if (req.body.ProductType.toString().toLocaleUpperCase() === "SIMPLE" &&
+        req.body.variants.length > 1) {
+        res.status(400).json({
+            message: "Product type is simple, More than one variant not allowed!",
+        });
+    }
+    if (req.body.user) {
+        req.body.CreatedGUID = req.body.user.UserGUID;
+    }
+    else {
+        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
+    }
+    console.log("req.body", req.body);
+    const { ProductName, ProductCode, ProductType, PhotoPath, GalleryPhotoPath1, GalleryPhotoPath2, GalleryPhotoPath3, GalleryPhotoPath4, variants, } = req.body;
+    let t = undefined;
+    try {
+        if (!req.files || Object.keys(req.files).length === 0) {
+            console.log("No files were uploaded.");
         }
         else {
-            req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
+            Object.entries(req.files).forEach(([key, value]) => {
+                console.log(key, value);
+                req.body[key] = node_path_1.default.join(config_1.productImageUploadOptions.directory, value[0].filename);
+            });
         }
-        const t = yield database_1.sequelize.transaction();
-        try {
-            if (!req.files || Object.keys(req.files).length === 0) {
-                console.log("No files were uploaded.");
-            }
-            else {
-                Object.entries(req.files).forEach(([key, value]) => {
-                    console.log(key, value);
-                    req.body[key] = node_path_1.default.join(config_1.productImageUploadOptions.directory, value[0].filename);
-                });
-            }
-            console.log("req.body", req.body);
-            const { ProductName, ProductCode, ProductType, PhotoPath, GalleryPhotoPath1, GalleryPhotoPath2, GalleryPhotoPath3, GalleryPhotoPath4, variants, } = req.body;
+        t = yield database_1.sequelize.transaction();
+        if (req.body.ProductType.toString().toLocaleUpperCase() === "SIMPLE") {
             const product = yield ProductMaster_model_1.default.create({
                 ProductName,
                 ProductCode,
@@ -134,44 +138,56 @@ const createProductMaster = (req, res, next) => __awaiter(void 0, void 0, void 0
             let createdVariants = yield ProductVariant_model_1.ProductVariant.bulkCreate(variants.map((variant) => (Object.assign(Object.assign({}, variant), { ProductMasterRefGUID: product.ProductGUID, CreatedGUID: req.body.CreatedGUID }))), {
                 transaction: t,
             });
-            yield t
-                .commit()
-                .then(() => {
-                console.log("Transaction committed");
-                res.status(201).json({
-                    message: "Product master created successfully!",
-                    product: Object.assign(Object.assign({}, product.toJSON()), { variants: createdVariants }),
-                });
-            })
-                .catch((error) => {
-                t.rollback();
-                console.log("error===>", error);
-                next(error);
-            });
-        }
-        catch (error) {
-            t.rollback();
-            console.log("error===>", error);
-            next(error);
-        }
-    }
-    else if (req.body.ProductType.toString().toLocaleUpperCase() === "VARIABLE") {
-        console.log("req.body", req.body);
-        try {
-            const product = yield ProductMaster_model_1.default.create(req.body);
+            yield t.commit();
             res.status(201).json({
                 message: "Product master created successfully!",
-                product,
+                product: Object.assign(Object.assign({}, product.toJSON()), { variants: createdVariants }),
             });
         }
-        catch (error) {
-            next(error);
+        else if (req.body.ProductType.toString().toLocaleUpperCase() === "VARIABLE") {
+            variants.forEach((variant) => {
+                // check if the variant has a Size or Color or Flavour otherwise throw error
+                if (!variant.Size && !variant.Color && !variant.Flavour) {
+                    throw new Error("Size or Color or Flavour is required for each variant!");
+                }
+            });
+            const product = yield ProductMaster_model_1.default.create(req.body);
+            const objects = [];
+            if (Array.isArray(req.body.ProductCategoryRefGUID)) {
+                let objs = req.body.ProductCategoryRefGUID.map((category) => ({
+                    ProductCategoryRefGUID: +category,
+                    ProductRefGUID: product.ProductGUID,
+                }));
+                console.log("objects", objs);
+                objects.push(...objs);
+            }
+            else if (req.body.ProductCategoryRefGUID &&
+                !isNaN(req.body.ProductCategoryRefGUID)) {
+                objects.push({
+                    ProductCategoryRefGUID: req.body.ProductCategoryRefGUID,
+                    ProductRefGUID: product.ProductGUID,
+                });
+            }
+            else {
+                objects.push({
+                    ProductCategoryRefGUID: 1,
+                    ProductRefGUID: product.ProductGUID,
+                });
+            }
+            yield t.commit().catch((error) => {
+                console.error("Error occurred while committing transaction:", error);
+                t === null || t === void 0 ? void 0 : t.rollback();
+            });
+            res.status(201).json({
+                message: "Product master created successfully!",
+                product: Object.assign({}, product.toJSON()),
+            });
         }
     }
-    else {
-        res.status(400).json({
-            message: "Product type is required!",
-        });
+    catch (error) {
+        next(error);
+    }
+    finally {
     }
     // try {
     //   console.log("req.file.filename", req!.file);
@@ -276,3 +292,87 @@ const createAttribute = (req, res) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.createAttribute = createAttribute;
+function mapAllProducts(products, req) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const options = yield getProductOptions();
+        const host = req.protocol + "://" + req.get("host");
+        products.forEach((product) => {
+            // adding attributes to product
+            const found = options.find((o) => o.ProductName === product.ProductName);
+            if (found) {
+                product.attributes = [
+                    {
+                        name: "Qty",
+                        options: found.options.replace(/\s/g, "").split(","),
+                        variation: true,
+                        visible: true,
+                    },
+                ];
+            }
+            // adding categories to product
+            if (product.ProductCategory)
+                product.Categories = [
+                    {
+                        name: product.ProductCategory.ProductCategoryName,
+                    },
+                ];
+            const images = [];
+            for (let i = 1; i <= 4; i++) {
+                const imageKey = `GalleryPhotoPath${i}`;
+                const imagePath = product[imageKey];
+                if (imagePath) {
+                    const imageFullPath = new URL(node_path_1.default.join(host, imagePath)).toString();
+                    if (imagePath) {
+                        images.push({
+                            id: i,
+                            src: imageFullPath,
+                            name: node_path_1.default.basename(imagePath),
+                            alt: node_path_1.default.basename(imagePath),
+                        });
+                    }
+                }
+            }
+            if (product.PhotoPath)
+                product.setDataValue("PhotoPath", new URL(node_path_1.default.join(host, product.PhotoPath).toString()));
+            product.setDataValue("GalleryPhotoPath1", undefined);
+            product.setDataValue("GalleryPhotoPath2", undefined);
+            product.setDataValue("GalleryPhotoPath3", undefined);
+            product.setDataValue("GalleryPhotoPath4", undefined);
+            product.setDataValue("Images", images);
+        });
+        products.forEach((p) => {
+            p.attributes = p.attributes.reduce((acc, curr) => {
+                const matchingAttribute = acc.find((a) => a.name === curr.name);
+                if (matchingAttribute) {
+                    matchingAttribute.options.push(curr.options[0]);
+                }
+                else {
+                    acc.push(curr);
+                }
+                return acc;
+            }, []);
+            p.Dimensions = {
+                height: p.Height || 0,
+                width: p.Width || 0,
+                length: p.Length || 0,
+            };
+            delete p.Height;
+            delete p.Width;
+            delete p.Length;
+        });
+        return products;
+    });
+}
+function getProductOptions() {
+    const query = `
+SELECT  ProductName, 
+STUFF((SELECT ', ' + CONCAT(SKU,UOM)
+FROM tbl_ProductMaster as p2
+WHERE p1.ProductName = p2.ProductName
+FOR XML PATH('')), 1, 2, '') AS options
+from tbl_ProductMaster as p1 GROUP by ProductName
+`;
+    return database_1.sequelize.query(query, {
+        type: sequelize_1.QueryTypes.SELECT,
+    });
+}

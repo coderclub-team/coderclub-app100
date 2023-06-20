@@ -19,19 +19,13 @@ const ProductCategory_model_1 = __importDefault(require("../../models/product/Pr
 const getAllProductSubCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const productSubCategories = yield ProductSubCategory_model_1.default.findAll({
-            attributes: {
-                exclude: ["CreatedGUID", "CreatedDate"],
-            },
             // ProductCategory refe
             include: {
                 model: ProductCategory_model_1.default,
                 attributes: ["ProductCategoryName"],
             },
         });
-        res.status(200).json({
-            message: "Product sub categories fetched successfully!",
-            productSubCategories,
-        });
+        res.status(200).json(productSubCategories);
     }
     catch (error) {
         res.status(500).json(error);
@@ -42,9 +36,6 @@ const getProductSubCategoryById = (req, res) => __awaiter(void 0, void 0, void 0
     const { ProductSubCategoryGUID } = req.params;
     try {
         const productSubCategory = yield ProductSubCategory_model_1.default.findByPk(ProductSubCategoryGUID, {
-            attributes: {
-                exclude: ["CreatedGUID", "CreatedDate"],
-            },
             include: {
                 model: ProductCategory_model_1.default,
                 attributes: ["ProductCategoryName"],

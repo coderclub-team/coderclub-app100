@@ -10,12 +10,14 @@ import {
   BeforeUpdate,
   Unique,
   BeforeSave,
+  BeforeBulkCreate,
+  BeforeBulkUpdate,
 } from "sequelize-typescript";
 import bcrypt from "bcrypt";
 
 import moment from "moment";
 import { DataTypes } from "sequelize";
-import { AuthenticateProps } from "../../custom";
+
 import {
   IncorrectPasswordError,
   UserNotFoundExceptionError,
@@ -314,15 +316,19 @@ export default class User extends Model {
     }
 
     try {
-      const token = jwt.sign(
-        this.get({ plain: true }),
-        process.env.JWT_SECRET,
-        {
-          expiresIn: "1d",
-        }
-      );
+      if (process.env.JWT_SECRET) {
+        const token = jwt.sign(
+          this.get({ plain: true }),
+          process.env.JWT_SECRET,
+          {
+            expiresIn: "1d",
+          }
+        );
 
-      return Promise.resolve(token);
+        return Promise.resolve(token);
+      } else {
+        throw new Error("JWT_SECRET not found");
+      }
     } catch (error) {
       return Promise.reject(error);
     }
@@ -443,5 +449,26 @@ export default class User extends Model {
     } catch (error: any) {
       return Promise.reject(error.message);
     }
+  }
+  @BeforeBulkCreate
+  @BeforeBulkUpdate
+  static beforeBulkCreateHook(instances: User[]) {
+    instances.forEach((instance) => {
+      Object.entries(instance.toJSON()).forEach(([key, value]) => {
+        if (typeof value === "string") {
+          instance.setDataValue(key as keyof User, value.trim());
+        }
+      });
+    });
+  }
+
+  @BeforeCreate
+  @BeforeUpdate
+  static beforeCreateHook(instance: User) {
+    Object.entries(instance.toJSON()).forEach(([key, value]) => {
+      if (typeof value === "string") {
+        instance.setDataValue(key as keyof User, value.trim());
+      }
+    });
   }
 }

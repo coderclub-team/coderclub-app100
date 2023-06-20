@@ -15,29 +15,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteStoreMaster = exports.updateStoreMaster = exports.createStoreMaster = exports.getStoreMasterById = exports.getAllStoreMasters = void 0;
 const StoreMaster_model_1 = __importDefault(require("../models/StoreMaster.model"));
 const decodeJWT_1 = __importDefault(require("../utils/decodeJWT"));
+const ProductCategory_model_1 = __importDefault(require("../models/product/ProductCategory.model"));
 const getAllStoreMasters = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const storeMasters = yield StoreMaster_model_1.default.findAll({
-            //   include: [
-            //     {
-            //       model: User,
-            //       as: "CreatedBy",
-            //       attributes: ["UserID", "UserName"],
-            //     },
-            //     {
-            //       model: User,
-            //       as: "ModifiedBy",
-            //       attributes: ["UserID", "UserName"],
-            //     },
-            //     {
-            //       model: User,
-            //       as: "DeletedBy",
-            //       attributes: ["UserID", "UserName"],
-            //     },
-            //   ],
             attributes: {
                 exclude: ["CreatedByGUID", "ModifiedByGUID", "DeletedByGUID"],
             },
+            include: [
+                {
+                    model: ProductCategory_model_1.default,
+                    as: "ProductCategory",
+                },
+            ],
+            raw: true,
+            nest: true,
         });
         res.status(200).json({
             message: "Store Masters fetched successfully!",

@@ -13,20 +13,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteProductCategory = exports.updateProductCategory = exports.createProductCategory = exports.getProductCategoryById = exports.getAllProductCategories = void 0;
-const ProductCategory_model_1 = __importDefault(require("../../models/product/ProductCategory.model"));
+exports.deleteProductCategory = exports.createProductCategory = exports.getProductCategoryById = exports.getAllProductCategories = void 0;
 const decodeJWT_1 = __importDefault(require("../../utils/decodeJWT"));
+const node_path_1 = __importDefault(require("node:path"));
+const ProductCategory_model_1 = __importDefault(require("../../models/product/ProductCategory.model"));
 // import { productCategoryImageUploadOptions } from "../../config";
 const getAllProductCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const productCategories = yield ProductCategory_model_1.default.findAll({
-            paranoid: false,
-        });
-        res.status(200).json({
-            message: "Product categories fetched successfully!",
-            productCategories,
-            total: productCategories.length,
-        });
+        const categories = yield ProductCategory_model_1.default.findAll({});
+        categories.forEach((category) => __awaiter(void 0, void 0, void 0, function* () {
+            const imageKey = "PhotoPath";
+            const imagePath = category[imageKey];
+            if (!imagePath)
+                return;
+            const host = req.protocol + "://" + req.get("host");
+            const imageFullPath = node_path_1.default.join(host, imagePath);
+            category.setDataValue("PhotoPath", imageFullPath);
+        }));
+        res.status(200).json(categories);
     }
     catch (error) {
         res.status(500).json(error);
@@ -36,19 +40,22 @@ exports.getAllProductCategories = getAllProductCategories;
 const getProductCategoryById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { ProductCategoryGUID } = req.params;
     try {
-        const productCategory = yield ProductCategory_model_1.default.findByPk(ProductCategoryGUID, {
-            attributes: {
-                exclude: ["CreatedGUID", "CreatedDate"],
-            },
-        });
-        if (!productCategory) {
+        const category = yield ProductCategory_model_1.default.findByPk(ProductCategoryGUID);
+        const imageKey = "PhotoPath";
+        const imagePath = category === null || category === void 0 ? void 0 : category[imageKey];
+        if (!imagePath)
+            return;
+        const host = req.protocol + "://" + req.get("host");
+        const imageFullPath = node_path_1.default.join(host, imagePath);
+        category.setDataValue("PhotoPath", imageFullPath);
+        if (!category) {
             return res.status(400).json({
                 message: "Product category not found!",
             });
         }
         res.send({
             message: "Product category fetched successfully!",
-            productCategory,
+            category,
         });
     }
     catch (error) {
@@ -76,35 +83,31 @@ const createProductCategory = (req, res, next) => __awaiter(void 0, void 0, void
     }
 });
 exports.createProductCategory = createProductCategory;
-const updateProductCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // add modifiedGUID using req.body.user.UserGUID or decodeJWT(req)
-    if (req.body.user.UserGUID) {
-        req.body.ModifiedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.ModifiedGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
-    const { ProductCategoryGUID } = req.params;
-    try {
-        const productCategory = yield ProductCategory_model_1.default.findByPk(ProductCategoryGUID);
-        if (!productCategory) {
-            return res.status(400).json({
-                message: "Product category not found!",
-            });
-        }
-        yield productCategory.update(req.body, {
-            exclude: ["CreatedGUID", "CreatedDate", "ProductCategoryGUID"],
-        });
-        res.send({
-            message: "Product category updated successfully!",
-            productCategory,
-        });
-    }
-    catch (error) {
-        res.status(500).json(error);
-    }
-});
-exports.updateProductCategory = updateProductCategory;
+// export const updateProductCategory = async (req: Request, res: Response) => {
+//   if (req.body.user.UserGUID) {
+//     req.body.ModifiedGUID = req.body.user.UserGUID;
+//   } else {
+//     req.body.ModifiedGUID = decodeJWT(req).UserGUID;
+//   }
+//   const { ProductCategoryGUID } = req.params;
+//   try {
+//     const productCategory = await ProductCategory.findByPk(ProductCategoryGUID);
+//     if (!productCategory) {
+//       return res.status(400).json({
+//         message: "Product category not found!",
+//       });
+//     }
+//     await productCategory.update(req.body, {
+//       exclude: ["CreatedGUID", "CreatedDate", "ProductCategoryGUID"],
+//     });
+//     res.send({
+//       message: "Product category updated successfully!",
+//       productCategory,
+//     });
+//   } catch (error) {
+//     res.status(500).json(error);
+//   }
+// };
 const deleteProductCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { ProductCategoryGUID } = req.params;
     try {

@@ -4,6 +4,10 @@ import User from "../models/User.model";
 import fs from "node:fs";
 import { userImageUploadOptions } from "../../config";
 import { UserNotFoundExceptionError } from "../../custom.error";
+import decodeJWT from "../utils/decodeJWT";
+import Sale from "../models/Sale.model";
+import GlobalType from "../models/GlobalType.model";
+import SaleDetail from "../models/SaleDetail.model";
 export const register = async (
   req: Request,
   res: Response,
@@ -71,6 +75,13 @@ export const login = async (
     if (!user) {
       throw new UserNotFoundExceptionError("User not found!");
     }
+    const imageKey = "PhotoPath";
+    const imagePath = user?.[imageKey as keyof User];
+    if (!imagePath) return;
+    const host = req.protocol + "://" + req.get("host");
+    const imageFullPath = path.join(host, imagePath);
+    user.setDataValue("PhotoPath", imageFullPath);
+
     const token = await user?.authenticate(Password);
     res.status(200).json({
       message: "Login successful!",
@@ -78,6 +89,41 @@ export const login = async (
       token,
     });
   } catch (error: any) {
+    next(error);
+  }
+};
+
+export const getCurrentUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  // get user fromtoken
+  try {
+    let authuser: User;
+    if (req.body.user) {
+      authuser = req.body.user;
+    } else {
+      authuser = decodeJWT(req) as User;
+    }
+    const user = await User.findByPk(authuser.UserGUID, {
+      attributes: {
+        exclude: ["Password"],
+      },
+    });
+
+    const imageKey = "PhotoPath";
+    const imagePath = user?.[imageKey as keyof User];
+    if (!imagePath) return;
+    const host = req.protocol + "://" + req.get("host");
+    const imageFullPath = path.join(host, imagePath);
+    user.setDataValue("PhotoPath", imageFullPath);
+
+    res.json({
+      message: "Current user fetched successfully!",
+      user: user,
+    });
+  } catch (error) {
     next(error);
   }
 };
@@ -203,4 +249,49 @@ export const signout = async (req: Request, res: Response) => {
   res.json({
     message: "Signout should be implemented at the Frontend side!",
   });
+};
+
+export const getOrders = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const salemasters = await Sale.findAll({
+    where: {
+      CustomerGUID: req.body.user.UserGUID,
+    },
+    attributes: {
+      exclude: ["CustomerGUID", "SaleTypeRef"],
+    },
+
+    include: [
+      {
+        model: User,
+        as: "Customer",
+      },
+      {
+        model: GlobalType,
+        as: "SaleTypeRef",
+
+        //  Sale type shoudl be astring value of arributes.GlobaleTypeName
+        attributes: {
+          include: ["GlobalTypeName"],
+          exclude: ["GlobalTypeGUID"],
+        },
+      },
+      {
+        model: SaleDetail,
+        all: true,
+      },
+    ],
+  });
+
+  salemasters.forEach((sale) => {
+    if (sale.SaleTypeRef) {
+      sale.setDataValue("SaleType", sale.SaleTypeRef.GlobalTypeName);
+      sale.setDataValue("SaleTypeRef", undefined);
+    }
+  });
+
+  res.json(salemasters);
 };
