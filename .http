@@ -1,1 +1,7 @@
 GET https://coderclub-100.onrender.com/api/app/config
+
+
+
+###
+
+GET https://coderclub-100.onrender.com/api/productcategories
