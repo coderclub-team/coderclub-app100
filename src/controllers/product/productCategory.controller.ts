@@ -16,7 +16,8 @@ export const getAllProductCategories = async (req: Request, res: Response) => {
       const imagePath = category[imageKey as keyof ProductCategory];
       if (!imagePath) return;
       const host = req.protocol + "://" + req.get("host");
-      const imageFullPath = path.join(host, imagePath);
+
+      const imageFullPath = new URL(path.join(host, imagePath)).toString();
       category.setDataValue("PhotoPath", imageFullPath);
     });
 
@@ -36,7 +37,7 @@ export const getProductCategoryById = async (req: Request, res: Response) => {
     const imagePath = category?.[imageKey as keyof ProductCategory];
     if (!imagePath) return;
     const host = req.protocol + "://" + req.get("host");
-    const imageFullPath = path.join(host, imagePath);
+    const imageFullPath = new URL(path.join(host, imagePath)).toString();
     category.setDataValue("PhotoPath", imageFullPath);
 
     if (!category) {

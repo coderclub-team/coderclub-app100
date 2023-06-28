@@ -14,37 +14,40 @@ import {
   WhereOptions,
 } from "sequelize";
 import ProductCategory from "../../models/product/ProductCategory.model";
+import { omitUndefined, oneMonthAgo } from "../../utils/functions";
 
 type MyWhereType = Filterable<any>["where"] & WhereOptions<any>;
 
 export const getAllProductMasters = async (req: Request, res: Response) => {
-  const { ProductGUID, ProductID, ProductName, ProductCode, ProductType, SKU } =
-    req.query;
+  const {
+    ProductGUID,
+    ProductID,
+    ProductName,
+    ProductCode,
+    ProductType,
+    SKU,
+    IsFeatured,
+    NewArrival,
+  } = req.query;
 
-  const where: MyWhereType = {};
-  if (ProductGUID) {
-    where.ProductGUID = ProductGUID;
-  }
-
-  if (ProductID) {
-    where.ProductID = ProductID;
-  }
-  if (ProductName) {
-    where.ProductName = ProductName;
-  }
-  if (ProductCode) {
-    where.ProductCode = {
-      [Op.like]: `%${ProductCode}%`,
-    };
-  }
-  if (ProductType) {
-    where.ProductType = {
-      [Op.like]: `%${ProductType}%`,
-    };
-  }
-  if (SKU) {
-    where.SKU = SKU;
-  }
+  const where: MyWhereType = omitUndefined({
+    ProductGUID: ProductGUID,
+    ProductID: ProductID,
+    ProductName: ProductName,
+    ProductCode:
+      ProductCode !== undefined ? { [Op.like]: `%${ProductCode}%` } : undefined,
+    ...(ProductType !== undefined && {
+      ProductType: { [Op.like]: `%${ProductType}%` },
+    }),
+    SKU: SKU,
+    IsFeatured: IsFeatured,
+    CreatedDate:
+      NewArrival !== undefined
+        ? {
+            [Op.lt]: oneMonthAgo,
+          }
+        : undefined,
+  });
 
   try {
     var products = await ProductMaster.findAll({

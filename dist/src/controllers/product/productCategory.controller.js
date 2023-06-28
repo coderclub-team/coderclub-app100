@@ -27,7 +27,7 @@ const getAllProductCategories = (req, res) => __awaiter(void 0, void 0, void 0, 
             if (!imagePath)
                 return;
             const host = req.protocol + "://" + req.get("host");
-            const imageFullPath = node_path_1.default.join(host, imagePath);
+            const imageFullPath = new URL(node_path_1.default.join(host, imagePath)).toString();
             category.setDataValue("PhotoPath", imageFullPath);
         }));
         res.status(200).json(categories);
@@ -46,7 +46,7 @@ const getProductCategoryById = (req, res) => __awaiter(void 0, void 0, void 0, f
         if (!imagePath)
             return;
         const host = req.protocol + "://" + req.get("host");
-        const imageFullPath = node_path_1.default.join(host, imagePath);
+        const imageFullPath = new URL(node_path_1.default.join(host, imagePath)).toString();
         category.setDataValue("PhotoPath", imageFullPath);
         if (!category) {
             return res.status(400).json({

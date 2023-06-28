@@ -26,7 +26,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
       const imagePath = user?.[imageKey as keyof User];
       if (!imagePath) return;
       const host = req.protocol + "://" + req.get("host");
-      const imageFullPath = path.join(host, imagePath);
+      const imageFullPath = new URL(path.join(host, imagePath));
       user.setDataValue("PhotoPath", imageFullPath);
     });
 
@@ -57,7 +57,7 @@ export const getUserById = async (req: Request, res: Response) => {
     const imagePath = user?.[imageKey as keyof User];
     if (!imagePath) return;
     const host = req.protocol + "://" + req.get("host");
-    const imageFullPath = path.join(host, imagePath);
+    const imageFullPath = new URL(path.join(host, imagePath));
     user.setDataValue("PhotoPath", imageFullPath);
 
     return res.status(200).json(user);
