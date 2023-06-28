@@ -21,31 +21,16 @@ const database_1 = require("../../database");
 const ProductVariant_model_1 = require("../../models/product/ProductVariant.model");
 const sequelize_1 = require("sequelize");
 const ProductCategory_model_1 = __importDefault(require("../../models/product/ProductCategory.model"));
+const functions_1 = require("../../utils/functions");
 const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { ProductGUID, ProductID, ProductName, ProductCode, ProductType, SKU } = req.query;
-    const where = {};
-    if (ProductGUID) {
-        where.ProductGUID = ProductGUID;
-    }
-    if (ProductID) {
-        where.ProductID = ProductID;
-    }
-    if (ProductName) {
-        where.ProductName = ProductName;
-    }
-    if (ProductCode) {
-        where.ProductCode = {
-            [sequelize_1.Op.like]: `%${ProductCode}%`,
-        };
-    }
-    if (ProductType) {
-        where.ProductType = {
-            [sequelize_1.Op.like]: `%${ProductType}%`,
-        };
-    }
-    if (SKU) {
-        where.SKU = SKU;
-    }
+    const { ProductGUID, ProductID, ProductName, ProductCode, ProductType, SKU, IsFeatured, NewArrival, } = req.query;
+    const where = (0, functions_1.omitUndefined)(Object.assign(Object.assign({ ProductGUID: ProductGUID, ProductID: ProductID, ProductName: ProductName, ProductCode: ProductCode !== undefined ? { [sequelize_1.Op.like]: `%${ProductCode}%` } : undefined }, (ProductType !== undefined && {
+        ProductType: { [sequelize_1.Op.like]: `%${ProductType}%` },
+    })), { SKU: SKU, IsFeatured: IsFeatured, CreatedDate: NewArrival !== undefined
+            ? {
+                [sequelize_1.Op.lt]: functions_1.oneMonthAgo,
+            }
+            : undefined }));
     try {
         var products = yield ProductMaster_model_1.default.findAll({
             where,
