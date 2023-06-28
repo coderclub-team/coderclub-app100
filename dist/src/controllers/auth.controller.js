@@ -80,7 +80,7 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
         if (!imagePath)
             return;
         const host = req.protocol + "://" + req.get("host");
-        const imageFullPath = node_path_1.default.join(host, imagePath);
+        const imageFullPath = new URL(node_path_1.default.join(host, imagePath));
         user.setDataValue("PhotoPath", imageFullPath);
         const token = yield (user === null || user === void 0 ? void 0 : user.authenticate(Password));
         res.status(200).json({

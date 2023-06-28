@@ -79,7 +79,7 @@ export const login = async (
     const imagePath = user?.[imageKey as keyof User];
     if (!imagePath) return;
     const host = req.protocol + "://" + req.get("host");
-    const imageFullPath = path.join(host, imagePath);
+    const imageFullPath = new URL(path.join(host, imagePath));
     user.setDataValue("PhotoPath", imageFullPath);
 
     const token = await user?.authenticate(Password);
