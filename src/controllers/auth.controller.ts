@@ -8,6 +8,7 @@ import decodeJWT from "../utils/decodeJWT";
 import Sale from "../models/Sale.model";
 import GlobalType from "../models/GlobalType.model";
 import SaleDetail from "../models/SaleDetail.model";
+
 export const register = async (
   req: Request,
   res: Response,
@@ -116,7 +117,7 @@ export const getCurrentUser = async (
     const imagePath = user?.[imageKey as keyof User];
     if (!imagePath) return;
     const host = req.protocol + "://" + req.get("host");
-    const imageFullPath = path.join(host, imagePath);
+    const imageFullPath = new URL(path.join(host, imagePath));
     user.setDataValue("PhotoPath", imageFullPath);
 
     res.json({

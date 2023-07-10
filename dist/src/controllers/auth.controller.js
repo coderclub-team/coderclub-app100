@@ -114,7 +114,7 @@ const getCurrentUser = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         if (!imagePath)
             return;
         const host = req.protocol + "://" + req.get("host");
-        const imageFullPath = node_path_1.default.join(host, imagePath);
+        const imageFullPath = new URL(node_path_1.default.join(host, imagePath));
         user.setDataValue("PhotoPath", imageFullPath);
         res.json({
             message: "Current user fetched successfully!",

@@ -100,16 +100,22 @@ export const updateUserById = async (
     delete req.body.MobileNo;
     delete req.body.Password;
 
-    await user.save(req.body);
+    Object.keys(req.body).forEach((key: string) => {
+      if (user) {
+        user.setDataValue(key, req.body[key]);
+      }
+    });
 
     if (req.body.tmpPath && req.body.uploadPath) {
       fs.rename(req.body.tmpPath, req.body.uploadPath, (err) => {
         if (err) console.log(err);
-        else
-          user!.PhotoPath = path.join(
-            req.protocol + "://" + req.get("host"),
-            user!.PhotoPath
+        else {
+          const baseUrl = `${req.protocol}://${req.get("host")}`;
+          user?.setDataValue(
+            "PhotoPath",
+            new URL(path.join(baseUrl, user!.PhotoPath))
           );
+        }
       });
     }
 
@@ -125,7 +131,7 @@ export const updateUserById = async (
         }
       );
     }
-
+    await user.save();
     res.status(201).json({ message: "User updated successfully!", user: user });
   } catch (error) {
     next(error);

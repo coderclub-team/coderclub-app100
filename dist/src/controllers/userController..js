@@ -103,13 +103,19 @@ const updateUserById = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         const oldPhotoPath = user.PhotoPath;
         delete req.body.MobileNo;
         delete req.body.Password;
-        yield user.save(req.body);
+        Object.keys(req.body).forEach((key) => {
+            if (user) {
+                user.setDataValue(key, req.body[key]);
+            }
+        });
         if (req.body.tmpPath && req.body.uploadPath) {
             node_fs_1.default.rename(req.body.tmpPath, req.body.uploadPath, (err) => {
                 if (err)
                     console.log(err);
-                else
-                    user.PhotoPath = node_path_1.default.join(req.protocol + "://" + req.get("host"), user.PhotoPath);
+                else {
+                    const baseUrl = `${req.protocol}://${req.get("host")}`;
+                    user === null || user === void 0 ? void 0 : user.setDataValue("PhotoPath", new URL(node_path_1.default.join(baseUrl, user.PhotoPath)));
+                }
             });
         }
         if (oldPhotoPath && oldPhotoPath !== user.PhotoPath) {
@@ -120,6 +126,7 @@ const updateUserById = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
                     console.log("Old photo deleted successfully!");
             });
         }
+        yield user.save();
         res.status(201).json({ message: "User updated successfully!", user: user });
     }
     catch (error) {
