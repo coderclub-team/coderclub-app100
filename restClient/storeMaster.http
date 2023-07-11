@@ -1,15 +1,15 @@
 ### getAllStoreMasters
-GET {{baseUrl}}/api/storeMasters
+GET {{{{baseurl}}}}/api/storeMasters
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 ### getStoreMaster
-GET {{baseUrl}}/api/storeMasters/1
+GET {{{{baseurl}}}}/api/storeMasters/1
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 ### createStoreMaster
-POST {{baseUrl}}/api/storeMasters
+POST {{{{baseurl}}}}/api/storeMasters
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -30,7 +30,7 @@ Authorization: Bearer {{token}}
 }
 
 ### updateStoreMaster
-PUT  {{baseUrl}}/api/storeMasters/1
+PUT  {{{{baseurl}}}}/api/storeMasters/1
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -49,7 +49,7 @@ Authorization: Bearer {{token}}
 }
 
 ### deleteStoreMaster
-DELETE {{baseUrl}}/api/storeMasters/1
+DELETE {{{{baseurl}}}}/api/storeMasters/1
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

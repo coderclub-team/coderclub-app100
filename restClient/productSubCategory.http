@@ -1,16 +1,16 @@
 ### getAllProductSubCategories
 
-GET {{baseUrl}}/api/productSubCategories
+GET {{{{baseurl}}}}/api/productSubCategories
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 ### getProductSubCategory
-GET {{baseUrl}}/api/productSubCategories/10
+GET {{{{baseurl}}}}/api/productSubCategories/10
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 ### createProductSubCategory
-POST {{baseUrl}}/api/productSubCategories
+POST {{{{baseurl}}}}/api/productSubCategories
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -20,7 +20,7 @@ Authorization: Bearer {{token}}
     }
    
 ### updateProductSubCategory
-PUT {{baseUrl}}/api/productSubCategories/1
+PUT {{{{baseurl}}}}/api/productSubCategories/1
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

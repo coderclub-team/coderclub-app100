@@ -15,6 +15,8 @@ import {
 } from "sequelize";
 import ProductCategory from "../../models/product/ProductCategory.model";
 import { omitUndefined, oneMonthAgo } from "../../utils/functions";
+import ProductReview from "../../models/product/ProductReview.model";
+import User from "../../models/User.model";
 
 type MyWhereType = Filterable<any>["where"] & WhereOptions<any>;
 
@@ -68,30 +70,60 @@ export const getAllProductMasters = async (req: Request, res: Response) => {
   }
 };
 
-export const getProductByQuery = async (req: Request, res: Response) => {
+export const getProductMasterById = async (req: Request, res: Response) => {
+  const { ProductGUID } = req.params;
+
   try {
-    const { ProductName, SKU } = req.query;
-    var product = await ProductMaster.findOne({
+    var products = await ProductMaster.findAll({
       where: {
-        ProductName: {
-          [Op.like]: `%${ProductName}%`,
+        ProductGUID: {
+          [Op.eq]: ProductGUID,
         },
-        SKU,
       },
+      include: [
+        {
+          model: ProductCategory,
+          attributes: ["ProductCategoryName", "PhotoPath"],
+        },
+        {
+          model: ProductReview,
+          include: [User],
+        },
+      ],
     });
 
-    if (!product) {
-      return res.status(400).json({
-        message: "Product not found!",
-      });
-    }
-
-    res.status(200).json(product);
+    const mappedProducts = await mapAllProducts(products, req);
+    res.status(200).json(mappedProducts);
   } catch (error: any) {
     console.log("---error", error.message);
     res.status(500).json(error);
   }
 };
+
+// export const getProductByQuery = async (req: Request, res: Response) => {
+//   try {
+//     const { ProductName, SKU } = req.query;
+//     var product = await ProductMaster.findOne({
+//       where: {
+//         ProductName: {
+//           [Op.like]: `%${ProductName}%`,
+//         },
+//         SKU,
+//       },
+//     });
+
+//     if (!product) {
+//       return res.status(400).json({
+//         message: "Product not found!",
+//       });
+//     }
+
+//     res.status(200).json(product);
+//   } catch (error: any) {
+//     console.log("---error", error.message);
+//     res.status(500).json(error);
+//   }
+// };
 
 export const createProductMaster = async (
   req: Request,
@@ -424,4 +456,22 @@ from tbl_ProductMaster as p1 GROUP by ProductName
   return sequelize.query(query, {
     type: QueryTypes.SELECT,
   });
+}
+
+export async function getProductReviews(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { productGUID } = req.params;
+  try {
+    let reviews = await ProductReview.findAll();
+    return res.send({
+      message: "Product reviews fetched successfully!",
+      reviews,
+    });
+  } catch (error) {
+    console.log("getProductReviews", error);
+    next(error);
+  }
 }

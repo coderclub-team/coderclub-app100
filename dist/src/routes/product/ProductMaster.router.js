@@ -26,7 +26,8 @@ const upload = (0, multer_1.default)({
     },
 });
 router.get("/", productMaster_controller_1.getAllProductMasters);
-router.get("/searchproduct", productMaster_controller_1.getProductByQuery);
+router.get("/:ProductGUID", productMaster_controller_1.getProductMasterById);
+// router.get("/searchproduct", getProductByQuery);
 router.post("/", upload.fields([
     { name: "PhotoPath", maxCount: 1 },
     {
@@ -41,4 +42,5 @@ router.put("/:ProductMasterGUID", productMaster_controller_1.updateProductMaster
 router.delete("/:ProductMasterGUID", productMaster_controller_1.deleteProductMaster);
 // attributes
 router.post("/:productGUID/attributes", productMaster_controller_1.createAttribute);
+router.get("/:productGUID/reviews", productMaster_controller_1.getProductReviews);
 exports.default = router;

@@ -1,20 +1,20 @@
 
 
-GET {{baseUrl}}
+GET {{{{baseurl}}}}
 
 ### get all employees
 
-GET {{baseUrl}}/api/employees
+GET {{{{baseurl}}}}/api/employees
 Authorization: Bearer {{token}}
 
    
 
 ### get employee by id
-GET {{baseUrl}}/api/employees/22
+GET {{{{baseurl}}}}/api/employees/22
 Authorization: Bearer {{token}}
 
 ### create employee
-POST {{baseUrl}}/api/employees
+POST {{{{baseurl}}}}/api/employees
 Content-Type: multipart/form-data
 Authorization: Bearer {{token}}
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
@@ -41,7 +41,7 @@ Content-Type: image/png
 
 ### update employee
 
-PUT {{baseUrl}}/api/employees/26
+PUT {{{{baseurl}}}}/api/employees/26
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -54,7 +54,7 @@ Authorization: Bearer {{token}}
     }
 
 ### delete employee
-DELETE {{baseUrl}}/api/employees/26
+DELETE {{{{baseurl}}}}/api/employees/26
 Authorization: Bearer {{token}}
 
 

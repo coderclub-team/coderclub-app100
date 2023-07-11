@@ -24,6 +24,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_typescript_1 = require("sequelize-typescript");
 const ProductCategory_model_1 = __importDefault(require("./ProductCategory.model"));
 const ProductSubCategory_model_1 = __importDefault(require("./ProductSubCategory.model"));
+const ProductReview_model_1 = __importDefault(require("./ProductReview.model"));
 let ProductMaster = class ProductMaster extends sequelize_typescript_1.Model {
     static generateProductGUID(instance) {
         var _a, _b;
@@ -81,6 +82,10 @@ __decorate([
     }),
     __metadata("design:type", Number)
 ], ProductMaster.prototype, "ProductGUID", void 0);
+__decorate([
+    (0, sequelize_typescript_1.HasMany)(() => ProductReview_model_1.default),
+    __metadata("design:type", ProductReview_model_1.default)
+], ProductMaster.prototype, "Reviews", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING(100),

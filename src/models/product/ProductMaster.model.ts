@@ -17,6 +17,7 @@ import {
 } from "sequelize-typescript";
 import ProductCategory from "./ProductCategory.model";
 import ProductSubCategory from "./ProductSubCategory.model";
+import ProductReview from "./ProductReview.model";
 
 @Table({
   tableName: "tbl_ProductMaster",
@@ -36,6 +37,9 @@ class ProductMaster extends Model {
     unique: true,
   })
   ProductGUID!: number;
+
+  @HasMany(() => ProductReview)
+  Reviews?: ProductReview;
 
   @Column({
     type: DataType.STRING(100),

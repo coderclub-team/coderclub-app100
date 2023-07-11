@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createAttribute = exports.deleteProductMaster = exports.updateProductMaster = exports.createProductMaster = exports.getProductByQuery = exports.getAllProductMasters = void 0;
+exports.getProductReviews = exports.createAttribute = exports.deleteProductMaster = exports.updateProductMaster = exports.createProductMaster = exports.getProductMasterById = exports.getAllProductMasters = void 0;
 const config_1 = require("../../../config");
 const ProductMaster_model_1 = __importDefault(require("../../models/product/ProductMaster.model"));
 const decodeJWT_1 = __importDefault(require("../../utils/decodeJWT"));
@@ -22,6 +22,8 @@ const ProductVariant_model_1 = require("../../models/product/ProductVariant.mode
 const sequelize_1 = require("sequelize");
 const ProductCategory_model_1 = __importDefault(require("../../models/product/ProductCategory.model"));
 const functions_1 = require("../../utils/functions");
+const ProductReview_model_1 = __importDefault(require("../../models/product/ProductReview.model"));
+const User_model_1 = __importDefault(require("../../models/User.model"));
 const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { ProductGUID, ProductID, ProductName, ProductCode, ProductType, SKU, IsFeatured, NewArrival, } = req.query;
     const where = (0, functions_1.omitUndefined)(Object.assign(Object.assign({ ProductGUID: ProductGUID, ProductID: ProductID, ProductName: ProductName, ProductCode: ProductCode !== undefined ? { [sequelize_1.Op.like]: `%${ProductCode}%` } : undefined }, (ProductType !== undefined && {
@@ -50,30 +52,57 @@ const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 exports.getAllProductMasters = getAllProductMasters;
-const getProductByQuery = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getProductMasterById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { ProductGUID } = req.params;
     try {
-        const { ProductName, SKU } = req.query;
-        var product = yield ProductMaster_model_1.default.findOne({
+        var products = yield ProductMaster_model_1.default.findAll({
             where: {
-                ProductName: {
-                    [sequelize_1.Op.like]: `%${ProductName}%`,
+                ProductGUID: {
+                    [sequelize_1.Op.eq]: ProductGUID,
                 },
-                SKU,
             },
+            include: [
+                {
+                    model: ProductCategory_model_1.default,
+                    attributes: ["ProductCategoryName", "PhotoPath"],
+                },
+                {
+                    model: ProductReview_model_1.default,
+                    include: [User_model_1.default],
+                },
+            ],
         });
-        if (!product) {
-            return res.status(400).json({
-                message: "Product not found!",
-            });
-        }
-        res.status(200).json(product);
+        const mappedProducts = yield mapAllProducts(products, req);
+        res.status(200).json(mappedProducts);
     }
     catch (error) {
         console.log("---error", error.message);
         res.status(500).json(error);
     }
 });
-exports.getProductByQuery = getProductByQuery;
+exports.getProductMasterById = getProductMasterById;
+// export const getProductByQuery = async (req: Request, res: Response) => {
+//   try {
+//     const { ProductName, SKU } = req.query;
+//     var product = await ProductMaster.findOne({
+//       where: {
+//         ProductName: {
+//           [Op.like]: `%${ProductName}%`,
+//         },
+//         SKU,
+//       },
+//     });
+//     if (!product) {
+//       return res.status(400).json({
+//         message: "Product not found!",
+//       });
+//     }
+//     res.status(200).json(product);
+//   } catch (error: any) {
+//     console.log("---error", error.message);
+//     res.status(500).json(error);
+//   }
+// };
 const createProductMaster = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.body.ProductType) {
         res.status(400).json({
@@ -361,3 +390,20 @@ from tbl_ProductMaster as p1 GROUP by ProductName
         type: sequelize_1.QueryTypes.SELECT,
     });
 }
+function getProductReviews(req, res, next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const { productGUID } = req.params;
+        try {
+            let reviews = yield ProductReview_model_1.default.findAll();
+            return res.send({
+                message: "Product reviews fetched successfully!",
+                reviews,
+            });
+        }
+        catch (error) {
+            console.log("getProductReviews", error);
+            next(error);
+        }
+    });
+}
+exports.getProductReviews = getProductReviews;

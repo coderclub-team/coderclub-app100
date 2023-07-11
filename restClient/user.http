@@ -1,18 +1,18 @@
 ######  getAllUsers()
 
-GET {{baseUrl}}/api/users
+GET {{{{baseurl}}}}/api/users
 Content-Type: application/json
 Authorization:  Bearer {{token}}
 
 
 ### getUserById()
-GET {{baseUrl}}/api/users/1
+GET {{{{baseurl}}}}/api/users/1
 Content-Type: application/json
 Authorization:  Bearer {{token}}
 
 
 ###updateUserById()
-PUT {{baseUrl}}/api/users/8220370001
+PUT {{{{baseurl}}}}/api/users/8220370001
 Content-Type: application/json
 Authorization:  Bearer {{token}}
     
@@ -41,7 +41,7 @@ Authorization:  Bearer {{token}}
     }
 
 ### deleteUserById()
-DELETE {{baseUrl}}/api/users/8220373888
+DELETE {{{{baseurl}}}}/api/users/8220373888
 Content-Type: application/json
 Authorization:  Bearer {{token}}
 

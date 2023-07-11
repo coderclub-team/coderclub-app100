@@ -1,4 +1,4 @@
 ### getAllLinMen
 
-GET {{baseUrl}}/api/linemen
+GET {{{{baseurl}}}}/api/linemen
 Content

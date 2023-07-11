@@ -60,7 +60,7 @@ console.log("Connecting to DB", node_path_1.default.join("public"));
     console.log("Error connecting to DB", err);
 });
 app.use("/api/users", authGaurd_middleware_1.default, user_router_1.default);
-app.use("/api/productMasters", authGaurd_middleware_1.default, ProductMaster_router_1.default);
+app.use("/api/productMasters", ProductMaster_router_1.default);
 app.use("/api/productcategories", productCategory_router_1.default);
 app.use("/api/productsubcategories", productSubCategory_router_1.default);
 app.get("/api/app/config", (req, res) => {

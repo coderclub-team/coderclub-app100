@@ -39,7 +39,7 @@ ConnectDB()
   });
 
 app.use("/api/users", authGaurd, userRouter);
-app.use("/api/productMasters", authGaurd, productMasterRouter);
+app.use("/api/productMasters", productMasterRouter);
 app.use("/api/productcategories", productCategoryRouter);
 app.use("/api/productsubcategories", productSubCategoryRouter);
 app.get("/api/app/config", (req: Request, res: Response) => {

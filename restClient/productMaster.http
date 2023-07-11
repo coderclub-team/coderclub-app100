@@ -1,17 +1,17 @@
 ### getAllProductMasters
 
-GET {{baseUrl}}/api/productmasters
+GET {{baseurl}}/productmasters
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 
 ### getAllProductMasterById
-GET {{baseUrl}}/api/productmasters/1
+GET {{baseurl}}/productmasters/1
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 ### createProductMaster
-POST {{baseUrl}}/api/productmasters
+POST {{baseurl}}/productmasters
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -36,7 +36,7 @@ Authorization: Bearer {{token}}
     }
 
 ### updateProductMaster
-PUT {{baseUrl}}/api/productmasters/10
+PUT {{baseurl}}/productmasters/10
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -61,7 +61,7 @@ Authorization: Bearer {{token}}
    }
 
 ### deleteProductMaster
-DELETE {{baseUrl}}/api/productmasters/11
+DELETE {{baseurl}}/productmasters/11
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
