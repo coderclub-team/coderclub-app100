@@ -39,17 +39,23 @@ __decorate([
     __metadata("design:type", String)
 ], ProductReview.prototype, "ProductGUID", void 0);
 __decorate([
+    (0, sequelize_typescript_1.Column)({
+        references: {
+            key: "UserGUID",
+            model: "User",
+        },
+    }),
     (0, sequelize_typescript_1.ForeignKey)(() => User_model_1.default),
     __metadata("design:type", String)
 ], ProductReview.prototype, "CreatedUserGUID", void 0);
 __decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => User_model_1.default),
+    __metadata("design:type", User_model_1.default)
+], ProductReview.prototype, "user", void 0);
+__decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", Date)
 ], ProductReview.prototype, "CreatedDate", void 0);
-__decorate([
-    (0, sequelize_typescript_1.HasOne)(() => User_model_1.default),
-    __metadata("design:type", User_model_1.default)
-], ProductReview.prototype, "User", void 0);
 __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", String)
