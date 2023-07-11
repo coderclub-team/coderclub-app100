@@ -25,6 +25,7 @@ let ProductReview = class ProductReview extends sequelize_typescript_1.Model {
 };
 __decorate([
     sequelize_typescript_1.PrimaryKey,
+    sequelize_typescript_1.AutoIncrement,
     sequelize_typescript_1.Column,
     __metadata("design:type", String)
 ], ProductReview.prototype, "ReviewGUID", void 0);

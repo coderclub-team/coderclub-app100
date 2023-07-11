@@ -9,6 +9,7 @@ const multer_1 = __importDefault(require("multer"));
 const config_1 = require("../../../config");
 const productMaster_controller_1 = require("../../controllers/product/productMaster.controller");
 const handleSequelizeError_1 = __importDefault(require("../../middlewares/handleSequelizeError"));
+const authGaurd_middleware_1 = __importDefault(require("../../middlewares/authGaurd.middleware"));
 const router = express_1.default.Router();
 const upload = (0, multer_1.default)({
     storage: config_1.productImageUploadOptions.storage,
@@ -42,5 +43,6 @@ router.put("/:ProductMasterGUID", productMaster_controller_1.updateProductMaster
 router.delete("/:ProductMasterGUID", productMaster_controller_1.deleteProductMaster);
 // attributes
 router.post("/:productGUID/attributes", productMaster_controller_1.createAttribute);
-router.get("/:productGUID/reviews", productMaster_controller_1.getProductReviews);
+// router.get("/:productGUID/reviews", getProductReviews);
+router.post("/:productGUID/reviews", authGaurd_middleware_1.default, productMaster_controller_1.createProductReview);
 exports.default = router;

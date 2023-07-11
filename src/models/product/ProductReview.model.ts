@@ -1,6 +1,7 @@
 // tbl_ProductReviews model
 
 import {
+  AutoIncrement,
   BelongsTo,
   Column,
   ForeignKey,
@@ -24,6 +25,7 @@ import User from "../User.model";
 })
 class ProductReview extends Model {
   @PrimaryKey
+  @AutoIncrement
   @Column
   ReviewGUID?: string;
 

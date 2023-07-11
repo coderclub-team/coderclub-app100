@@ -6,16 +6,18 @@ import { productImageUploadOptions } from "../../../config";
 import {
   createAttribute,
   createProductMaster,
+  createProductReview,
   deleteProductMaster,
   getAllProductMasters,
   getProductMasterById,
-  getProductReviews,
 
   // getProductMasterById,
   updateProductMaster,
 } from "../../controllers/product/productMaster.controller";
 import handleSequelizeError from "../../middlewares/handleSequelizeError";
 import trimRequestBody from "../../middlewares/trimRequestBody.middleware";
+import authRouter from "../auth.router";
+import authGaurd from "../../middlewares/authGaurd.middleware";
 
 const router = express.Router();
 const upload = multer({
@@ -60,6 +62,7 @@ router.delete("/:ProductMasterGUID", deleteProductMaster);
 
 router.post("/:productGUID/attributes", createAttribute);
 
-router.get("/:productGUID/reviews", getProductReviews);
+// router.get("/:productGUID/reviews", getProductReviews);
+router.post("/:productGUID/reviews", authGaurd, createProductReview);
 
 export default router;

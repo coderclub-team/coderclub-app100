@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getProductReviews = exports.createAttribute = exports.deleteProductMaster = exports.updateProductMaster = exports.createProductMaster = exports.getProductMasterById = exports.getAllProductMasters = void 0;
+exports.createProductReview = exports.createAttribute = exports.deleteProductMaster = exports.updateProductMaster = exports.createProductMaster = exports.getProductMasterById = exports.getAllProductMasters = void 0;
 const config_1 = require("../../../config");
 const ProductMaster_model_1 = __importDefault(require("../../models/product/ProductMaster.model"));
 const decodeJWT_1 = __importDefault(require("../../utils/decodeJWT"));
@@ -390,20 +390,43 @@ from tbl_ProductMaster as p1 GROUP by ProductName
         type: sequelize_1.QueryTypes.SELECT,
     });
 }
-function getProductReviews(req, res, next) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const { productGUID } = req.params;
-        try {
-            let reviews = yield ProductReview_model_1.default.findAll();
-            return res.send({
-                message: "Product reviews fetched successfully!",
-                reviews,
-            });
-        }
-        catch (error) {
-            console.log("getProductReviews", error);
-            next(error);
-        }
-    });
-}
-exports.getProductReviews = getProductReviews;
+// export async function getProductReviews(
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) {
+//   const { productGUID } = req.params;
+//   try {
+//     let reviews = await ProductReview.findAll();
+//     return res.send({
+//       message: "Product reviews fetched successfully!",
+//       reviews,
+//     });
+//   } catch (error) {
+//     console.log("getProductReviews", error);
+//     next(error);
+//   }
+// }
+const createProductReview = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { productGUID } = req.params;
+    req.body.ProductGUID = productGUID;
+    if (req.body.user.UserGUID) {
+        req.body.CreatedUserGUID = req.body.user.UserGUID;
+    }
+    else {
+        req.body.CreatedUserGUID = (0, decodeJWT_1.default)(req).UserGUID;
+    }
+    delete req.body.user;
+    try {
+        const [review, created] = yield ProductReview_model_1.default.upsert(req.body);
+        res.send({
+            message: `Product Review ${created ? "created" : "updated"} successfully!`,
+            review,
+        });
+    }
+    catch (error) {
+        console.log("review error", error.message);
+        next(error);
+    }
+});
+exports.createProductReview = createProductReview;

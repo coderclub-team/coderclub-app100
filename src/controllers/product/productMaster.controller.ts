@@ -458,20 +458,48 @@ from tbl_ProductMaster as p1 GROUP by ProductName
   });
 }
 
-export async function getProductReviews(
+// export async function getProductReviews(
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) {
+//   const { productGUID } = req.params;
+//   try {
+//     let reviews = await ProductReview.findAll();
+//     return res.send({
+//       message: "Product reviews fetched successfully!",
+//       reviews,
+//     });
+//   } catch (error) {
+//     console.log("getProductReviews", error);
+//     next(error);
+//   }
+// }
+export const createProductReview = async (
   req: Request,
   res: Response,
   next: NextFunction
-) {
+) => {
   const { productGUID } = req.params;
+  req.body.ProductGUID = productGUID;
+  if (req.body.user.UserGUID) {
+    req.body.CreatedUserGUID = req.body.user.UserGUID;
+  } else {
+    req.body.CreatedUserGUID = decodeJWT(req).UserGUID;
+  }
+
+  delete req.body.user;
+
   try {
-    let reviews = await ProductReview.findAll();
-    return res.send({
-      message: "Product reviews fetched successfully!",
-      reviews,
+    const [review, created] = await ProductReview.upsert(req.body);
+    res.send({
+      message: `Product Review ${
+        created ? "created" : "updated"
+      } successfully!`,
+      review,
     });
-  } catch (error) {
-    console.log("getProductReviews", error);
+  } catch (error: any) {
+    console.log("review error", error.message);
     next(error);
   }
-}
+};
