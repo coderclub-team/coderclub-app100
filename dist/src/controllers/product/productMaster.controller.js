@@ -28,11 +28,7 @@ const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, fun
     const { ProductGUID, ProductID, ProductName, ProductCode, ProductType, SKU, IsFeatured, NewArrival, } = req.query;
     const where = (0, functions_1.omitUndefined)(Object.assign(Object.assign({ ProductGUID: ProductGUID, ProductID: ProductID, ProductName: ProductName, ProductCode: ProductCode !== undefined ? { [sequelize_1.Op.like]: `%${ProductCode}%` } : undefined }, (ProductType !== undefined && {
         ProductType: { [sequelize_1.Op.like]: `%${ProductType}%` },
-    })), { SKU: SKU, IsFeatured: IsFeatured, CreatedDate: NewArrival !== undefined
-            ? {
-                [sequelize_1.Op.lt]: functions_1.oneMonthAgo,
-            }
-            : undefined }));
+    })), { SKU: SKU, IsFeatured: IsFeatured }));
     try {
         var products = yield ProductMaster_model_1.default.findAll({
             where,
@@ -42,6 +38,7 @@ const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, fun
                     attributes: ["ProductCategoryName", "PhotoPath"],
                 },
             ],
+            order: NewArrival ? [["CreatedDate", "DESC"]] : undefined,
         });
         const mappedProducts = yield mapAllProducts(products, req);
         res.status(200).json(mappedProducts);

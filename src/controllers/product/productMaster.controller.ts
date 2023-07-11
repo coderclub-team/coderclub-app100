@@ -43,12 +43,12 @@ export const getAllProductMasters = async (req: Request, res: Response) => {
     }),
     SKU: SKU,
     IsFeatured: IsFeatured,
-    CreatedDate:
-      NewArrival !== undefined
-        ? {
-            [Op.lt]: oneMonthAgo,
-          }
-        : undefined,
+    // CreatedDate:
+    //   NewArrival !== undefined
+    //     ? {
+    //         [Op.lt]: oneMonthAgo,
+    //       }
+    //     : undefined,
   });
 
   try {
@@ -60,6 +60,7 @@ export const getAllProductMasters = async (req: Request, res: Response) => {
           attributes: ["ProductCategoryName", "PhotoPath"],
         },
       ],
+      order: NewArrival ? [["CreatedDate", "DESC"]] : undefined,
     });
 
     const mappedProducts = await mapAllProducts(products, req);
