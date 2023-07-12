@@ -3,6 +3,8 @@ import User from "../models/User.model";
 import path from "node:path";
 import fs from "node:fs";
 import { userImageUploadOptions } from "../../config";
+import decodeJWT from "../utils/decodeJWT";
+import UserAddress from "../models/UserAddress.model";
 
 export const getAllUsers = async (req: Request, res: Response) => {
   const { deleted } = req.query;
@@ -20,6 +22,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
         ],
       },
       paranoid,
+      include: [UserAddress],
     });
     users.forEach((user) => {
       const imageKey = "PhotoPath";
@@ -46,6 +49,7 @@ export const getUserById = async (req: Request, res: Response) => {
         UserGUID,
       },
       paranoid,
+      include: [UserAddress],
     });
 
     if (!user) {
@@ -166,5 +170,92 @@ export const deleteUserById = async (req: Request, res: Response) => {
     });
   } catch (error) {
     return res.status(500).json(error);
+  }
+};
+
+// Manage user addresses
+
+// export const getAllAddresses = (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   if (req.body.user) {
+//     req.body.CreatedGUID = req.body.user.UserGUID;
+//   } else {
+//     req.body.CreatedGUID = decodeJWT(req).UserGUID;
+//   }
+// };
+export const createAddress = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (req.body.user) {
+    req.body.CreatedGUID = req.body.user.UserGUID;
+  } else {
+    req.body.CreatedGUID = decodeJWT(req).UserGUID;
+  }
+  req.body.UserGUID = req.body.CreatedGUID;
+  try {
+    const address = await UserAddress.create(req.body);
+    res.send({
+      message: "User address added successfully!",
+      address,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+export const updateAddress = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (req.body.user) {
+    req.body.CreatedGUID = req.body.user.UserGUID;
+  } else {
+    req.body.CreatedGUID = decodeJWT(req).UserGUID;
+  }
+
+  try {
+    if (!req.body.UserAddressGUID)
+      throw Error("AddressGUID is required to update the Address!");
+
+    const address = await UserAddress.findByPk(req.body.UserAddressGUID);
+    if (!address) throw Error("Invalid AddressGUID!");
+    delete req.body.UserAddressGUID;
+    const useraddress = await address.update(req.body);
+    res.status(200).send({
+      message: "User addredd updated successfully!",
+      useraddress,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+export const deleteAddress = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (req.body.user) {
+    req.body.CreatedGUID = req.body.user.UserGUID;
+  } else {
+    req.body.CreatedGUID = decodeJWT(req).UserGUID;
+  }
+
+  try {
+    if (!req.body.UserAddressGUID)
+      throw Error("AddressGUID is required to delete the Address!");
+    const address = await UserAddress.findByPk(req.body.UserAddressGUID);
+    if (!address) throw Error("Invalid AddressGUID!");
+    await address.destroy();
+    res.status(200).send({
+      message: "User address deleted successfully!",
+      address,
+    });
+  } catch (error) {
+    next(error);
   }
 };

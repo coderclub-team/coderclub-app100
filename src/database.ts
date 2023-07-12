@@ -10,6 +10,7 @@ import SaleDetail from "./models/SaleDetail.model";
 import GlobalType from "./models/GlobalType.model";
 import GlobalTypeCategory from "./models/GlobalTypeCategory.nodel";
 import ProductReview from "./models/product/ProductReview.model";
+import UserAddress from "./models/UserAddress.model";
 
 export const sequelize = new Sequelize(sequelizeConnectionOptions);
 
@@ -38,6 +39,7 @@ export default async () => {
     Sale,
     SaleDetail,
     ProductReview,
+    UserAddress,
   ]);
   User.sync();
   ProductCategory.sync();
@@ -46,6 +48,7 @@ export default async () => {
   ProductSubCategory.sync();
   ProductMaster.sync();
   ProductReview.sync();
+  UserAddress.sync();
 
   Sale.sync({
     schema: "dbo",

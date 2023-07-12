@@ -8,6 +8,7 @@ import decodeJWT from "../utils/decodeJWT";
 import Sale from "../models/Sale.model";
 import GlobalType from "../models/GlobalType.model";
 import SaleDetail from "../models/SaleDetail.model";
+import UserAddress from "../models/UserAddress.model";
 
 export const register = async (
   req: Request,
@@ -72,6 +73,7 @@ export const login = async (
       where: {
         MobileNo: MobileNo,
       },
+      include: [UserAddress],
     });
     if (!user) {
       throw new UserNotFoundExceptionError("User not found!");

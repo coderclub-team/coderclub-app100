@@ -56,13 +56,18 @@ router.post(
   handleSequelizeError
 );
 router.put("/:ProductMasterGUID", updateProductMaster, handleSequelizeError);
-router.delete("/:ProductMasterGUID", deleteProductMaster);
+router.delete("/:ProductMasterGUID", deleteProductMaster, handleSequelizeError);
 
 // attributes
 
 router.post("/:productGUID/attributes", createAttribute);
 
 // router.get("/:productGUID/reviews", getProductReviews);
-router.post("/:productGUID/reviews", authGaurd, createProductReview);
+router.post(
+  "/:productGUID/reviews",
+  authGaurd,
+  createProductReview,
+  handleSequelizeError
+);
 
 export default router;

@@ -40,9 +40,9 @@ router.post("/", upload.fields([
     { name: "GalleryPhotoPath4", maxCount: 1 },
 ]), productMaster_controller_1.createProductMaster, handleSequelizeError_1.default);
 router.put("/:ProductMasterGUID", productMaster_controller_1.updateProductMaster, handleSequelizeError_1.default);
-router.delete("/:ProductMasterGUID", productMaster_controller_1.deleteProductMaster);
+router.delete("/:ProductMasterGUID", productMaster_controller_1.deleteProductMaster, handleSequelizeError_1.default);
 // attributes
 router.post("/:productGUID/attributes", productMaster_controller_1.createAttribute);
 // router.get("/:productGUID/reviews", getProductReviews);
-router.post("/:productGUID/reviews", authGaurd_middleware_1.default, productMaster_controller_1.createProductReview);
+router.post("/:productGUID/reviews", authGaurd_middleware_1.default, productMaster_controller_1.createProductReview, handleSequelizeError_1.default);
 exports.default = router;

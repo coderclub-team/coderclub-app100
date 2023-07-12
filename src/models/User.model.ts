@@ -12,6 +12,8 @@ import {
   BeforeSave,
   BeforeBulkCreate,
   BeforeBulkUpdate,
+  ForeignKey,
+  HasMany,
 } from "sequelize-typescript";
 import bcrypt from "bcrypt";
 
@@ -23,6 +25,7 @@ import {
   UserNotFoundExceptionError,
 } from "../../custom.error";
 import jwt from "jsonwebtoken";
+import UserAddress from "./UserAddress.model";
 
 @Table({
   tableName: "tbl_Users",
@@ -154,6 +157,10 @@ export default class User extends Model {
   })
   public Landline!: number | null;
 
+  @Column
+  @ForeignKey(() => UserAddress)
+  PrimaryAddressGUID?: number;
+
   @Column({
     type: DataType.DATEONLY,
     allowNull: true,
@@ -277,6 +284,8 @@ export default class User extends Model {
     this._token = token;
   }
 
+  @HasMany(() => UserAddress)
+  Addresses?: UserAddress;
   @BeforeCreate
   static async hashPassword(instance: User) {
     if (instance.Password) {

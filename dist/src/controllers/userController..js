@@ -12,11 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteUserById = exports.updateUserById = exports.getUserById = exports.getAllUsers = void 0;
+exports.deleteAddress = exports.updateAddress = exports.createAddress = exports.deleteUserById = exports.updateUserById = exports.getUserById = exports.getAllUsers = void 0;
 const User_model_1 = __importDefault(require("../models/User.model"));
 const node_path_1 = __importDefault(require("node:path"));
 const node_fs_1 = __importDefault(require("node:fs"));
 const config_1 = require("../../config");
+const decodeJWT_1 = __importDefault(require("../utils/decodeJWT"));
+const UserAddress_model_1 = __importDefault(require("../models/UserAddress.model"));
 const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { deleted } = req.query;
     const paranoid = deleted === "true" ? false : true;
@@ -32,6 +34,7 @@ const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                 ],
             },
             paranoid,
+            include: [UserAddress_model_1.default],
         });
         users.forEach((user) => {
             const imageKey = "PhotoPath";
@@ -59,6 +62,7 @@ const getUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                 UserGUID,
             },
             paranoid,
+            include: [UserAddress_model_1.default],
         });
         if (!user) {
             return res.status(400).json({
@@ -162,3 +166,84 @@ const deleteUserById = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.deleteUserById = deleteUserById;
+// Manage user addresses
+// export const getAllAddresses = (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   if (req.body.user) {
+//     req.body.CreatedGUID = req.body.user.UserGUID;
+//   } else {
+//     req.body.CreatedGUID = decodeJWT(req).UserGUID;
+//   }
+// };
+const createAddress = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    if (req.body.user) {
+        req.body.CreatedGUID = req.body.user.UserGUID;
+    }
+    else {
+        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
+    }
+    req.body.UserGUID = req.body.CreatedGUID;
+    try {
+        const address = yield UserAddress_model_1.default.create(req.body);
+        res.send({
+            message: "User address added successfully!",
+            address,
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.createAddress = createAddress;
+const updateAddress = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    if (req.body.user) {
+        req.body.CreatedGUID = req.body.user.UserGUID;
+    }
+    else {
+        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
+    }
+    try {
+        if (!req.body.UserAddressGUID)
+            throw Error("AddressGUID is required to update the Address!");
+        const address = yield UserAddress_model_1.default.findByPk(req.body.UserAddressGUID);
+        if (!address)
+            throw Error("Invalid AddressGUID!");
+        delete req.body.UserAddressGUID;
+        const useraddress = yield address.update(req.body);
+        res.status(200).send({
+            message: "User addredd updated successfully!",
+            useraddress,
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.updateAddress = updateAddress;
+const deleteAddress = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    if (req.body.user) {
+        req.body.CreatedGUID = req.body.user.UserGUID;
+    }
+    else {
+        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
+    }
+    try {
+        if (!req.body.UserAddressGUID)
+            throw Error("AddressGUID is required to delete the Address!");
+        const address = yield UserAddress_model_1.default.findByPk(req.body.UserAddressGUID);
+        if (!address)
+            throw Error("Invalid AddressGUID!");
+        yield address.destroy();
+        res.status(200).send({
+            message: "User address deleted successfully!",
+            address,
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.deleteAddress = deleteAddress;

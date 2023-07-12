@@ -4,9 +4,12 @@ import { Router } from "express";
 import multer from "multer";
 import { userImageUploadOptions } from "../../config";
 import {
+  createAddress,
+  deleteAddress,
   deleteUserById,
   getAllUsers,
   getUserById,
+  updateAddress,
   updateUserById,
 } from "../controllers/userController.";
 import authGaurdMiddleware from "../middlewares/authGaurd.middleware";
@@ -40,5 +43,7 @@ userRouter.put(
   handleSequelizeError
 );
 userRouter.delete("/:UserGUID", deleteUserById, handleSequelizeError);
-
+userRouter.post("/:UserGUID/addresses", createAddress, handleSequelizeError);
+userRouter.put("/:UserGUID/addresses", updateAddress, handleSequelizeError);
+userRouter.delete("/:UserGUID/addresses", deleteAddress, handleSequelizeError);
 export default userRouter;

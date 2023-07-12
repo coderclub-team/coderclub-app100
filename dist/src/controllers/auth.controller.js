@@ -22,6 +22,7 @@ const decodeJWT_1 = __importDefault(require("../utils/decodeJWT"));
 const Sale_model_1 = __importDefault(require("../models/Sale.model"));
 const GlobalType_model_1 = __importDefault(require("../models/GlobalType.model"));
 const SaleDetail_model_1 = __importDefault(require("../models/SaleDetail.model"));
+const UserAddress_model_1 = __importDefault(require("../models/UserAddress.model"));
 const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.file) {
         const { filename, path: tmpPath } = req.file;
@@ -71,6 +72,7 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
             where: {
                 MobileNo: MobileNo,
             },
+            include: [UserAddress_model_1.default],
         });
         if (!user) {
             throw new custom_error_1.UserNotFoundExceptionError("User not found!");

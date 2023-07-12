@@ -27,6 +27,7 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const moment_1 = __importDefault(require("moment"));
 const sequelize_1 = require("sequelize");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const UserAddress_model_1 = __importDefault(require("./UserAddress.model"));
 let User = User_1 = class User extends sequelize_typescript_1.Model {
     get token() {
         return this.token;
@@ -367,6 +368,11 @@ __decorate([
     __metadata("design:type", Object)
 ], User.prototype, "Landline", void 0);
 __decorate([
+    sequelize_typescript_1.Column,
+    (0, sequelize_typescript_1.ForeignKey)(() => UserAddress_model_1.default),
+    __metadata("design:type", Number)
+], User.prototype, "PrimaryAddressGUID", void 0);
+__decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.DATEONLY,
         allowNull: true,
@@ -492,6 +498,10 @@ __decorate([
     }),
     __metadata("design:type", Object)
 ], User.prototype, "ModifiedGUID", void 0);
+__decorate([
+    (0, sequelize_typescript_1.HasMany)(() => UserAddress_model_1.default),
+    __metadata("design:type", UserAddress_model_1.default)
+], User.prototype, "Addresses", void 0);
 __decorate([
     sequelize_typescript_1.BeforeCreate,
     __metadata("design:type", Function),
