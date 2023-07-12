@@ -39,6 +39,8 @@ const productCategory_router_1 = __importDefault(require("./routes/product/produ
 const productSubCategory_router_1 = __importDefault(require("./routes/product/productSubCategory.router"));
 const ProductMaster_router_1 = __importDefault(require("./routes/product/ProductMaster.router"));
 const sale_router_1 = __importDefault(require("./routes/sale.router"));
+const cartitems_router_1 = __importDefault(require("./routes/cartitems.router"));
+const userAddresses_route_1 = __importDefault(require("./routes/userAddresses.route"));
 // const fs = require("fs");
 // const app_config = fs.readFileSync(
 //   path.join(__dirname, "../public/data/app_config.json"),
@@ -60,6 +62,8 @@ console.log("Connecting to DB", node_path_1.default.join("public"));
     console.log("Error connecting to DB", err);
 });
 app.use("/api/users", authGaurd_middleware_1.default, user_router_1.default);
+app.use("/api/cartitems", authGaurd_middleware_1.default, cartitems_router_1.default);
+app.use("/api/addresses", authGaurd_middleware_1.default, userAddresses_route_1.default);
 app.use("/api/productMasters", ProductMaster_router_1.default);
 app.use("/api/productcategories", productCategory_router_1.default);
 app.use("/api/productsubcategories", productSubCategory_router_1.default);

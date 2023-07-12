@@ -5,6 +5,9 @@ import fs from "node:fs";
 import { userImageUploadOptions } from "../../config";
 import decodeJWT from "../utils/decodeJWT";
 import UserAddress from "../models/UserAddress.model";
+import CartItem from "../models/CartItem.model";
+import { Op } from "sequelize";
+import ProductMaster from "../models/product/ProductMaster.model";
 
 export const getAllUsers = async (req: Request, res: Response) => {
   const { deleted } = req.query;
@@ -219,10 +222,7 @@ export const updateAddress = async (
   }
 
   try {
-    if (!req.body.UserAddressGUID)
-      throw Error("AddressGUID is required to update the Address!");
-
-    const address = await UserAddress.findByPk(req.body.UserAddressGUID);
+    const address = await UserAddress.findByPk(req.params.AddressGUID);
     if (!address) throw Error("Invalid AddressGUID!");
     delete req.body.UserAddressGUID;
     const useraddress = await address.update(req.body);
@@ -246,9 +246,7 @@ export const deleteAddress = async (
   }
 
   try {
-    if (!req.body.UserAddressGUID)
-      throw Error("AddressGUID is required to delete the Address!");
-    const address = await UserAddress.findByPk(req.body.UserAddressGUID);
+    const address = await UserAddress.findByPk(req.params.AddressGUID);
     if (!address) throw Error("Invalid AddressGUID!");
     await address.destroy();
     res.status(200).send({
@@ -259,3 +257,98 @@ export const deleteAddress = async (
     next(error);
   }
 };
+
+export const getCartItems = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (req.body.user) {
+    req.body.CreatedGUID = req.body.user.UserGUID;
+  } else {
+    req.body.CreatedGUID = decodeJWT(req).UserGUID;
+  }
+
+  try {
+    const cartItems = await CartItem.findAll({
+      where: {
+        CreatedGUID: {
+          [Op.eq]: req.body.CreatedGUID,
+        },
+      },
+      include: [ProductMaster],
+    });
+    res.status(200).send({
+      message: "Cartitems fetched successfully! ",
+      cartItems,
+    });
+  } catch (error: any) {
+    console.log("message===>", error?.message);
+    next(error);
+  }
+};
+export const addCartItem = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (req.body.user) {
+    req.body.CreatedGUID = req.body.user.UserGUID;
+  } else {
+    req.body.CreatedGUID = decodeJWT(req).UserGUID;
+  }
+  try {
+    if (!req.body.ProductGUID) {
+      throw Error("ProductGUID is required to add cart item!");
+    }
+    if (!req.body.Quantity) {
+      throw Error("Quantity is required to add cart item!");
+    }
+
+    const existingCartItem = await CartItem.findOne({
+      where: {
+        ProductGUID: req.body.ProductGUID,
+        CreatedGUID: req.body.CreatedGUID,
+      },
+      include: [ProductMaster],
+    });
+    if (existingCartItem) {
+      existingCartItem!.Quantity =
+        existingCartItem?.Quantity + req.body.Quantity;
+      if (existingCartItem!.Quantity! < 0) {
+        throw Error(
+          `Cart item quantity ${existingCartItem!.Quantity!} not allowed!`
+        );
+      }
+      if (existingCartItem!.Quantity! === 0) {
+        existingCartItem.destroy();
+        return res.status(200).send({
+          message: "CartItem deleted successfully!",
+          CartItem: null,
+        });
+      }
+
+      existingCartItem.save();
+      return res.status(200).send({
+        message: "CartItem updated successfully!",
+        CartItem: existingCartItem,
+      });
+    }
+
+    if (req.body.Quantity < 1) {
+      throw Error("Minimum Quantity is required to add cart item!");
+    }
+    const cartitem = await CartItem.create(req.body);
+    res.status(200).send({
+      message: "CartItem added successfully!",
+      cartitem,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+export const deleteCartItem = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {};

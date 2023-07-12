@@ -12,13 +12,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteAddress = exports.updateAddress = exports.createAddress = exports.deleteUserById = exports.updateUserById = exports.getUserById = exports.getAllUsers = void 0;
+exports.deleteCartItem = exports.addCartItem = exports.getCartItems = exports.deleteAddress = exports.updateAddress = exports.createAddress = exports.deleteUserById = exports.updateUserById = exports.getUserById = exports.getAllUsers = void 0;
 const User_model_1 = __importDefault(require("../models/User.model"));
 const node_path_1 = __importDefault(require("node:path"));
 const node_fs_1 = __importDefault(require("node:fs"));
 const config_1 = require("../../config");
 const decodeJWT_1 = __importDefault(require("../utils/decodeJWT"));
 const UserAddress_model_1 = __importDefault(require("../models/UserAddress.model"));
+const CartItem_model_1 = __importDefault(require("../models/CartItem.model"));
+const sequelize_1 = require("sequelize");
+const ProductMaster_model_1 = __importDefault(require("../models/product/ProductMaster.model"));
 const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { deleted } = req.query;
     const paranoid = deleted === "true" ? false : true;
@@ -206,9 +209,7 @@ const updateAddress = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
     }
     try {
-        if (!req.body.UserAddressGUID)
-            throw Error("AddressGUID is required to update the Address!");
-        const address = yield UserAddress_model_1.default.findByPk(req.body.UserAddressGUID);
+        const address = yield UserAddress_model_1.default.findByPk(req.params.AddressGUID);
         if (!address)
             throw Error("Invalid AddressGUID!");
         delete req.body.UserAddressGUID;
@@ -231,9 +232,7 @@ const deleteAddress = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
     }
     try {
-        if (!req.body.UserAddressGUID)
-            throw Error("AddressGUID is required to delete the Address!");
-        const address = yield UserAddress_model_1.default.findByPk(req.body.UserAddressGUID);
+        const address = yield UserAddress_model_1.default.findByPk(req.params.AddressGUID);
         if (!address)
             throw Error("Invalid AddressGUID!");
         yield address.destroy();
@@ -247,3 +246,86 @@ const deleteAddress = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     }
 });
 exports.deleteAddress = deleteAddress;
+const getCartItems = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    if (req.body.user) {
+        req.body.CreatedGUID = req.body.user.UserGUID;
+    }
+    else {
+        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
+    }
+    try {
+        const cartItems = yield CartItem_model_1.default.findAll({
+            where: {
+                CreatedGUID: {
+                    [sequelize_1.Op.eq]: req.body.CreatedGUID,
+                },
+            },
+            include: [ProductMaster_model_1.default],
+        });
+        res.status(200).send({
+            message: "Cartitems fetched successfully! ",
+            cartItems,
+        });
+    }
+    catch (error) {
+        console.log("message===>", error === null || error === void 0 ? void 0 : error.message);
+        next(error);
+    }
+});
+exports.getCartItems = getCartItems;
+const addCartItem = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    if (req.body.user) {
+        req.body.CreatedGUID = req.body.user.UserGUID;
+    }
+    else {
+        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
+    }
+    try {
+        if (!req.body.ProductGUID) {
+            throw Error("ProductGUID is required to add cart item!");
+        }
+        if (!req.body.Quantity) {
+            throw Error("Quantity is required to add cart item!");
+        }
+        const existingCartItem = yield CartItem_model_1.default.findOne({
+            where: {
+                ProductGUID: req.body.ProductGUID,
+                CreatedGUID: req.body.CreatedGUID,
+            },
+            include: [ProductMaster_model_1.default],
+        });
+        if (existingCartItem) {
+            existingCartItem.Quantity =
+                (existingCartItem === null || existingCartItem === void 0 ? void 0 : existingCartItem.Quantity) + req.body.Quantity;
+            if (existingCartItem.Quantity < 0) {
+                throw Error(`Cart item quantity ${existingCartItem.Quantity} not allowed!`);
+            }
+            if (existingCartItem.Quantity === 0) {
+                existingCartItem.destroy();
+                return res.status(200).send({
+                    message: "CartItem deleted successfully!",
+                    CartItem: null,
+                });
+            }
+            existingCartItem.save();
+            return res.status(200).send({
+                message: "CartItem updated successfully!",
+                CartItem: existingCartItem,
+            });
+        }
+        if (req.body.Quantity < 1) {
+            throw Error("Minimum Quantity is required to add cart item!");
+        }
+        const cartitem = yield CartItem_model_1.default.create(req.body);
+        res.status(200).send({
+            message: "CartItem added successfully!",
+            cartitem,
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.addCartItem = addCartItem;
+const deleteCartItem = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () { });
+exports.deleteCartItem = deleteCartItem;

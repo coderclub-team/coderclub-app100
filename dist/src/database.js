@@ -25,6 +25,7 @@ const GlobalType_model_1 = __importDefault(require("./models/GlobalType.model"))
 const GlobalTypeCategory_nodel_1 = __importDefault(require("./models/GlobalTypeCategory.nodel"));
 const ProductReview_model_1 = __importDefault(require("./models/product/ProductReview.model"));
 const UserAddress_model_1 = __importDefault(require("./models/UserAddress.model"));
+const CartItem_model_1 = __importDefault(require("./models/CartItem.model"));
 exports.sequelize = new sequelize_typescript_1.Sequelize(config_1.sequelizeConnectionOptions);
 exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
     exports.sequelize
@@ -50,6 +51,7 @@ exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
         SaleDetail_model_1.default,
         ProductReview_model_1.default,
         UserAddress_model_1.default,
+        CartItem_model_1.default,
     ]);
     User_model_1.default.sync();
     ProductCategory_model_1.default.sync();
@@ -59,6 +61,7 @@ exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
     ProductMaster_model_1.default.sync();
     ProductReview_model_1.default.sync();
     UserAddress_model_1.default.sync();
+    CartItem_model_1.default.sync();
     Sale_model_1.default.sync({
         schema: "dbo",
     });

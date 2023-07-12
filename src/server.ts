@@ -11,6 +11,8 @@ import productCategoryRouter from "./routes/product/productCategory.router";
 import productSubCategoryRouter from "./routes/product/productSubCategory.router";
 import productMasterRouter from "./routes/product/ProductMaster.router";
 import saleRouter from "./routes/sale.router";
+import cartItemsRouter from "./routes/cartitems.router";
+import userAddressesRouter from "./routes/userAddresses.route";
 
 // const fs = require("fs");
 
@@ -39,6 +41,8 @@ ConnectDB()
   });
 
 app.use("/api/users", authGaurd, userRouter);
+app.use("/api/cartitems", authGaurd, cartItemsRouter);
+app.use("/api/addresses", authGaurd, userAddressesRouter);
 app.use("/api/productMasters", productMasterRouter);
 app.use("/api/productcategories", productCategoryRouter);
 app.use("/api/productsubcategories", productSubCategoryRouter);

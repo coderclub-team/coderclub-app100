@@ -29,7 +29,4 @@ userRouter.get("/", userController_1.getAllUsers);
 userRouter.get("/:UserGUID", userController_1.getUserById);
 userRouter.put("/:UserGUID", upload.single("file"), userController_1.updateUserById, handleSequelizeError_1.default);
 userRouter.delete("/:UserGUID", userController_1.deleteUserById, handleSequelizeError_1.default);
-userRouter.post("/:UserGUID/addresses", userController_1.createAddress, handleSequelizeError_1.default);
-userRouter.put("/:UserGUID/addresses", userController_1.updateAddress, handleSequelizeError_1.default);
-userRouter.delete("/:UserGUID/addresses", userController_1.deleteAddress, handleSequelizeError_1.default);
 exports.default = userRouter;
