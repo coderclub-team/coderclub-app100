@@ -17,8 +17,7 @@ import ProductCategory from "../../models/product/ProductCategory.model";
 import { omitUndefined, oneMonthAgo } from "../../utils/functions";
 import ProductReview from "../../models/product/ProductReview.model";
 import User from "../../models/User.model";
-
-type MyWhereType = Filterable<any>["where"] & WhereOptions<any>;
+import { MyWhereType } from "../../..";
 
 export const getAllProductMasters = async (req: Request, res: Response) => {
   const {

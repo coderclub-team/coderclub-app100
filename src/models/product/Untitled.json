@@ -1,0 +1,14 @@
+[
+  {
+    "BillingCycleName": "Monthly",
+    "NumberOfCycles": 1
+  },
+  {
+    "BillingCycleName": "Weekly",
+    "NumberOfCycles": 1
+  },
+  {
+    "BillingCycleName": "Daily",
+    "NumberOfCycles": 1
+  }
+]
