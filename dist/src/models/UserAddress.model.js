@@ -80,7 +80,7 @@ UserAddress = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: "tbl_UserAddresses",
         timestamps: true,
-        paranoid: true,
+        paranoid: false,
         createdAt: "CreatedDate",
         updatedAt: "UpdatedDate",
         deletedAt: "DeletedDate",

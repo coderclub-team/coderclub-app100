@@ -491,15 +491,25 @@ export const createProductReview = async (
   delete req.body.user;
 
   try {
-    const [review, created] = await ProductReview.upsert(req.body);
-    res.send({
-      message: `Product Review ${
-        created ? "created" : "updated"
-      } successfully!`,
-      review,
-    });
-  } catch (error: any) {
-    console.log("review error", error.message);
+    if (req.body.ReviewGUID) {
+      let review = await ProductReview.findByPk(req.body.ReviewGUID);
+      if (!review) {
+        throw Error("Inavlid ProductGUID!");
+      }
+      let updatedReview = await review?.update(req.body);
+      return res.send({
+        message: "Product review updated successfully!",
+        review: updatedReview,
+      });
+    } else {
+      delete req.body.ReviewGUID;
+      const review = await ProductReview.create(req.body);
+      res.send({
+        message: `Product Review created successfully!`,
+        review,
+      });
+    }
+  } catch (error) {
     next(error);
   }
 };

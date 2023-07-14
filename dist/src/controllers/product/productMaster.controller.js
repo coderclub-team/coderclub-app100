@@ -415,14 +415,27 @@ const createProductReview = (req, res, next) => __awaiter(void 0, void 0, void 0
     }
     delete req.body.user;
     try {
-        const [review, created] = yield ProductReview_model_1.default.upsert(req.body);
-        res.send({
-            message: `Product Review ${created ? "created" : "updated"} successfully!`,
-            review,
-        });
+        if (req.body.ReviewGUID) {
+            let review = yield ProductReview_model_1.default.findByPk(req.body.ReviewGUID);
+            if (!review) {
+                throw Error("Inavlid ProductGUID!");
+            }
+            let updatedReview = yield (review === null || review === void 0 ? void 0 : review.update(req.body));
+            return res.send({
+                message: "Product review updated successfully!",
+                review: updatedReview,
+            });
+        }
+        else {
+            delete req.body.ReviewGUID;
+            const review = yield ProductReview_model_1.default.create(req.body);
+            res.send({
+                message: `Product Review created successfully!`,
+                review,
+            });
+        }
     }
     catch (error) {
-        console.log("review error", error.message);
         next(error);
     }
 });

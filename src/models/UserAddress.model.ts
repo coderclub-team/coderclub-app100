@@ -10,12 +10,12 @@ import User from "./User.model";
 @Table({
   tableName: "tbl_UserAddresses",
   timestamps: true,
-  paranoid: true,
+  paranoid: false,
   createdAt: "CreatedDate",
   updatedAt: "UpdatedDate",
   deletedAt: "DeletedDate",
 })
-class UserAddress extends Model {
+class UserAddress extends Model<UserAddress> {
   @PrimaryKey
   @AutoIncrement
   @Column

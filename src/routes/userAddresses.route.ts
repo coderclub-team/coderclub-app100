@@ -4,7 +4,7 @@ import {
   createAddress,
   deleteAddress,
   updateAddress,
-} from "../controllers/userController.";
+} from "../controllers/userAddress.conroller";
 
 const router = express.Router();
 router.post("", createAddress, handleSequelizeError);
