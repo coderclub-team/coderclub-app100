@@ -80,7 +80,10 @@ export const subscribeProduct = async (
     //SubscriptionOccurrences;
     const subscription = await ProductSubscription.create(req.body);
     console.log("subscription", subscription.toJSON());
-    res.send("OKAY");
+    res.status(200).send({
+      message: "Subscription created successfully!",
+      subscription,
+    });
   } catch (error) {
     next(error);
   }
