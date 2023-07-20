@@ -85,7 +85,10 @@ const subscribeProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, f
         //SubscriptionOccurrences;
         const subscription = yield ProductSubscriptions_model_1.default.create(req.body);
         console.log("subscription", subscription.toJSON());
-        res.send("OKAY");
+        res.status(200).send({
+            message: "Subscription created successfully!",
+            subscription,
+        });
     }
     catch (error) {
         next(error);
