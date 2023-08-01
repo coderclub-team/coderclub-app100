@@ -3,10 +3,12 @@ import handleSequelizeError from "../middlewares/handleSequelizeError";
 import {
   createAddress,
   deleteAddress,
+  getMyAddresses,
   updateAddress,
 } from "../controllers/userAddress.conroller";
 
 const router = express.Router();
+router.get("/:me",getMyAddresses,handleSequelizeError )
 router.post("", createAddress, handleSequelizeError);
 router.put("/:AddressGUID", updateAddress, handleSequelizeError);
 router.delete("/:AddressGUID", deleteAddress, handleSequelizeError);

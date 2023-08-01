@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const handleSequelizeError_1 = __importDefault(require("../middlewares/handleSequelizeError"));
 const userAddress_conroller_1 = require("../controllers/userAddress.conroller");
 const router = express_1.default.Router();
+router.get("/:me", userAddress_conroller_1.getMyAddresses, handleSequelizeError_1.default);
 router.post("", userAddress_conroller_1.createAddress, handleSequelizeError_1.default);
 router.put("/:AddressGUID", userAddress_conroller_1.updateAddress, handleSequelizeError_1.default);
 router.delete("/:AddressGUID", userAddress_conroller_1.deleteAddress, handleSequelizeError_1.default);

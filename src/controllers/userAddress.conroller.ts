@@ -2,6 +2,29 @@ import { NextFunction, Request, Response } from "express";
 import UserAddress from "../models/UserAddress.model";
 import decodeJWT from "../utils/decodeJWT";
 
+export const getMyAddresses = async(
+  req: Request,
+  res: Response,
+  next: NextFunction
+)=>{
+  if (req.body.user) {
+    req.body.CreatedGUID = req.body.user.UserGUID;
+  } else {
+    req.body.CreatedGUID = decodeJWT(req).UserGUID;
+  }
+  req.body.UserGUID = req.body.CreatedGUID;
+  try {
+    const addresses = await UserAddress.findAll({
+      where: {
+        UserGUID: req.body.UserGUID,
+      },
+    });
+    res.status(200).send(addresses)
+  } catch (error) {
+    next(error);
+  }
+
+}
 export const createAddress = async (
   req: Request,
   res: Response,
