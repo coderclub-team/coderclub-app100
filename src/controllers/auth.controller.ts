@@ -113,6 +113,9 @@ export const getCurrentUser = async (
       attributes: {
         exclude: ["Password"],
       },
+      include:[
+        UserAddress
+      ]
     });
 
     const imageKey = "PhotoPath";

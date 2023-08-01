@@ -110,6 +110,9 @@ const getCurrentUser = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
             attributes: {
                 exclude: ["Password"],
             },
+            include: [
+                UserAddress_model_1.default
+            ]
         });
         const imageKey = "PhotoPath";
         const imagePath = user === null || user === void 0 ? void 0 : user[imageKey];
