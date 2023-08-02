@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.subscribeProduct = exports.getUserSubscriptions = void 0;
+exports.calcelSubscription = exports.subscribeProduct = exports.getUserSubscriptions = void 0;
 const decodeJWT_1 = __importDefault(require("../utils/decodeJWT"));
 const functions_1 = require("../utils/functions");
 const ProductSubscriptions_model_1 = __importDefault(require("../models/ProductSubscriptions.model"));
@@ -32,10 +32,7 @@ const getUserSubscriptions = (req, res, next) => __awaiter(void 0, void 0, void 
         const subscriptions = yield ProductSubscriptions_model_1.default.findAll({
             where: where,
         });
-        res.send({
-            message: "",
-            subscriptions,
-        });
+        res.status(200).json(subscriptions);
     }
     catch (error) {
         next(error);
@@ -95,3 +92,32 @@ const subscribeProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, f
     }
 });
 exports.subscribeProduct = subscribeProduct;
+const calcelSubscription = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { SubscriptionGUID } = req.params;
+    const { Status } = req.body;
+    if (req.body.user) {
+        req.body.CreatedGUID = req.body.user.UserGUID;
+    }
+    else {
+        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
+    }
+    req.body.UserGUID = req.body.CreatedGUID;
+    if (!Status) {
+        throw new Error("Status is required");
+    }
+    try {
+        const productSubscription = yield ProductSubscriptions_model_1.default.findByPk(SubscriptionGUID);
+        if (!productSubscription)
+            throw Error("Invalid subscription!");
+        productSubscription.Status = Status;
+        const subscription = yield productSubscription.save();
+        res.status(200).send({
+            message: "Subscription updated successfully!",
+            subscription,
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.calcelSubscription = calcelSubscription;

@@ -402,7 +402,7 @@ export const cancelOrder = async (
    const user=await sale.save({ transaction });
     transaction.commit();
     res.json({
-      message: "Sale cancelled successfully!",
+      message: "Sale updated successfully!",
       user,
     });
   } catch (error) {

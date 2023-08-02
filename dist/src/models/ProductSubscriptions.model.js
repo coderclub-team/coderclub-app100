@@ -96,6 +96,10 @@ __decorate([
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.INTEGER),
     __metadata("design:type", Number)
 ], ProductSubscription.prototype, "DeletedGUID", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
+], ProductSubscription.prototype, "Status", void 0);
 ProductSubscription = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: "tbl_ProductSubscriptions",

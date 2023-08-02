@@ -25,10 +25,7 @@ export const getUserSubscriptions = async (
       where: where,
     });
 
-    res.send({
-      message: "",
-      subscriptions,
-    });
+    res.status(200).json(subscriptions);
   } catch (error) {
     next(error);
   }
@@ -87,4 +84,37 @@ export const subscribeProduct = async (
   } catch (error) {
     next(error);
   }
+};
+
+export const calcelSubscription = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { SubscriptionGUID } = req.params;
+  const { Status } = req.body;
+
+  if (req.body.user) {
+    req.body.CreatedGUID = req.body.user.UserGUID;
+  } else {
+    req.body.CreatedGUID = decodeJWT(req).UserGUID;
+  }
+  req.body.UserGUID = req.body.CreatedGUID;
+
+  if (!Status) {
+    throw new Error("Status is required");
+  }
+  try {
+    const productSubscription=await ProductSubscription.findByPk(SubscriptionGUID)
+    if(!productSubscription) throw Error("Invalid subscription!")
+    productSubscription.Status=Status;
+    const subscription = await productSubscription.save();
+    res.status(200).send({
+      message: "Subscription updated successfully!",
+      subscription,
+    });
+  } catch (error) {
+    next(error);
+  }
+
 };

@@ -351,7 +351,7 @@ const cancelOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         const user = yield sale.save({ transaction });
         transaction.commit();
         res.json({
-            message: "Sale cancelled successfully!",
+            message: "Sale updated successfully!",
             user,
         });
     }

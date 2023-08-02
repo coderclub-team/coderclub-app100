@@ -8,6 +8,7 @@ import {
 import ProductMaster from "./product/ProductMaster.model";
 import User from "./User.model";
 import BillingCycles from "./product/BillingCycles.model";
+import { ExitStatus } from "typescript";
 
 @Table({
   tableName: "tbl_ProductSubscriptions",
@@ -105,6 +106,10 @@ class ProductSubscription extends Model<ProductSubscription> {
   @ForeignKey(() => User)
   @Column(DataType.INTEGER)
   DeletedGUID!: number;
+
+  @Column
+  Status!: string;
+  
 }
 
 export default ProductSubscription;
