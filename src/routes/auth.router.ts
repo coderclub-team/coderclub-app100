@@ -18,6 +18,7 @@ import {
 } from "../controllers/auth.controller";
 import handleSequelizeError from "../middlewares/handleSequelizeError";
 import authGaurd from "../middlewares/authGaurd.middleware";
+import { generateRazorpayIntent } from "../controllers/payment.controller";
 
 const authRouter = Router();
 const upload = multer({
@@ -54,4 +55,6 @@ authRouter.get("/current-user", getCurrentUser, handleSequelizeError);
 authRouter.get("/orders", authGaurd, getOrders,handleSequelizeError);
 authRouter.post("/orders", authGaurd, createOrder,handleSequelizeError);
 authRouter.patch("/orders/:SalesMasterGUID", authGaurd, cancelOrder,handleSequelizeError);
+authRouter.get("/orders/payments/createOrder", authGaurd,generateRazorpayIntent,handleSequelizeError);
+
 export default authRouter;
