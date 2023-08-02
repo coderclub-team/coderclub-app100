@@ -14,6 +14,7 @@ import UserAddress from "./models/UserAddress.model";
 import CartItem from "./models/CartItem.model";
 import ProductSubscription from "./models/ProductSubscriptions.model";
 import BillingCycles from "./models/product/BillingCycles.model";
+import ProductStockMaster from "./models/product/ProductStockMaster";
 
 export const sequelize = new Sequelize(sequelizeConnectionOptions);
 
@@ -46,6 +47,7 @@ export default async () => {
     CartItem,
     BillingCycles,
     ProductSubscription,
+    ProductStockMaster
   ]);
   User.sync();
   ProductCategory.sync();
@@ -58,6 +60,7 @@ export default async () => {
   CartItem.sync();
   BillingCycles.sync();
   ProductSubscription.sync();
+  ProductStockMaster.sync()
 
   Sale.sync({
     schema: "dbo",

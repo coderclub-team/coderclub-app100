@@ -18,6 +18,8 @@ import {
 import ProductCategory from "./ProductCategory.model";
 import ProductSubCategory from "./ProductSubCategory.model";
 import ProductReview from "./ProductReview.model";
+import ProductStockMaster from "./ProductStockMaster";
+import { VIRTUAL } from "sequelize";
 
 @Table({
   tableName: "tbl_ProductMaster",
@@ -165,12 +167,17 @@ class ProductMaster extends Model {
     length: number;
   };
 
+@HasOne(() => ProductStockMaster)
+Stock!:ProductStockMaster;
+ 
   @Column({
     type: DataType.VIRTUAL,
   })
   Categories?: {
     name: string;
   }[];
+
+
 
   @BeforeCreate
   static async generateProductGUID(instance: ProductMaster) {

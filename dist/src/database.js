@@ -28,6 +28,7 @@ const UserAddress_model_1 = __importDefault(require("./models/UserAddress.model"
 const CartItem_model_1 = __importDefault(require("./models/CartItem.model"));
 const ProductSubscriptions_model_1 = __importDefault(require("./models/ProductSubscriptions.model"));
 const BillingCycles_model_1 = __importDefault(require("./models/product/BillingCycles.model"));
+const ProductStockMaster_1 = __importDefault(require("./models/product/ProductStockMaster"));
 exports.sequelize = new sequelize_typescript_1.Sequelize(config_1.sequelizeConnectionOptions);
 exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
     exports.sequelize
@@ -56,6 +57,7 @@ exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
         CartItem_model_1.default,
         BillingCycles_model_1.default,
         ProductSubscriptions_model_1.default,
+        ProductStockMaster_1.default
     ]);
     User_model_1.default.sync();
     ProductCategory_model_1.default.sync();
@@ -68,6 +70,7 @@ exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
     CartItem_model_1.default.sync();
     BillingCycles_model_1.default.sync();
     ProductSubscriptions_model_1.default.sync();
+    ProductStockMaster_1.default.sync();
     Sale_model_1.default.sync({
         schema: "dbo",
     });

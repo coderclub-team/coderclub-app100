@@ -241,6 +241,12 @@ export default class User extends Model {
   })
   OtpExpiryDate!: Date | null;
 
+  @Column
+  DeviceToken!: string;
+
+  @Column
+  DeviceType!: string;
+
   @CreatedAt
   @Column({
     type: DataType.DATEONLY,
@@ -271,6 +277,8 @@ export default class User extends Model {
   })
   public ModifiedGUID!: number | null;
 
+  @Column
+  StoreGUID!: number;
   static readonly fields = {
     password: { type: DataTypes.STRING, allowNull: false, exclude: true },
   };

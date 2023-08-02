@@ -464,6 +464,14 @@ __decorate([
     __metadata("design:type", Object)
 ], User.prototype, "OtpExpiryDate", void 0);
 __decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
+], User.prototype, "DeviceToken", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
+], User.prototype, "DeviceType", void 0);
+__decorate([
     sequelize_typescript_1.CreatedAt,
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.DATEONLY,
@@ -498,6 +506,10 @@ __decorate([
     }),
     __metadata("design:type", Object)
 ], User.prototype, "ModifiedGUID", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], User.prototype, "StoreGUID", void 0);
 __decorate([
     (0, sequelize_typescript_1.HasMany)(() => UserAddress_model_1.default),
     __metadata("design:type", UserAddress_model_1.default)

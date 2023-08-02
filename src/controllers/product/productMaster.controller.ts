@@ -18,8 +18,14 @@ import { omitUndefined, oneMonthAgo } from "../../utils/functions";
 import ProductReview from "../../models/product/ProductReview.model";
 import User from "../../models/User.model";
 import { MyWhereType } from "../../..";
+import ProductStockMaster from "../../models/product/ProductStockMaster";
 
 export const getAllProductMasters = async (req: Request, res: Response) => {
+  let authuser;
+  try {
+    authuser = decodeJWT(req) as User;
+  } catch (error) {}
+
   const {
     ProductGUID,
     ProductID,
@@ -42,12 +48,6 @@ export const getAllProductMasters = async (req: Request, res: Response) => {
     }),
     SKU: SKU,
     IsFeatured: IsFeatured,
-    // CreatedDate:
-    //   NewArrival !== undefined
-    //     ? {
-    //         [Op.lt]: oneMonthAgo,
-    //       }
-    //     : undefined,
   });
 
   try {
@@ -56,9 +56,25 @@ export const getAllProductMasters = async (req: Request, res: Response) => {
       include: [
         {
           model: ProductCategory,
-          attributes: ["ProductCategoryName", "PhotoPath"],
+          attributes: {
+            include: ["ProductCategoryName", "PhotoPath"],
+          },
+        },
+        {
+          model: ProductStockMaster,
+          attributes: ["ProductGUID", "StoreGUID", "UnitsInStock"],
+          nested: true,
+          where: authuser
+            ? {
+                StoreGUID: authuser!.StoreGUID,
+              }
+            : undefined,
         },
       ],
+      attributes: {
+        exclude: ["UnitsInStock"],
+      },
+      nest: true,
       order: NewArrival ? [["CreatedDate", "DESC"]] : undefined,
     });
 
@@ -72,6 +88,10 @@ export const getAllProductMasters = async (req: Request, res: Response) => {
 
 export const getProductMasterById = async (req: Request, res: Response) => {
   const { ProductGUID } = req.params;
+  let authuser;
+  try {
+    authuser = decodeJWT(req) as User;
+  } catch (error) {}
 
   try {
     var products = await ProductMaster.findAll({
@@ -83,13 +103,25 @@ export const getProductMasterById = async (req: Request, res: Response) => {
       include: [
         {
           model: ProductCategory,
-          attributes: ["ProductCategoryName", "PhotoPath"],
+          attributes: {
+            include: ["ProductCategoryName", "PhotoPath"],
+          },
         },
         {
-          model: ProductReview,
-          include: [User],
+          model: ProductStockMaster,
+          attributes: ["ProductGUID", "StoreGUID", "UnitsInStock"],
+          nested: true,
+          where: authuser
+            ? {
+                StoreGUID: authuser!.StoreGUID,
+              }
+            : undefined,
         },
       ],
+      attributes: {
+        exclude: ["UnitsInStock"],
+      },
+      nest: true,
     });
 
     const mappedProducts = await mapAllProducts(products, req);

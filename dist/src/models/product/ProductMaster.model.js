@@ -25,6 +25,7 @@ const sequelize_typescript_1 = require("sequelize-typescript");
 const ProductCategory_model_1 = __importDefault(require("./ProductCategory.model"));
 const ProductSubCategory_model_1 = __importDefault(require("./ProductSubCategory.model"));
 const ProductReview_model_1 = __importDefault(require("./ProductReview.model"));
+const ProductStockMaster_1 = __importDefault(require("./ProductStockMaster"));
 let ProductMaster = class ProductMaster extends sequelize_typescript_1.Model {
     static generateProductGUID(instance) {
         var _a, _b;
@@ -253,6 +254,10 @@ __decorate([
     }),
     __metadata("design:type", Object)
 ], ProductMaster.prototype, "Dimensions", void 0);
+__decorate([
+    (0, sequelize_typescript_1.HasOne)(() => ProductStockMaster_1.default),
+    __metadata("design:type", ProductStockMaster_1.default)
+], ProductMaster.prototype, "Stock", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.VIRTUAL,

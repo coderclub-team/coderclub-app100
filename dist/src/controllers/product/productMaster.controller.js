@@ -23,8 +23,14 @@ const sequelize_1 = require("sequelize");
 const ProductCategory_model_1 = __importDefault(require("../../models/product/ProductCategory.model"));
 const functions_1 = require("../../utils/functions");
 const ProductReview_model_1 = __importDefault(require("../../models/product/ProductReview.model"));
-const User_model_1 = __importDefault(require("../../models/User.model"));
+const ProductStockMaster_1 = __importDefault(require("../../models/product/ProductStockMaster"));
 const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let authuser;
+    try {
+        authuser = (0, decodeJWT_1.default)(req);
+    }
+    catch (error) {
+    }
     const { ProductGUID, ProductID, ProductName, ProductCode, ProductType, SKU, IsFeatured, NewArrival, } = req.query;
     const where = (0, functions_1.omitUndefined)(Object.assign(Object.assign({ ProductGUID: ProductGUID, ProductID: ProductID, ProductName: ProductName, ProductCode: ProductCode !== undefined ? { [sequelize_1.Op.like]: `%${ProductCode}%` } : undefined }, (ProductType !== undefined && {
         ProductType: { [sequelize_1.Op.like]: `%${ProductType}%` },
@@ -35,9 +41,23 @@ const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, fun
             include: [
                 {
                     model: ProductCategory_model_1.default,
-                    attributes: ["ProductCategoryName", "PhotoPath"],
+                    attributes: {
+                        include: ["ProductCategoryName", "PhotoPath"],
+                    },
                 },
+                {
+                    model: ProductStockMaster_1.default,
+                    attributes: ["ProductGUID", "StoreGUID", "UnitsInStock"],
+                    nested: true,
+                    where: authuser ? {
+                        StoreGUID: authuser.StoreGUID
+                    } : undefined,
+                }
             ],
+            attributes: {
+                exclude: ["UnitsInStock"]
+            },
+            nest: true,
             order: NewArrival ? [["CreatedDate", "DESC"]] : undefined,
         });
         const mappedProducts = yield mapAllProducts(products, req);
@@ -61,13 +81,20 @@ const getProductMasterById = (req, res) => __awaiter(void 0, void 0, void 0, fun
             include: [
                 {
                     model: ProductCategory_model_1.default,
-                    attributes: ["ProductCategoryName", "PhotoPath"],
+                    attributes: {
+                        include: ["ProductCategoryName", "PhotoPath"],
+                    },
                 },
                 {
-                    model: ProductReview_model_1.default,
-                    include: [User_model_1.default],
-                },
+                    model: ProductStockMaster_1.default,
+                    attributes: ["ProductGUID", "StoreGUID", "UnitsInStock"],
+                    nested: true
+                }
             ],
+            attributes: {
+                exclude: ["UnitsInStock"]
+            },
+            nest: true,
         });
         const mappedProducts = yield mapAllProducts(products, req);
         res.status(200).json(mappedProducts);
