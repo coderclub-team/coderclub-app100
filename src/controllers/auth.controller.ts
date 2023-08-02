@@ -380,3 +380,33 @@ export const createOrder = async (
     next(error);
   }
 };
+
+export const cancelOrder = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { SalesMasterGUID } = req.params;
+  if(!SalesMasterGUID){
+    throw new Error("SalesMasterGUID is required");
+  }else if(!req.body.Status){
+    throw new Error("Status is required");
+  }
+  const transaction = await sequelize.transaction();
+  try {
+    const sale = await Sale.findByPk(SalesMasterGUID, { transaction });
+    if (!sale) {
+      throw new Error("Sale not found!");
+    }
+     sale.Status=req.body.Status;
+   const user=await sale.save({ transaction });
+    transaction.commit();
+    res.json({
+      message: "Sale cancelled successfully!",
+      user,
+    });
+  } catch (error) {
+    transaction.rollback();
+    next(error);
+  }
+}

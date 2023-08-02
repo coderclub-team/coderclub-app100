@@ -68,6 +68,9 @@ export default class Sale extends Model{
   @Column
   DeletedDate!: Date;
 
+  @Column
+  Status!:string
+
 
   // @BelongsTo(() => User)
   // Customer!: User;

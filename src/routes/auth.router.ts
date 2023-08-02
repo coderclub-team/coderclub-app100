@@ -14,6 +14,7 @@ import {
   getCurrentUser,
   getOrders,
   createOrder,
+  cancelOrder,
 } from "../controllers/auth.controller";
 import handleSequelizeError from "../middlewares/handleSequelizeError";
 import authGaurd from "../middlewares/authGaurd.middleware";
@@ -52,5 +53,5 @@ authRouter.get("/current-user", getCurrentUser, handleSequelizeError);
 
 authRouter.get("/orders", authGaurd, getOrders,handleSequelizeError);
 authRouter.post("/orders", authGaurd, createOrder,handleSequelizeError);
-
+authRouter.patch("/orders/:SalesMasterGUID", authGaurd, cancelOrder,handleSequelizeError);
 export default authRouter;

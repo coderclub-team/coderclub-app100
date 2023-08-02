@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createOrder = exports.getOrders = exports.signout = exports.resetPassword = exports.forgotPassword = exports.sendOTP = exports.verifyAccount = exports.getCurrentUser = exports.login = exports.register = void 0;
+exports.cancelOrder = exports.createOrder = exports.getOrders = exports.signout = exports.resetPassword = exports.forgotPassword = exports.sendOTP = exports.verifyAccount = exports.getCurrentUser = exports.login = exports.register = void 0;
 const node_path_1 = __importDefault(require("node:path"));
 const User_model_1 = __importDefault(require("../models/User.model"));
 const node_fs_1 = __importDefault(require("node:fs"));
@@ -333,3 +333,31 @@ const createOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.createOrder = createOrder;
+const cancelOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { SalesMasterGUID } = req.params;
+    if (!SalesMasterGUID) {
+        throw new Error("SalesMasterGUID is required");
+    }
+    else if (!req.body.Status) {
+        throw new Error("Status is required");
+    }
+    const transaction = yield database_1.sequelize.transaction();
+    try {
+        const sale = yield Sale_model_1.default.findByPk(SalesMasterGUID, { transaction });
+        if (!sale) {
+            throw new Error("Sale not found!");
+        }
+        sale.Status = req.body.Status;
+        const user = yield sale.save({ transaction });
+        transaction.commit();
+        res.json({
+            message: "Sale cancelled successfully!",
+            user,
+        });
+    }
+    catch (error) {
+        transaction.rollback();
+        next(error);
+    }
+});
+exports.cancelOrder = cancelOrder;

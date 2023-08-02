@@ -82,6 +82,10 @@ __decorate([
     __metadata("design:type", Date)
 ], Sale.prototype, "DeletedDate", void 0);
 __decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
+], Sale.prototype, "Status", void 0);
+__decorate([
     (0, sequelize_typescript_1.HasMany)(() => SaleDetail_model_1.default, {
         foreignKey: "SalesMasterGUID",
         as: "SaleDetails",
