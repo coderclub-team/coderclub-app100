@@ -9,6 +9,7 @@ import Sale from "../models/Sale.model";
 import GlobalType from "../models/GlobalType.model";
 import SaleDetail from "../models/SaleDetail.model";
 import UserAddress from "../models/UserAddress.model";
+import { sequelize } from "../database";
 
 export const register = async (
   req: Request,
@@ -113,9 +114,7 @@ export const getCurrentUser = async (
       attributes: {
         exclude: ["Password"],
       },
-      include:[
-        UserAddress
-      ]
+      include: [UserAddress],
     });
 
     const imageKey = "PhotoPath";
@@ -125,10 +124,7 @@ export const getCurrentUser = async (
     const imageFullPath = new URL(path.join(host, imagePath));
     user.setDataValue("PhotoPath", imageFullPath);
 
-    res.json({
-      message: "Current user fetched successfully!",
-      user: user,
-    });
+    res.json([user]);
   } catch (error) {
     next(error);
   }
@@ -271,10 +267,10 @@ export const getOrders = async (
     },
 
     include: [
-      {
-        model: User,
-        as: "Customer",
-      },
+      // {
+      //   model: User,
+      //   as: "Customer",
+      // },
       {
         model: GlobalType,
         as: "SaleTypeRef",
@@ -300,4 +296,87 @@ export const getOrders = async (
   });
 
   res.json(salemasters);
+};
+
+export const createOrder = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (req.body.user) {
+    req.body.CreatedGUID = req.body.user.UserGUID;
+  } else {
+    req.body.CreatedGUID = decodeJWT(req).UserGUID;
+  }
+  const transaction = await sequelize.transaction();
+  
+  try {
+    const {
+      SaleOrderID,
+      SaleOrderDate,
+      ModeOfPayment,
+      SaleChannel,
+      SalePlatform,
+      CustomerGUID=req.body.user.UserGUID,
+      SalesDetails,
+      CreatedGUID,
+    } = req.body;
+    const saleData = {
+      SaleOrderID,
+      SaleOrderDate,
+      SaleChannel,
+      CustomerGUID,
+      CreatedGUID,
+      SalePlatform,
+      ModeOfPayment
+    };
+    if(!SaleOrderDate){
+      throw new Error("SaleOrderDate is required");
+    }
+    else if(!SaleOrderID){
+      throw new Error("SaleOrderID is required");
+    }
+    else if(!ModeOfPayment){
+      throw new Error("ModeOfPayment is required");
+    }
+    else if(!SaleChannel){
+      throw new Error("SaleChannel is required");
+    }
+    else if(!SalePlatform){
+      throw new Error("SalePlatform is required");
+    }
+    
+    SalesDetails.forEach((saleDetail: any) => {
+      if(!saleDetail.ProductGUID){
+        throw new Error("ProductGUID is required");
+      }
+      else if(!saleDetail.Quantity){
+        throw new Error("Quantity is required");
+      }
+      else if(!saleDetail.Amount){
+        throw new Error("Amount is required");
+      }
+    });
+
+    if(!Array.isArray(SalesDetails)){
+      throw new Error("SaleDetails should be an array");
+    }
+    
+    const sale = await Sale.create(saleData, { transaction });
+    const saleDetails = await SaleDetail.bulkCreate(
+      SalesDetails.map((saleDetail: any) => ({
+        SalesMasterGUID: sale.SalesMasterGUID,
+        ...saleDetail,
+      })),
+      { transaction }
+    );
+    transaction.commit();
+    res.json({
+      ...sale,
+      SaleDetails: saleDetails,
+    });
+  } catch (error) {
+    transaction.rollback();
+    next(error);
+  }
 };

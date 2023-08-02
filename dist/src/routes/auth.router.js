@@ -33,5 +33,6 @@ authRouter.post("/send-otp", auth_controller_1.sendOTP, handleSequelizeError_1.d
 authRouter.post("/reset-password", auth_controller_1.resetPassword, handleSequelizeError_1.default);
 authRouter.post("/forget-password", auth_controller_1.forgotPassword, handleSequelizeError_1.default);
 authRouter.get("/current-user", auth_controller_1.getCurrentUser, handleSequelizeError_1.default);
-authRouter.get("/auth/orders", authGaurd_middleware_1.default, auth_controller_1.getOrders);
+authRouter.get("/orders", authGaurd_middleware_1.default, auth_controller_1.getOrders, handleSequelizeError_1.default);
+authRouter.post("/orders", authGaurd_middleware_1.default, auth_controller_1.createOrder, handleSequelizeError_1.default);
 exports.default = authRouter;

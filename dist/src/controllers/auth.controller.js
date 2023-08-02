@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getOrders = exports.signout = exports.resetPassword = exports.forgotPassword = exports.sendOTP = exports.verifyAccount = exports.getCurrentUser = exports.login = exports.register = void 0;
+exports.createOrder = exports.getOrders = exports.signout = exports.resetPassword = exports.forgotPassword = exports.sendOTP = exports.verifyAccount = exports.getCurrentUser = exports.login = exports.register = void 0;
 const node_path_1 = __importDefault(require("node:path"));
 const User_model_1 = __importDefault(require("../models/User.model"));
 const node_fs_1 = __importDefault(require("node:fs"));
@@ -23,6 +23,7 @@ const Sale_model_1 = __importDefault(require("../models/Sale.model"));
 const GlobalType_model_1 = __importDefault(require("../models/GlobalType.model"));
 const SaleDetail_model_1 = __importDefault(require("../models/SaleDetail.model"));
 const UserAddress_model_1 = __importDefault(require("../models/UserAddress.model"));
+const database_1 = require("../database");
 const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.file) {
         const { filename, path: tmpPath } = req.file;
@@ -110,9 +111,7 @@ const getCurrentUser = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
             attributes: {
                 exclude: ["Password"],
             },
-            include: [
-                UserAddress_model_1.default
-            ]
+            include: [UserAddress_model_1.default],
         });
         const imageKey = "PhotoPath";
         const imagePath = user === null || user === void 0 ? void 0 : user[imageKey];
@@ -121,10 +120,7 @@ const getCurrentUser = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         const host = req.protocol + "://" + req.get("host");
         const imageFullPath = new URL(node_path_1.default.join(host, imagePath));
         user.setDataValue("PhotoPath", imageFullPath);
-        res.json({
-            message: "Current user fetched successfully!",
-            user: user,
-        });
+        res.json([user]);
     }
     catch (error) {
         next(error);
@@ -250,10 +246,10 @@ const getOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function
             exclude: ["CustomerGUID", "SaleTypeRef"],
         },
         include: [
-            {
-                model: User_model_1.default,
-                as: "Customer",
-            },
+            // {
+            //   model: User,
+            //   as: "Customer",
+            // },
             {
                 model: GlobalType_model_1.default,
                 as: "SaleTypeRef",
@@ -278,3 +274,62 @@ const getOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function
     res.json(salemasters);
 });
 exports.getOrders = getOrders;
+const createOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    if (req.body.user) {
+        req.body.CreatedGUID = req.body.user.UserGUID;
+    }
+    else {
+        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
+    }
+    const transaction = yield database_1.sequelize.transaction();
+    try {
+        const { SaleOrderID, SaleOrderDate, ModeOfPayment, SaleChannel, SalePlatform, CustomerGUID = req.body.user.UserGUID, SalesDetails, CreatedGUID, } = req.body;
+        const saleData = {
+            SaleOrderID,
+            SaleOrderDate,
+            SaleChannel,
+            CustomerGUID,
+            CreatedGUID,
+            SalePlatform,
+            ModeOfPayment
+        };
+        if (!SaleOrderDate) {
+            throw new Error("SaleOrderDate is required");
+        }
+        else if (!SaleOrderID) {
+            throw new Error("SaleOrderID is required");
+        }
+        else if (!ModeOfPayment) {
+            throw new Error("ModeOfPayment is required");
+        }
+        else if (!SaleChannel) {
+            throw new Error("SaleChannel is required");
+        }
+        else if (!SalePlatform) {
+            throw new Error("SalePlatform is required");
+        }
+        SalesDetails.forEach((saleDetail) => {
+            if (!saleDetail.ProductGUID) {
+                throw new Error("ProductGUID is required");
+            }
+            else if (!saleDetail.Quantity) {
+                throw new Error("Quantity is required");
+            }
+            else if (!saleDetail.Amount) {
+                throw new Error("Amount is required");
+            }
+        });
+        if (!Array.isArray(SalesDetails)) {
+            throw new Error("SaleDetails should be an array");
+        }
+        const sale = yield Sale_model_1.default.create(saleData, { transaction });
+        const saleDetails = yield SaleDetail_model_1.default.bulkCreate(SalesDetails.map((saleDetail) => (Object.assign({ SalesMasterGUID: sale.SalesMasterGUID }, saleDetail))), { transaction });
+        transaction.commit();
+        res.json(Object.assign(Object.assign({}, sale), { SaleDetails: saleDetails }));
+    }
+    catch (error) {
+        transaction.rollback();
+        next(error);
+    }
+});
+exports.createOrder = createOrder;

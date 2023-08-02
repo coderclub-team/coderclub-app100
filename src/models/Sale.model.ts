@@ -1,4 +1,5 @@
 import {
+  AutoIncrement,
   BelongsTo,
   BelongsToMany,
   Column,
@@ -14,16 +15,18 @@ import { sequelize } from "../database";
 import User from "./User.model";
 import SaleDetail from "./SaleDetail.model";
 
+
 @Table({
   tableName: "tbl_SalesMaster",
-  timestamps: false,
+  timestamps: true,
   createdAt: "CreatedDate",
-  updatedAt: false,
-  deletedAt: false,
-  paranoid: false,
+  updatedAt: "UpdatedDate",
+  deletedAt: "DeletedDate",
+  paranoid: true,
 })
-export default class Sale extends Model<Sale> {
+export default class Sale extends Model{
   @PrimaryKey
+  @AutoIncrement
   @Column
   SalesMasterGUID!: number;
 
@@ -59,8 +62,15 @@ export default class Sale extends Model<Sale> {
   @Column
   CustomerGUID!: number;
 
-  @BelongsTo(() => User)
-  Customer!: User;
+  @Column
+  UpdatedDate!: Date;
+
+  @Column
+  DeletedDate!: Date;
+
+
+  // @BelongsTo(() => User)
+  // Customer!: User;
 
   @HasMany(() => SaleDetail, {
     foreignKey: "SalesMasterGUID",

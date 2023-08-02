@@ -13,6 +13,7 @@ import {
   forgotPassword,
   getCurrentUser,
   getOrders,
+  createOrder,
 } from "../controllers/auth.controller";
 import handleSequelizeError from "../middlewares/handleSequelizeError";
 import authGaurd from "../middlewares/authGaurd.middleware";
@@ -49,6 +50,7 @@ authRouter.post("/reset-password", resetPassword, handleSequelizeError);
 authRouter.post("/forget-password", forgotPassword, handleSequelizeError);
 authRouter.get("/current-user", getCurrentUser, handleSequelizeError);
 
-authRouter.get("/auth/orders", authGaurd, getOrders);
+authRouter.get("/orders", authGaurd, getOrders,handleSequelizeError);
+authRouter.post("/orders", authGaurd, createOrder,handleSequelizeError);
 
 export default authRouter;

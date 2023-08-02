@@ -1,0 +1,41 @@
+[
+  {
+    "SalesMasterGUID": 53,
+    "SaleOrderID": "SO000001",
+    "SaleType": 43,
+    "PaymentMode": 41,
+    "SalemanGUID": 349,
+    "LinemanGUID": 0,
+    "StoreGUID": 7,
+    "CreatedGUID": 349,
+    "CreatedDate": "2023-05-19T12:16:47.83",
+    "CustomerGUID": 1,
+    "ModifiedDate": null,
+    "DeletedDate": null,
+    "IncentiveStatusGUID": 1,
+    "ModeOfPayment": "ONLINE",
+    "SaleChannel": "ONLINE",
+    "SalePlatform": null,
+    "SaleOrderDate": null
+  },
+  {
+    "SalesMasterGUID": 90,
+    "SaleOrderID": "SO000001",
+    "SaleType": null,
+    "PaymentMode": null,
+    "SalemanGUID": null,
+    "LinemanGUID": null,
+    "StoreGUID": null,
+    "CreatedGUID": 2,
+    "CreatedDate": null,
+    "CustomerGUID": 2,
+    "ModifiedDate": null,
+    "DeletedDate": null,
+    "IncentiveStatusGUID": null,
+    "ModeOfPayment": "ONLINE",
+    "SaleChannel": "ONLINE",
+    "SalePlatform": null,
+    "SaleOrderDate": "2023-08-02T04:47:21.368"
+  }
+]
+

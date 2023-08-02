@@ -20,6 +20,7 @@ let Sale = class Sale extends sequelize_typescript_1.Model {
 };
 __decorate([
     sequelize_typescript_1.PrimaryKey,
+    sequelize_typescript_1.AutoIncrement,
     sequelize_typescript_1.Column,
     __metadata("design:type", Number)
 ], Sale.prototype, "SalesMasterGUID", void 0);
@@ -73,9 +74,13 @@ __decorate([
     __metadata("design:type", Number)
 ], Sale.prototype, "CustomerGUID", void 0);
 __decorate([
-    (0, sequelize_typescript_1.BelongsTo)(() => User_model_1.default),
-    __metadata("design:type", User_model_1.default)
-], Sale.prototype, "Customer", void 0);
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Date)
+], Sale.prototype, "UpdatedDate", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Date)
+], Sale.prototype, "DeletedDate", void 0);
 __decorate([
     (0, sequelize_typescript_1.HasMany)(() => SaleDetail_model_1.default, {
         foreignKey: "SalesMasterGUID",
@@ -86,11 +91,11 @@ __decorate([
 Sale = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: "tbl_SalesMaster",
-        timestamps: false,
+        timestamps: true,
         createdAt: "CreatedDate",
-        updatedAt: false,
-        deletedAt: false,
-        paranoid: false,
+        updatedAt: "UpdatedDate",
+        deletedAt: "DeletedDate",
+        paranoid: true,
     })
 ], Sale);
 exports.default = Sale;
