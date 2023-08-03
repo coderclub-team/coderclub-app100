@@ -197,10 +197,7 @@ const getCartItems = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
             },
             include: [ProductMaster_model_1.default],
         });
-        res.status(200).send({
-            message: "Cartitems fetched successfully! ",
-            cartItems,
-        });
+        res.status(200).send(cartItems);
     }
     catch (error) {
         console.log("message===>", error === null || error === void 0 ? void 0 : error.message);

@@ -210,10 +210,7 @@ export const getCartItems = async (
       },
       include: [ProductMaster],
     });
-    res.status(200).send({
-      message: "Cartitems fetched successfully! ",
-      cartItems,
-    });
+    res.status(200).send(cartItems);
   } catch (error: any) {
     console.log("message===>", error?.message);
     next(error);

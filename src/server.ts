@@ -15,9 +15,8 @@ import cartItemsRouter from "./routes/cartitems.router";
 import userAddressesRouter from "./routes/userAddresses.route";
 import productSubscriptionsRouter from "./routes/productSubscriptions.router";
 import handleSequelizeError from "./middlewares/handleSequelizeError";
-import BillingCycles from "./models/product/BillingCycles.model";
 import { billingcyclesRouter } from "./routes/general.router";
-
+import walletRouter from "./routes/wallet.router";
 // const fs = require("fs");
 
 // const app_config = fs.readFileSync(
@@ -102,6 +101,7 @@ app.use(
   handleSequelizeError
 );
 app.use("/api/billingcycles", billingcyclesRouter, handleSequelizeError);
+app.use("/api/wallets",authGaurd, walletRouter, handleSequelizeError);
 
 app.listen(3000, () => {
   console.log("Server started on port 3000");

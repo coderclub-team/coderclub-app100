@@ -29,8 +29,7 @@ const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, fun
     try {
         authuser = (0, decodeJWT_1.default)(req);
     }
-    catch (error) {
-    }
+    catch (error) { }
     const { ProductGUID, ProductID, ProductName, ProductCode, ProductType, SKU, IsFeatured, NewArrival, } = req.query;
     const where = (0, functions_1.omitUndefined)(Object.assign(Object.assign({ ProductGUID: ProductGUID, ProductID: ProductID, ProductName: ProductName, ProductCode: ProductCode !== undefined ? { [sequelize_1.Op.like]: `%${ProductCode}%` } : undefined }, (ProductType !== undefined && {
         ProductType: { [sequelize_1.Op.like]: `%${ProductType}%` },
@@ -49,13 +48,15 @@ const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, fun
                     model: ProductStockMaster_1.default,
                     attributes: ["ProductGUID", "StoreGUID", "UnitsInStock"],
                     nested: true,
-                    where: authuser ? {
-                        StoreGUID: authuser.StoreGUID
-                    } : undefined,
-                }
+                    where: authuser
+                        ? {
+                            StoreGUID: authuser.StoreGUID,
+                        }
+                        : undefined,
+                },
             ],
             attributes: {
-                exclude: ["UnitsInStock"]
+                exclude: ["UnitsInStock"],
             },
             nest: true,
             order: NewArrival ? [["CreatedDate", "DESC"]] : undefined,
@@ -71,6 +72,11 @@ const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, fun
 exports.getAllProductMasters = getAllProductMasters;
 const getProductMasterById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { ProductGUID } = req.params;
+    let authuser;
+    try {
+        authuser = (0, decodeJWT_1.default)(req);
+    }
+    catch (error) { }
     try {
         var products = yield ProductMaster_model_1.default.findAll({
             where: {
@@ -88,11 +94,16 @@ const getProductMasterById = (req, res) => __awaiter(void 0, void 0, void 0, fun
                 {
                     model: ProductStockMaster_1.default,
                     attributes: ["ProductGUID", "StoreGUID", "UnitsInStock"],
-                    nested: true
-                }
+                    nested: true,
+                    where: authuser
+                        ? {
+                            StoreGUID: authuser.StoreGUID,
+                        }
+                        : undefined,
+                },
             ],
             attributes: {
-                exclude: ["UnitsInStock"]
+                exclude: ["UnitsInStock"],
             },
             nest: true,
         });

@@ -19,7 +19,5 @@ const billingcyclesRouter = (0, express_1.Router)();
 exports.billingcyclesRouter = billingcyclesRouter;
 billingcyclesRouter.all("", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const billingcycles = yield BillingCycles_model_1.default.findAll();
-    res.send({
-        billingcycles,
-    });
+    res.send(billingcycles);
 }));

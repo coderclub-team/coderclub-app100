@@ -44,6 +44,7 @@ const userAddresses_route_1 = __importDefault(require("./routes/userAddresses.ro
 const productSubscriptions_router_1 = __importDefault(require("./routes/productSubscriptions.router"));
 const handleSequelizeError_1 = __importDefault(require("./middlewares/handleSequelizeError"));
 const general_router_1 = require("./routes/general.router");
+const wallet_router_1 = __importDefault(require("./routes/wallet.router"));
 // const fs = require("fs");
 // const app_config = fs.readFileSync(
 //   path.join(__dirname, "../public/data/app_config.json"),
@@ -112,6 +113,7 @@ app.use("/api/sales", authGaurd_middleware_1.default, sale_router_1.default);
 app.use("/api", auth_router_1.default);
 app.use("/api/subscriptions", authGaurd_middleware_1.default, productSubscriptions_router_1.default, handleSequelizeError_1.default);
 app.use("/api/billingcycles", general_router_1.billingcyclesRouter, handleSequelizeError_1.default);
+app.use("/api/wallets", authGaurd_middleware_1.default, wallet_router_1.default, handleSequelizeError_1.default);
 app.listen(3000, () => {
     console.log("Server started on port 3000");
 });

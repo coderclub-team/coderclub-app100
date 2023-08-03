@@ -29,6 +29,8 @@ const CartItem_model_1 = __importDefault(require("./models/CartItem.model"));
 const ProductSubscriptions_model_1 = __importDefault(require("./models/ProductSubscriptions.model"));
 const BillingCycles_model_1 = __importDefault(require("./models/product/BillingCycles.model"));
 const ProductStockMaster_1 = __importDefault(require("./models/product/ProductStockMaster"));
+const UserWallet_1 = __importDefault(require("./models/UserWallet"));
+const UserWalletBalances_1 = __importDefault(require("./models/UserWalletBalances"));
 exports.sequelize = new sequelize_typescript_1.Sequelize(config_1.sequelizeConnectionOptions);
 exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
     exports.sequelize
@@ -57,7 +59,9 @@ exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
         CartItem_model_1.default,
         BillingCycles_model_1.default,
         ProductSubscriptions_model_1.default,
-        ProductStockMaster_1.default
+        ProductStockMaster_1.default,
+        UserWallet_1.default,
+        UserWalletBalances_1.default
     ]);
     User_model_1.default.sync();
     ProductCategory_model_1.default.sync();
@@ -70,7 +74,9 @@ exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
     CartItem_model_1.default.sync();
     BillingCycles_model_1.default.sync();
     ProductSubscriptions_model_1.default.sync();
-    ProductStockMaster_1.default.sync();
+    ProductStockMaster_1.default.sync(),
+        UserWallet_1.default.sync(),
+        UserWalletBalances_1.default.sync();
     Sale_model_1.default.sync({
         schema: "dbo",
     });
