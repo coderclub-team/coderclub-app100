@@ -45,10 +45,6 @@ __decorate([
     __metadata("design:type", Number)
 ], ProductSubscription.prototype, "SubscriptionOccurrences", void 0);
 __decorate([
-    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING(20)),
-    __metadata("design:type", String)
-], ProductSubscription.prototype, "SubscriptionStatus", void 0);
-__decorate([
     (0, sequelize_typescript_1.ForeignKey)(() => BillingCycles_model_1.default),
     sequelize_typescript_1.Column,
     __metadata("design:type", Number)

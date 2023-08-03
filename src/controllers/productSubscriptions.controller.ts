@@ -4,6 +4,7 @@ import { omitUndefined } from "../utils/functions";
 import { MyWhereType } from "../..";
 import ProductSubscription from "../models/ProductSubscriptions.model";
 import BillingCycles from "../models/product/BillingCycles.model";
+import { Op } from "sequelize";
 
 export const getUserSubscriptions = async (
   req: Request,
@@ -46,6 +47,16 @@ export const subscribeProduct = async (
     throw Error("ProductGUID is required for subscription!");
   } else if (!req.body.PaymentMethod) {
     throw Error("PaymentMethod is required for subscription!");
+  } else if (!req.body.SubscriptionPrice) {
+    throw Error("SubscriptionPrice is required for subscription!");
+  } else if (!req.body.SubscriptionStartDate) {
+    throw Error("SubscriptionStartDate is required for subscription!");
+  } else if (!req.body.SubscriptionEndDate) {
+    throw Error("SubscriptionEndDate is required for subscription!");
+  } else if (!req.body.SubscriptionOccurrences) {
+    throw Error("SubscriptionOccurrences is required for subscription!");
+  } else if (!req.body.BillingCycleGUID) {
+    throw Error("BillingCycleGUID is required for subscription!");
   }
   try {
     const billingcycle = await BillingCycles.findByPk(
@@ -117,4 +128,32 @@ export const calcelSubscription = async (
     next(error);
   }
 
+};
+
+export const expireSubscription = async () => {
+  
+  try {
+    const expiredSubscriptions = await ProductSubscription.findAll({
+      where: {
+        SubscriptionEndDate: {
+          [Op.lt]: new Date(),
+        },
+        Status:{
+          [Op.notIn]:['EXPIRED','CANCELLED']
+        }
+      },
+    });
+
+    expiredSubscriptions.forEach(async (subscription) => {
+      subscription.Status = "EXPIRED";
+     const updatedSubscription= await subscription.save();
+     console.log("expiry updated by a cron",updatedSubscription.toJSON());
+    })
+
+  } catch (error:any) {
+    console.log("expireSubscription_Fn",error.message);
+    
+  }
+
+  // Do something with the expired subscriptions
 };

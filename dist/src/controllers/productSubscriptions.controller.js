@@ -12,11 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.calcelSubscription = exports.subscribeProduct = exports.getUserSubscriptions = void 0;
+exports.expireSubscription = exports.calcelSubscription = exports.subscribeProduct = exports.getUserSubscriptions = void 0;
 const decodeJWT_1 = __importDefault(require("../utils/decodeJWT"));
 const functions_1 = require("../utils/functions");
 const ProductSubscriptions_model_1 = __importDefault(require("../models/ProductSubscriptions.model"));
 const BillingCycles_model_1 = __importDefault(require("../models/product/BillingCycles.model"));
+const sequelize_1 = require("sequelize");
 const getUserSubscriptions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.body.user) {
         req.body.CreatedGUID = req.body.user.UserGUID;
@@ -52,6 +53,21 @@ const subscribeProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, f
     }
     else if (!req.body.PaymentMethod) {
         throw Error("PaymentMethod is required for subscription!");
+    }
+    else if (!req.body.SubscriptionPrice) {
+        throw Error("SubscriptionPrice is required for subscription!");
+    }
+    else if (!req.body.SubscriptionStartDate) {
+        throw Error("SubscriptionStartDate is required for subscription!");
+    }
+    else if (!req.body.SubscriptionEndDate) {
+        throw Error("SubscriptionEndDate is required for subscription!");
+    }
+    else if (!req.body.SubscriptionOccurrences) {
+        throw Error("SubscriptionOccurrences is required for subscription!");
+    }
+    else if (!req.body.BillingCycleGUID) {
+        throw Error("BillingCycleGUID is required for subscription!");
     }
     try {
         const billingcycle = yield BillingCycles_model_1.default.findByPk(req.body.BillingCycleGUID);
@@ -121,3 +137,27 @@ const calcelSubscription = (req, res, next) => __awaiter(void 0, void 0, void 0,
     }
 });
 exports.calcelSubscription = calcelSubscription;
+const expireSubscription = () => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const expiredSubscriptions = yield ProductSubscriptions_model_1.default.findAll({
+            where: {
+                SubscriptionEndDate: {
+                    [sequelize_1.Op.lt]: new Date(),
+                },
+                Status: {
+                    [sequelize_1.Op.notIn]: ['EXPIRED', 'CANCELLED']
+                }
+            },
+        });
+        expiredSubscriptions.forEach((subscription) => __awaiter(void 0, void 0, void 0, function* () {
+            subscription.Status = "EXPIRED";
+            const updatedSubscription = yield subscription.save();
+            console.log("expiry updated by a cron", updatedSubscription.toJSON());
+        }));
+    }
+    catch (error) {
+        console.log("expireSubscription_Fn", error.message);
+    }
+    // Do something with the expired subscriptions
+});
+exports.expireSubscription = expireSubscription;

@@ -22,6 +22,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -29,6 +38,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const database_1 = __importDefault(require("./database"));
 const dotenv = __importStar(require("dotenv")); // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 dotenv.config().parsed;
+const node_cron_1 = __importDefault(require("node-cron"));
 const express_1 = __importDefault(require("express"));
 const auth_router_1 = __importDefault(require("./routes/auth.router"));
 const authGaurd_middleware_1 = __importDefault(require("./middlewares/authGaurd.middleware"));
@@ -45,11 +55,7 @@ const productSubscriptions_router_1 = __importDefault(require("./routes/productS
 const handleSequelizeError_1 = __importDefault(require("./middlewares/handleSequelizeError"));
 const general_router_1 = require("./routes/general.router");
 const wallet_router_1 = __importDefault(require("./routes/wallet.router"));
-// const fs = require("fs");
-// const app_config = fs.readFileSync(
-//   path.join(__dirname, "../public/data/app_config.json"),
-//   "utf-8"
-// );
+const productSubscriptions_controller_1 = require("./controllers/productSubscriptions.controller");
 // Set the base URL and store it in app.locals
 const app = (0, express_1.default)();
 app.use(express_1.default.static("public"));
@@ -116,4 +122,11 @@ app.use("/api/billingcycles", general_router_1.billingcyclesRouter, handleSequel
 app.use("/api/wallets", authGaurd_middleware_1.default, wallet_router_1.default, handleSequelizeError_1.default);
 app.listen(3000, () => {
     console.log("Server started on port 3000");
+});
+node_cron_1.default.schedule('0 0 0 * * *', () => __awaiter(void 0, void 0, void 0, function* () {
+    yield (0, productSubscriptions_controller_1.expireSubscription)();
+    console.log('running a task every day at 12:00 am');
+}), {
+    scheduled: true,
+    timezone: "Asia/Kolkata"
 });

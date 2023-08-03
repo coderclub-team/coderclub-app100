@@ -1,6 +1,7 @@
 import ConnectDB from "./database";
 import * as dotenv from "dotenv"; // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 dotenv.config().parsed;
+import cron from 'node-cron'
 import express, { Request, Response } from "express";
 import authRouter from "./routes/auth.router";
 import authGaurd from "./middlewares/authGaurd.middleware";
@@ -17,13 +18,7 @@ import productSubscriptionsRouter from "./routes/productSubscriptions.router";
 import handleSequelizeError from "./middlewares/handleSequelizeError";
 import { billingcyclesRouter } from "./routes/general.router";
 import walletRouter from "./routes/wallet.router";
-// const fs = require("fs");
-
-// const app_config = fs.readFileSync(
-//   path.join(__dirname, "../public/data/app_config.json"),
-//   "utf-8"
-// );
-
+import { expireSubscription } from "./controllers/productSubscriptions.controller";
 // Set the base URL and store it in app.locals
 const app = express();
 app.use(express.static("public"));
@@ -106,3 +101,13 @@ app.use("/api/wallets",authGaurd, walletRouter, handleSequelizeError);
 app.listen(3000, () => {
   console.log("Server started on port 3000");
 });
+
+cron.schedule('0 0 0 * * *', async() => {
+ await expireSubscription()
+  console.log('running a task every day at 12:00 am');
+},{
+  scheduled: true,
+  timezone: "Asia/Kolkata"
+})
+
+

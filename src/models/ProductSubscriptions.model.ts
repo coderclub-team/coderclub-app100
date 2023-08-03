@@ -8,7 +8,6 @@ import {
 import ProductMaster from "./product/ProductMaster.model";
 import User from "./User.model";
 import BillingCycles from "./product/BillingCycles.model";
-import { ExitStatus } from "typescript";
 
 @Table({
   tableName: "tbl_ProductSubscriptions",
@@ -37,22 +36,7 @@ class ProductSubscription extends Model<ProductSubscription> {
   @Column
   SubscriptionOccurrences!: number;
 
-  // Refunded
-  // Pending Approval
-  // Payment Declined
-  // Trial Expired
-  // Pending Payment
-  // Grace Period
-  // On Hold
-  // Downgraded
-  // Upgraded
-  // Trial
-  // Cancelled
-  // Expired
-  // Inactive
-  // Active
-  @Column(DataType.STRING(20))
-  SubscriptionStatus!: string;
+
 
   @ForeignKey(() => BillingCycles)
   @Column
@@ -106,6 +90,8 @@ class ProductSubscription extends Model<ProductSubscription> {
   @ForeignKey(() => User)
   @Column(DataType.INTEGER)
   DeletedGUID!: number;
+
+  // ('ACTIVE', 'INACTIVE', 'CANCELLED', 'EXPIRED', 'PENDING', 'SUSPENDED', 'TRIAL','PLACED'))  @Column(DataType.STRING(20))
 
   @Column
   Status!: string;
