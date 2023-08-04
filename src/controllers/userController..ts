@@ -77,7 +77,9 @@ export const updateUserById = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { UserGUID } = req.params;
+
+
+  const { UserGUID } = req.body.user|| decodeJWT(req)
   const { deleted } = req.query;
   const paranoid = deleted === "true" ? false : true;
 
