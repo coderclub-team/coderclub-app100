@@ -11,6 +11,7 @@ const auth_controller_1 = require("../controllers/auth.controller");
 const handleSequelizeError_1 = __importDefault(require("../middlewares/handleSequelizeError"));
 const authGaurd_middleware_1 = __importDefault(require("../middlewares/authGaurd.middleware"));
 const payment_controller_1 = require("../controllers/payment.controller");
+const userController_1 = require("../controllers/userController.");
 const authRouter = (0, express_1.Router)();
 const upload = (0, multer_1.default)({
     storage: config_1.userImageUploadOptions.storage,
@@ -29,6 +30,23 @@ const upload = (0, multer_1.default)({
 });
 authRouter.post("/login", auth_controller_1.login, handleSequelizeError_1.default);
 authRouter.post("/register", upload.single("file"), auth_controller_1.register, handleSequelizeError_1.default);
+// const upload = multer({
+//   storage: userImageUploadOptions.storage,
+//   limits: userImageUploadOptions.limits,
+//   fileFilter: (req, file, cb) => {
+//     if (
+//       file.mimetype === "image/png" ||
+//       file.mimetype === "image/jpg" ||
+//       file.mimetype === "image/jpeg"
+//     ) {
+//       cb(null, true);
+//     } else {
+//       cb(null, false);
+//       return cb(new Error("Only .png, .jpg and .jpeg format allowed!"));
+//     }
+//   },
+// });
+authRouter.put("/current-user", upload.single("file"), userController_1.updateUserById, handleSequelizeError_1.default);
 authRouter.post("/verify-account", auth_controller_1.verifyAccount, handleSequelizeError_1.default);
 authRouter.post("/send-otp", auth_controller_1.sendOTP, handleSequelizeError_1.default);
 authRouter.post("/reset-password", auth_controller_1.resetPassword, handleSequelizeError_1.default);

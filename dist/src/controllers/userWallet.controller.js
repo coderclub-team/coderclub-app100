@@ -104,7 +104,7 @@ const getWalletBalance = (req, res, next) => __awaiter(void 0, void 0, void 0, f
         const balance = yield UserWalletBalances_1.default.findOne({
             where: { UserGUID: req.body.CreatedGUID },
         });
-        res.json(balance);
+        res.json([balance]);
     }
     catch (error) {
         next(error);

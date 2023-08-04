@@ -87,7 +87,7 @@ const getUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 });
 exports.getUserById = getUserById;
 const updateUserById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { UserGUID } = req.params;
+    const { UserGUID } = req.body.user || (0, decodeJWT_1.default)(req);
     const { deleted } = req.query;
     const paranoid = deleted === "true" ? false : true;
     if (req.file) {

@@ -19,6 +19,7 @@ import {
 import handleSequelizeError from "../middlewares/handleSequelizeError";
 import authGaurd from "../middlewares/authGaurd.middleware";
 import { generateRazorpayIntent } from "../controllers/payment.controller";
+import { updateUserById } from "../controllers/userController.";
 
 const authRouter = Router();
 const upload = multer({
@@ -45,6 +46,31 @@ authRouter.post(
   register,
   handleSequelizeError
 );
+
+// const upload = multer({
+//   storage: userImageUploadOptions.storage,
+//   limits: userImageUploadOptions.limits,
+//   fileFilter: (req, file, cb) => {
+//     if (
+//       file.mimetype === "image/png" ||
+//       file.mimetype === "image/jpg" ||
+//       file.mimetype === "image/jpeg"
+//     ) {
+//       cb(null, true);
+//     } else {
+//       cb(null, false);
+//       return cb(new Error("Only .png, .jpg and .jpeg format allowed!"));
+//     }
+//   },
+// });
+
+authRouter.put(
+  "/current-user",
+  upload.single("file"),
+  updateUserById,
+  handleSequelizeError
+);
+
 
 authRouter.post("/verify-account", verifyAccount, handleSequelizeError);
 authRouter.post("/send-otp", sendOTP, handleSequelizeError);

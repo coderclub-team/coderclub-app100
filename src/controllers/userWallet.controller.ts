@@ -101,7 +101,7 @@ export const getWalletBalance = async (
             const balance = await UserWalletBalance.findOne({
                 where: { UserGUID: req.body.CreatedGUID },
             });
-            res.json(balance);
+            res.json([balance]);
         } catch (error) {
             next(error);
         }
