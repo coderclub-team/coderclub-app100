@@ -184,6 +184,10 @@ const getCartItems = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
             },
             include: [ProductMaster_model_1.default],
         });
+        cartItems === null || cartItems === void 0 ? void 0 : cartItems.forEach(item => {
+            var _a;
+            return (_a = item.Product) === null || _a === void 0 ? void 0 : _a.setFullURL(req, "PhotoPath");
+        });
         res.status(200).send(cartItems);
     }
     catch (error) {

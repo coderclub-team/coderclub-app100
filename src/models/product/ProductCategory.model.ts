@@ -76,11 +76,11 @@ export default class ProductCategory extends Model<ProductCategory> {
     });
   }
 
-  setFullURL(request: Request,key: string) {
-    const PORT = process.env.PORT || 3000;
-   const originalPath= this.getDataValue(key as keyof ProductCategory)
-   if(!originalPath) return;
-    const fullPath = `${request.protocol}://${request.hostname}:${PORT}/${this.getDataValue("PhotoPath")}`;
-    this.setDataValue("PhotoPath", fullPath);
-  }
+  setFullURL(request: Request,key: keyof ProductCategory) {
+    const hostname= request.protocol + "://" + request.get("host")
+    const originalPath= this.getDataValue(key)
+    if(!originalPath) return;
+     const fullPath = `${hostname}/${this.getDataValue("PhotoPath")}`;
+     this.setDataValue(key, fullPath);
+   }
 }

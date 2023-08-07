@@ -153,10 +153,10 @@ export default class Employee extends Model<Employee> {
     }
   }
   setFullURL(request: Request,key: keyof Employee) {
-    const PORT = process.env.PORT || 3000;
-   const originalPath= this.getDataValue(key) ;
-   if(!originalPath) return;
-    const fullPath = `${request.protocol}://${request.hostname}:${PORT}/${this.getDataValue("PhotoPath")}`;
-    this.setDataValue(key, fullPath);
-  }
+    const hostname= request.protocol + "://" + request.get("host")
+    const originalPath= this.getDataValue(key)
+    if(!originalPath) return;
+     const fullPath = `${hostname}/${this.getDataValue("PhotoPath")}`;
+     this.setDataValue(key, fullPath);
+   }
 }

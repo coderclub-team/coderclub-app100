@@ -200,6 +200,9 @@ export const getCartItems = async (
       },
       include: [ProductMaster],
     });
+    cartItems?.forEach(item=>{
+     return item.Product?.setFullURL(req,"PhotoPath")
+    })
     res.status(200).send(cartItems);
   } catch (error: any) {
     console.log("message===>", error?.message);
