@@ -5,16 +5,13 @@ import decodeJWT from "../../utils/decodeJWT";
 import path from "node:path";
 import { sequelize } from "../../database";
 import { ProductVariant } from "../../models/product/ProductVariant.model";
-import { Sequelize } from "sequelize-typescript";
 import {
-  Filterable,
   Op,
   QueryTypes,
   Transaction,
-  WhereOptions,
 } from "sequelize";
 import ProductCategory from "../../models/product/ProductCategory.model";
-import { omitUndefined, oneMonthAgo } from "../../utils/functions";
+import { omitUndefined } from "../../utils/functions";
 import ProductReview from "../../models/product/ProductReview.model";
 import User from "../../models/User.model";
 import { MyWhereType } from "../../..";
@@ -116,7 +113,9 @@ export const getProductMasterById = async (req: Request, res: Response) => {
                 StoreGUID: authuser!.StoreGUID,
               }
             : undefined,
-        },
+        },{
+          model:ProductReview
+        }
       ],
       attributes: {
         exclude: ["UnitsInStock"],
@@ -131,31 +130,6 @@ export const getProductMasterById = async (req: Request, res: Response) => {
     res.status(500).json(error);
   }
 };
-
-// export const getProductByQuery = async (req: Request, res: Response) => {
-//   try {
-//     const { ProductName, SKU } = req.query;
-//     var product = await ProductMaster.findOne({
-//       where: {
-//         ProductName: {
-//           [Op.like]: `%${ProductName}%`,
-//         },
-//         SKU,
-//       },
-//     });
-
-//     if (!product) {
-//       return res.status(400).json({
-//         message: "Product not found!",
-//       });
-//     }
-
-//     res.status(200).json(product);
-//   } catch (error: any) {
-//     console.log("---error", error.message);
-//     res.status(500).json(error);
-//   }
-// };
 
 export const createProductMaster = async (
   req: Request,
@@ -297,37 +271,6 @@ export const createProductMaster = async (
     next(error);
   } finally {
   }
-  // try {
-  //   console.log("req.file.filename", req!.file);
-  //   if (req.file) {
-  //     const { filename, path: tmpPath } = req.file;
-  //     req.body.tmpPath = tmpPath;
-  //     req.body.uploadPath = path.join(
-  //       productImageUploadOptions.relativePath,
-  //       filename
-  //     );
-  //     req.body.PhotoPath = path.join(
-  //       productImageUploadOptions.directory,
-  //       filename
-  //     );
-  //   }
-  //   const ceratedPhoto = await ProductMaster.create(req.body);
-  //   if (req.body.tmpPath && req.body.uploadPath) {
-  //     fs.rename(req.body.tmpPath, req.body.uploadPath, (err) => {
-  //       if (err) console.log(err);
-  //       else
-  //         ceratedPhoto!.PhotoPath = path.join(
-  //           req.protocol + "://" + req.get("host"),
-  //           ceratedPhoto!.PhotoPath
-  //         );
-  //     });
-  //   }
-  //   res.status(201).json({
-  //     message: "Product master created successfully!",
-  //   });
-  // } catch (error) {
-  //   next(error);
-  // }
 };
 export const updateProductMaster = async (req: Request, res: Response) => {
   const { ProductMasterGUID } = req.params;
@@ -435,11 +378,6 @@ async function mapAllProducts(products: ProductMaster[], req: Request) {
         }
       }
     }
-    if (product.PhotoPath)
-      product.setDataValue(
-        "PhotoPath",
-        new URL(path.join(host, product.PhotoPath).toString())
-      );
 
     product.setDataValue("GalleryPhotoPath1", undefined);
     product.setDataValue("GalleryPhotoPath2", undefined);
@@ -490,23 +428,7 @@ from tbl_ProductMaster as p1 GROUP by ProductName
   });
 }
 
-// export async function getProductReviews(
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) {
-//   const { productGUID } = req.params;
-//   try {
-//     let reviews = await ProductReview.findAll();
-//     return res.send({
-//       message: "Product reviews fetched successfully!",
-//       reviews,
-//     });
-//   } catch (error) {
-//     console.log("getProductReviews", error);
-//     next(error);
-//   }
-// }
+
 export const createProductReview = async (
   req: Request,
   res: Response,

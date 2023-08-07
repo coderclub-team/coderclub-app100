@@ -330,6 +330,8 @@ export default class User extends Model {
       });
 
       return Promise.reject("Incorrect password");
+    } else if(this.Status == 0){
+      return Promise.reject("Account is not activated");
     }
 
     try {
@@ -420,7 +422,7 @@ export default class User extends Model {
     }
   }
 
-  async resetPassword(password: string, otp: string): Promise<User> {
+  async resetPassword(password: string, otp: string,email?:string,mobileno?:string): Promise<User> {
     try {
       if (!password) {
         return Promise.reject("Password is required");
@@ -440,8 +442,16 @@ export default class User extends Model {
       this.OtpExpiryDate = null;
       this.Password_Attempt = 0;
       this.Status = 1;
+      if(email){
+        this.EmailAddress=email;
+      }
+      if(mobileno){
+        this.MobileNo=mobileno;
+      }
+     
 
-      return this.save({
+
+      return await this.save({
         fields: ["Password", "OTP", "OtpExpiryDate", "Password_Attempt"],
       });
     } catch (error: any) {

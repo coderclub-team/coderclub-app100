@@ -24,6 +24,7 @@ const GlobalType_model_1 = __importDefault(require("../models/GlobalType.model")
 const SaleDetail_model_1 = __importDefault(require("../models/SaleDetail.model"));
 const UserAddress_model_1 = __importDefault(require("../models/UserAddress.model"));
 const database_1 = require("../database");
+const ProductMaster_model_1 = __importDefault(require("../models/product/ProductMaster.model"));
 const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.file) {
         const { filename, path: tmpPath } = req.file;
@@ -80,11 +81,12 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
         }
         const imageKey = "PhotoPath";
         const imagePath = user === null || user === void 0 ? void 0 : user[imageKey];
-        if (!imagePath)
-            return;
-        const host = req.protocol + "://" + req.get("host");
-        const imageFullPath = new URL(node_path_1.default.join(host, imagePath));
-        user.setDataValue("PhotoPath", imageFullPath);
+        if (imagePath) {
+            const host = req.protocol + "://" + req.get("host");
+            const imageFullPath = new URL(node_path_1.default.join(host, imagePath));
+            user.setDataValue("PhotoPath", imageFullPath);
+            console.log("user===>", user);
+        }
         const token = yield (user === null || user === void 0 ? void 0 : user.authenticate(Password));
         res.status(200).json({
             message: "Login successful!",
@@ -205,7 +207,7 @@ const forgotPassword = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
 exports.forgotPassword = forgotPassword;
 const resetPassword = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     // reset password by verifying OTP
-    const { MobileNo, OTP, Password } = req.body;
+    const { MobileNo, OTP, Password, EmailAddress } = req.body;
     const { deleted } = req.query;
     const paranoid = deleted === "true" ? false : true;
     try {
@@ -220,7 +222,7 @@ const resetPassword = (req, res, next) => __awaiter(void 0, void 0, void 0, func
                 message: "User not found!",
             });
         }
-        yield user.resetPassword(Password, OTP);
+        yield user.resetPassword(Password, OTP, EmailAddress, MobileNo);
         res.status(200).json({
             message: "Password reset successfully!",
             user,
@@ -262,6 +264,9 @@ const getOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function
             {
                 model: SaleDetail_model_1.default,
                 all: true,
+                include: [{
+                        model: ProductMaster_model_1.default,
+                    }]
             },
         ],
     });

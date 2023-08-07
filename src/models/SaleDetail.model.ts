@@ -8,6 +8,7 @@ import {
   Table,
 } from "sequelize-typescript";
 import Sale from "./Sale.model";
+import ProductMaster from "./product/ProductMaster.model";
 
 @Table({
   tableName: "tbl_SalesDetails",
@@ -32,8 +33,14 @@ export default class SaleDetail extends Model {
   @BelongsTo(() => Sale)
   SalesMasterRef?: Sale;
 
+  @ForeignKey(() => ProductMaster)
   @Column
   ProductGUID!: number;
+
+  @BelongsTo(() => ProductMaster)
+  product!: ProductMaster;
+
+
 
   @Column
   ProductName!: string;

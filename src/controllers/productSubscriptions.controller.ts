@@ -5,6 +5,7 @@ import { MyWhereType } from "../..";
 import ProductSubscription from "../models/ProductSubscriptions.model";
 import BillingCycles from "../models/product/BillingCycles.model";
 import { Op } from "sequelize";
+import ProductMaster from "../models/product/ProductMaster.model";
 
 export const getUserSubscriptions = async (
   req: Request,
@@ -24,6 +25,9 @@ export const getUserSubscriptions = async (
   try {
     const subscriptions = await ProductSubscription.findAll({
       where: where,
+      include: [{
+        model:ProductMaster
+      }]
     });
 
     res.status(200).json(subscriptions);

@@ -75,6 +75,9 @@ let User = User_1 = class User extends sequelize_typescript_1.Model {
                 });
                 return Promise.reject("Incorrect password");
             }
+            else if (this.Status == 0) {
+                return Promise.reject("Account is not activated");
+            }
             try {
                 if (process.env.JWT_SECRET) {
                     const token = jsonwebtoken_1.default.sign(this.get({ plain: true }), process.env.JWT_SECRET, {
@@ -156,7 +159,7 @@ let User = User_1 = class User extends sequelize_typescript_1.Model {
             return Promise.reject(error.message);
         }
     }
-    resetPassword(password, otp) {
+    resetPassword(password, otp, email, mobileno) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (!password) {
@@ -181,7 +184,13 @@ let User = User_1 = class User extends sequelize_typescript_1.Model {
                 this.OtpExpiryDate = null;
                 this.Password_Attempt = 0;
                 this.Status = 1;
-                return this.save({
+                if (email) {
+                    this.EmailAddress = email;
+                }
+                if (mobileno) {
+                    this.MobileNo = mobileno;
+                }
+                return yield this.save({
                     fields: ["Password", "OTP", "OtpExpiryDate", "Password_Attempt"],
                 });
             }

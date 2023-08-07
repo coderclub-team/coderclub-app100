@@ -4,6 +4,7 @@ import {
   Model,
   DataType,
   ForeignKey,
+  BelongsTo,
 } from "sequelize-typescript";
 import ProductMaster from "./product/ProductMaster.model";
 import User from "./User.model";
@@ -26,6 +27,9 @@ class ProductSubscription extends Model<ProductSubscription> {
   @ForeignKey(() => ProductMaster)
   @Column(DataType.INTEGER)
   ProductGUID!: number;
+
+  @BelongsTo(() => ProductMaster)
+  Product!: ProductMaster;
 
   @Column(DataType.DATE)
   SubscriptionStartDate!: Date;

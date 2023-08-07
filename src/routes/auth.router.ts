@@ -75,6 +75,8 @@ authRouter.put(
 authRouter.post("/verify-account", verifyAccount, handleSequelizeError);
 authRouter.post("/send-otp", sendOTP, handleSequelizeError);
 authRouter.post("/reset-password", resetPassword, handleSequelizeError);
+authRouter.post("/update-email", resetPassword, handleSequelizeError);
+
 authRouter.post("/forget-password", forgotPassword, handleSequelizeError);
 authRouter.get("/current-user", getCurrentUser, handleSequelizeError);
 

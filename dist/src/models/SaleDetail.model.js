@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_typescript_1 = require("sequelize-typescript");
 const Sale_model_1 = __importDefault(require("./Sale.model"));
+const ProductMaster_model_1 = __importDefault(require("./product/ProductMaster.model"));
 let SaleDetail = class SaleDetail extends sequelize_typescript_1.Model {
 };
 __decorate([
@@ -37,9 +38,14 @@ __decorate([
     __metadata("design:type", Sale_model_1.default)
 ], SaleDetail.prototype, "SalesMasterRef", void 0);
 __decorate([
+    (0, sequelize_typescript_1.ForeignKey)(() => ProductMaster_model_1.default),
     sequelize_typescript_1.Column,
     __metadata("design:type", Number)
 ], SaleDetail.prototype, "ProductGUID", void 0);
+__decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => ProductMaster_model_1.default),
+    __metadata("design:type", ProductMaster_model_1.default)
+], SaleDetail.prototype, "product", void 0);
 __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", String)

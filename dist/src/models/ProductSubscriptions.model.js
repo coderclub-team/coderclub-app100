@@ -33,6 +33,10 @@ __decorate([
     __metadata("design:type", Number)
 ], ProductSubscription.prototype, "ProductGUID", void 0);
 __decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => ProductMaster_model_1.default),
+    __metadata("design:type", ProductMaster_model_1.default)
+], ProductSubscription.prototype, "Product", void 0);
+__decorate([
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.DATE),
     __metadata("design:type", Date)
 ], ProductSubscription.prototype, "SubscriptionStartDate", void 0);

@@ -79,6 +79,7 @@ export const updateUserById = async (
 ) => {
 
 
+
   const { UserGUID } = req.body.user|| decodeJWT(req)
   const { deleted } = req.query;
   const paranoid = deleted === "true" ? false : true;
@@ -105,6 +106,7 @@ export const updateUserById = async (
     }
 
     const oldPhotoPath = user.PhotoPath;
+
 
     delete req.body.MobileNo;
     delete req.body.Password;

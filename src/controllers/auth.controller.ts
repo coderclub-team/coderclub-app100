@@ -10,6 +10,7 @@ import GlobalType from "../models/GlobalType.model";
 import SaleDetail from "../models/SaleDetail.model";
 import UserAddress from "../models/UserAddress.model";
 import { sequelize } from "../database";
+import ProductMaster from "../models/product/ProductMaster.model";
 
 export const register = async (
   req: Request,
@@ -81,11 +82,14 @@ export const login = async (
     }
     const imageKey = "PhotoPath";
     const imagePath = user?.[imageKey as keyof User];
-    if (!imagePath) return;
-    const host = req.protocol + "://" + req.get("host");
-    const imageFullPath = new URL(path.join(host, imagePath));
-    user.setDataValue("PhotoPath", imageFullPath);
-
+    if(imagePath){
+      const host = req.protocol + "://" + req.get("host");
+      const imageFullPath = new URL(path.join(host, imagePath));
+      user.setDataValue("PhotoPath", imageFullPath);
+      console.log("user===>",user);
+  
+    }
+   
     const token = await user?.authenticate(Password);
     res.status(200).json({
       message: "Login successful!",
@@ -223,7 +227,7 @@ export const resetPassword = async (
   next: NextFunction
 ) => {
   // reset password by verifying OTP
-  const { MobileNo, OTP, Password } = req.body;
+  const { MobileNo, OTP, Password,EmailAddress } = req.body;
   const { deleted } = req.query;
   const paranoid = deleted === "true" ? false : true;
   try {
@@ -238,7 +242,7 @@ export const resetPassword = async (
         message: "User not found!",
       });
     }
-    await user.resetPassword(Password, OTP);
+    await user.resetPassword(Password, OTP,EmailAddress,MobileNo);
     res.status(200).json({
       message: "Password reset successfully!",
       user,
@@ -261,7 +265,9 @@ export const getOrders = async (
   const salemasters = await Sale.findAll({
     where: {
       CustomerGUID: req.body.user.UserGUID,
+      
     },
+    
     attributes: {
       exclude: ["CustomerGUID", "SaleTypeRef"],
     },
@@ -284,6 +290,9 @@ export const getOrders = async (
       {
         model: SaleDetail,
         all: true,
+        include: [{
+          model:ProductMaster,
+        }]
       },
     ],
   });

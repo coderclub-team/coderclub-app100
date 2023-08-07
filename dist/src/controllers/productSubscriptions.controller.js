@@ -18,6 +18,7 @@ const functions_1 = require("../utils/functions");
 const ProductSubscriptions_model_1 = __importDefault(require("../models/ProductSubscriptions.model"));
 const BillingCycles_model_1 = __importDefault(require("../models/product/BillingCycles.model"));
 const sequelize_1 = require("sequelize");
+const ProductMaster_model_1 = __importDefault(require("../models/product/ProductMaster.model"));
 const getUserSubscriptions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.body.user) {
         req.body.CreatedGUID = req.body.user.UserGUID;
@@ -32,6 +33,9 @@ const getUserSubscriptions = (req, res, next) => __awaiter(void 0, void 0, void 
     try {
         const subscriptions = yield ProductSubscriptions_model_1.default.findAll({
             where: where,
+            include: [{
+                    model: ProductMaster_model_1.default
+                }]
         });
         res.status(200).json(subscriptions);
     }

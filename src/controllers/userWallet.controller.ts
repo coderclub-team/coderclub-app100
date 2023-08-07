@@ -100,6 +100,10 @@ export const getWalletBalance = async (
         try {
             const balance = await UserWalletBalance.findOne({
                 where: { UserGUID: req.body.CreatedGUID },
+                include: [{
+                  model: User,
+                  attributes: ['LoginName','UserGUID', 'FirstName', 'LastName', 'EmailAddress', 'MobileNo']
+                }],
             });
             res.json([balance]);
         } catch (error) {

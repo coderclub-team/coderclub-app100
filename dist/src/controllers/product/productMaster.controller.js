@@ -116,28 +116,6 @@ const getProductMasterById = (req, res) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 exports.getProductMasterById = getProductMasterById;
-// export const getProductByQuery = async (req: Request, res: Response) => {
-//   try {
-//     const { ProductName, SKU } = req.query;
-//     var product = await ProductMaster.findOne({
-//       where: {
-//         ProductName: {
-//           [Op.like]: `%${ProductName}%`,
-//         },
-//         SKU,
-//       },
-//     });
-//     if (!product) {
-//       return res.status(400).json({
-//         message: "Product not found!",
-//       });
-//     }
-//     res.status(200).json(product);
-//   } catch (error: any) {
-//     console.log("---error", error.message);
-//     res.status(500).json(error);
-//   }
-// };
 const createProductMaster = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.body.ProductType) {
         res.status(400).json({
@@ -238,37 +216,6 @@ const createProductMaster = (req, res, next) => __awaiter(void 0, void 0, void 0
     }
     finally {
     }
-    // try {
-    //   console.log("req.file.filename", req!.file);
-    //   if (req.file) {
-    //     const { filename, path: tmpPath } = req.file;
-    //     req.body.tmpPath = tmpPath;
-    //     req.body.uploadPath = path.join(
-    //       productImageUploadOptions.relativePath,
-    //       filename
-    //     );
-    //     req.body.PhotoPath = path.join(
-    //       productImageUploadOptions.directory,
-    //       filename
-    //     );
-    //   }
-    //   const ceratedPhoto = await ProductMaster.create(req.body);
-    //   if (req.body.tmpPath && req.body.uploadPath) {
-    //     fs.rename(req.body.tmpPath, req.body.uploadPath, (err) => {
-    //       if (err) console.log(err);
-    //       else
-    //         ceratedPhoto!.PhotoPath = path.join(
-    //           req.protocol + "://" + req.get("host"),
-    //           ceratedPhoto!.PhotoPath
-    //         );
-    //     });
-    //   }
-    //   res.status(201).json({
-    //     message: "Product master created successfully!",
-    //   });
-    // } catch (error) {
-    //   next(error);
-    // }
 });
 exports.createProductMaster = createProductMaster;
 const updateProductMaster = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -381,8 +328,6 @@ function mapAllProducts(products, req) {
                     }
                 }
             }
-            if (product.PhotoPath)
-                product.setDataValue("PhotoPath", new URL(node_path_1.default.join(host, product.PhotoPath).toString()));
             product.setDataValue("GalleryPhotoPath1", undefined);
             product.setDataValue("GalleryPhotoPath2", undefined);
             product.setDataValue("GalleryPhotoPath3", undefined);
@@ -425,23 +370,6 @@ from tbl_ProductMaster as p1 GROUP by ProductName
         type: sequelize_1.QueryTypes.SELECT,
     });
 }
-// export async function getProductReviews(
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) {
-//   const { productGUID } = req.params;
-//   try {
-//     let reviews = await ProductReview.findAll();
-//     return res.send({
-//       message: "Product reviews fetched successfully!",
-//       reviews,
-//     });
-//   } catch (error) {
-//     console.log("getProductReviews", error);
-//     next(error);
-//   }
-// }
 const createProductReview = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { productGUID } = req.params;
     req.body.ProductGUID = productGUID;

@@ -19,7 +19,8 @@ import ProductCategory from "./ProductCategory.model";
 import ProductSubCategory from "./ProductSubCategory.model";
 import ProductReview from "./ProductReview.model";
 import ProductStockMaster from "./ProductStockMaster";
-import { VIRTUAL } from "sequelize";
+import os from "node:os";
+const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
 
 @Table({
   tableName: "tbl_ProductMaster",
@@ -109,7 +110,33 @@ class ProductMaster extends Model {
   UOM!: string;
   @Column
   UOMTypeGUID!: string;
-  @Column
+
+  @Column({
+    get() {
+      const value = this.getDataValue("PhotoPath") as string;
+      if (value) {
+        const networkInterfaces = os.networkInterfaces();
+        let hostAddress;
+        for (const interfaceName in networkInterfaces) {
+          const interfaceInfo = networkInterfaces[interfaceName];
+          for (const info of interfaceInfo!) {
+            // Look for IPv4 addresses and exclude loopback addresses (127.0.0.1)
+            if (info.family === "IPv4" && !info.internal) {
+              hostAddress = info.address;
+              break;
+            }
+          }
+          if (hostAddress) {
+            break;
+          }
+        }
+        const url = `${protocol}://${hostAddress}:3000/${value}`;
+        console.log("afterFindHook-url", url);
+        this.setDataValue("PhotoPath", url);
+        return url;
+      } else return null;
+    },
+  })
   PhotoPath!: string;
   @Column
   ProductType!: string;
@@ -167,17 +194,15 @@ class ProductMaster extends Model {
     length: number;
   };
 
-@HasOne(() => ProductStockMaster)
-Stock!:ProductStockMaster;
- 
+  @HasOne(() => ProductStockMaster)
+  Stock!: ProductStockMaster;
+
   @Column({
     type: DataType.VIRTUAL,
   })
   Categories?: {
     name: string;
   }[];
-
-
 
   @BeforeCreate
   static async generateProductGUID(instance: ProductMaster) {

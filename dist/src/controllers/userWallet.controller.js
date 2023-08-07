@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getWalletBalance = exports.creditOrDebit = exports.getWalletTransactions = void 0;
 const decodeJWT_1 = __importDefault(require("../utils/decodeJWT"));
+const User_model_1 = __importDefault(require("../models/User.model"));
 const UserWallet_1 = __importDefault(require("../models/UserWallet"));
 const UserWalletBalances_1 = __importDefault(require("../models/UserWalletBalances"));
 const getWalletTransactions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -103,6 +104,10 @@ const getWalletBalance = (req, res, next) => __awaiter(void 0, void 0, void 0, f
     try {
         const balance = yield UserWalletBalances_1.default.findOne({
             where: { UserGUID: req.body.CreatedGUID },
+            include: [{
+                    model: User_model_1.default,
+                    attributes: ['LoginName', 'UserGUID', 'FirstName', 'LastName', 'EmailAddress', 'MobileNo']
+                }],
         });
         res.json([balance]);
     }

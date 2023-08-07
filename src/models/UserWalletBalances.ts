@@ -1,4 +1,5 @@
-import { AutoIncrement, Column, DataType, Model, PrimaryKey, Table } from "sequelize-typescript";
+import { AutoIncrement, BelongsTo, Column, DataType, ForeignKey, Model, PrimaryKey, Table } from "sequelize-typescript";
+import User from "./User.model";
 
 @Table({
     tableName: 'tbl_UserWalletBalances',
@@ -14,15 +15,13 @@ export default class UserWalletBalance extends Model{
         primaryKey:true
     })
     WalletBalanceGUID!:number
-    @Column({
-        type:DataType.INTEGER,
-        allowNull:false,
-        references:{
-            model:'tbl_Users',
-            key:'UserGUID'
-        }
-    })
+
+    @ForeignKey(()=>User)
+    @Column
     UserGUID!:number
+
+    @BelongsTo(()=>User)
+    user!:User
 
     @Column({
         type:DataType.DECIMAL(10,2),
