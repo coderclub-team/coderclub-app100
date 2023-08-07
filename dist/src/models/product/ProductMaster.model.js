@@ -26,7 +26,6 @@ const ProductCategory_model_1 = __importDefault(require("./ProductCategory.model
 const ProductSubCategory_model_1 = __importDefault(require("./ProductSubCategory.model"));
 const ProductReview_model_1 = __importDefault(require("./ProductReview.model"));
 const ProductStockMaster_1 = __importDefault(require("./ProductStockMaster"));
-const node_os_1 = __importDefault(require("node:os"));
 const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
 let ProductMaster = class ProductMaster extends sequelize_typescript_1.Model {
     static generateProductGUID(instance) {
@@ -73,6 +72,14 @@ let ProductMaster = class ProductMaster extends sequelize_typescript_1.Model {
                 instance.setDataValue(key, value.trim());
             }
         });
+    }
+    setFullURL(request, key) {
+        const PORT = process.env.PORT || 3000;
+        const originalPath = this.getDataValue(key);
+        if (!originalPath)
+            return;
+        const fullPath = `${request.protocol}://${request.hostname}:${PORT}/${this.getDataValue("PhotoPath")}`;
+        this.setDataValue(key, fullPath);
     }
 };
 __decorate([
@@ -176,34 +183,7 @@ __decorate([
     __metadata("design:type", String)
 ], ProductMaster.prototype, "UOMTypeGUID", void 0);
 __decorate([
-    (0, sequelize_typescript_1.Column)({
-        get() {
-            const value = this.getDataValue("PhotoPath");
-            if (value) {
-                const networkInterfaces = node_os_1.default.networkInterfaces();
-                let hostAddress;
-                for (const interfaceName in networkInterfaces) {
-                    const interfaceInfo = networkInterfaces[interfaceName];
-                    for (const info of interfaceInfo) {
-                        // Look for IPv4 addresses and exclude loopback addresses (127.0.0.1)
-                        if (info.family === "IPv4" && !info.internal) {
-                            hostAddress = info.address;
-                            break;
-                        }
-                    }
-                    if (hostAddress) {
-                        break;
-                    }
-                }
-                const url = `${protocol}://${hostAddress}:3000/${value}`;
-                console.log("afterFindHook-url", url);
-                this.setDataValue("PhotoPath", url);
-                return url;
-            }
-            else
-                return null;
-        },
-    }),
+    sequelize_typescript_1.Column,
     __metadata("design:type", String)
 ], ProductMaster.prototype, "PhotoPath", void 0);
 __decorate([

@@ -26,6 +26,7 @@ import {
 } from "../../custom.error";
 import jwt from "jsonwebtoken";
 import UserAddress from "./UserAddress.model";
+import { Request } from "express";
 
 @Table({
   tableName: "tbl_Users",
@@ -497,5 +498,12 @@ export default class User extends Model {
         instance.setDataValue(key as keyof User, value.trim());
       }
     });
+  }
+  setFullURL(request: Request,key: string) {
+    const PORT = process.env.PORT || 3000;
+   const originalPath= this.getDataValue(key as keyof User)
+   if(!originalPath) return;
+    const fullPath = `${request.protocol}://${request.hostname}:${PORT}/${this.getDataValue("PhotoPath")}`;
+    this.setDataValue(key, fullPath);
   }
 }

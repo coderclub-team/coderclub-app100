@@ -40,13 +40,7 @@ const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             include: [UserAddress_model_1.default],
         });
         users.forEach((user) => {
-            const imageKey = "PhotoPath";
-            const imagePath = user === null || user === void 0 ? void 0 : user[imageKey];
-            if (!imagePath)
-                return;
-            const host = req.protocol + "://" + req.get("host");
-            const imageFullPath = new URL(node_path_1.default.join(host, imagePath));
-            user.setDataValue("PhotoPath", imageFullPath);
+            user.setFullURL(req, "PhotoPath");
         });
         return res.status(200).json(users);
     }
@@ -72,13 +66,7 @@ const getUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                 message: "User not found!",
             });
         }
-        const imageKey = "PhotoPath";
-        const imagePath = user === null || user === void 0 ? void 0 : user[imageKey];
-        if (!imagePath)
-            return;
-        const host = req.protocol + "://" + req.get("host");
-        const imageFullPath = new URL(node_path_1.default.join(host, imagePath));
-        user.setDataValue("PhotoPath", imageFullPath);
+        user.setFullURL(req, "PhotoPath");
         return res.status(200).json(user);
     }
     catch (error) {
@@ -120,8 +108,7 @@ const updateUserById = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
                 if (err)
                     console.log(err);
                 else {
-                    const baseUrl = `${req.protocol}://${req.get("host")}`;
-                    user === null || user === void 0 ? void 0 : user.setDataValue("PhotoPath", new URL(node_path_1.default.join(baseUrl, user.PhotoPath)));
+                    user === null || user === void 0 ? void 0 : user.setFullURL(req, "PhotoPath");
                 }
             });
         }

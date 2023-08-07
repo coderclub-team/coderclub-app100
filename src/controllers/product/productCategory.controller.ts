@@ -12,13 +12,7 @@ export const getAllProductCategories = async (req: Request, res: Response) => {
   try {
     const categories = await ProductCategory.findAll({});
     categories.forEach(async (category: ProductCategory) => {
-      const imageKey = "PhotoPath";
-      const imagePath = category[imageKey as keyof ProductCategory];
-      if (!imagePath) return;
-      const host = req.protocol + "://" + req.get("host");
-
-      const imageFullPath = new URL(path.join(host, imagePath)).toString();
-      category.setDataValue("PhotoPath", imageFullPath);
+      category.setFullURL(req, "PhotoPath");
     });
 
     res.status(200).json(categories);
@@ -32,13 +26,7 @@ export const getProductCategoryById = async (req: Request, res: Response) => {
 
   try {
     const category = await ProductCategory.findByPk(ProductCategoryGUID);
-
-    const imageKey = "PhotoPath";
-    const imagePath = category?.[imageKey as keyof ProductCategory];
-    if (!imagePath) return;
-    const host = req.protocol + "://" + req.get("host");
-    const imageFullPath = new URL(path.join(host, imagePath)).toString();
-    category.setDataValue("PhotoPath", imageFullPath);
+    category?.setFullURL(req, "PhotoPath");
 
     if (!category) {
       return res.status(400).json({

@@ -1,3 +1,4 @@
+import { Request } from "express";
 import {
   AutoIncrement,
   BeforeBulkCreate,
@@ -53,22 +54,6 @@ export default class ProductCategory extends Model<ProductCategory> {
   })
   ProductCount!: number;
 
-  // check if the category name already exists before create
-
-  // @BeforeCreate
-  // static async checkIfCategoryExists(instance: ProductCategory) {
-  //   const count = await ProductCategory.count({
-  //     where: {
-  //       ProductCategoryName: instance.ProductCategoryName,
-  //       ParentCategoryRefGUID:
-  //         null as unknown as WhereAttributeHashValue<number>,
-  //     },
-  //   });
-  //   if (count) {
-  //     throw new Error("Category already exists");
-  //   }
-  // }
-
   @BeforeBulkCreate
   @BeforeBulkUpdate
   static beforeBulkCreateHook(instances: ProductCategory[]) {
@@ -89,5 +74,13 @@ export default class ProductCategory extends Model<ProductCategory> {
         instance.setDataValue(key as keyof ProductCategory, value.trim());
       }
     });
+  }
+
+  setFullURL(request: Request,key: string) {
+    const PORT = process.env.PORT || 3000;
+   const originalPath= this.getDataValue(key as keyof ProductCategory)
+   if(!originalPath) return;
+    const fullPath = `${request.protocol}://${request.hostname}:${PORT}/${this.getDataValue("PhotoPath")}`;
+    this.setDataValue("PhotoPath", fullPath);
   }
 }

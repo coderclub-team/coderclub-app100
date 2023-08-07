@@ -28,12 +28,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
       include: [UserAddress],
     });
     users.forEach((user) => {
-      const imageKey = "PhotoPath";
-      const imagePath = user?.[imageKey as keyof User];
-      if (!imagePath) return;
-      const host = req.protocol + "://" + req.get("host");
-      const imageFullPath = new URL(path.join(host, imagePath));
-      user.setDataValue("PhotoPath", imageFullPath);
+      user.setFullURL(req, "PhotoPath")
     });
 
     return res.status(200).json(users);
@@ -60,12 +55,7 @@ export const getUserById = async (req: Request, res: Response) => {
         message: "User not found!",
       });
     }
-    const imageKey = "PhotoPath";
-    const imagePath = user?.[imageKey as keyof User];
-    if (!imagePath) return;
-    const host = req.protocol + "://" + req.get("host");
-    const imageFullPath = new URL(path.join(host, imagePath));
-    user.setDataValue("PhotoPath", imageFullPath);
+    user.setFullURL(req, "PhotoPath")
 
     return res.status(200).json(user);
   } catch (error) {
@@ -121,11 +111,7 @@ export const updateUserById = async (
       fs.rename(req.body.tmpPath, req.body.uploadPath, (err) => {
         if (err) console.log(err);
         else {
-          const baseUrl = `${req.protocol}://${req.get("host")}`;
-          user?.setDataValue(
-            "PhotoPath",
-            new URL(path.join(baseUrl, user!.PhotoPath))
-          );
+          user?.setFullURL(req, "PhotoPath")
         }
       });
     }

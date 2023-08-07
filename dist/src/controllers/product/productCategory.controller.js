@@ -15,20 +15,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteProductCategory = exports.createProductCategory = exports.getProductCategoryById = exports.getAllProductCategories = void 0;
 const decodeJWT_1 = __importDefault(require("../../utils/decodeJWT"));
-const node_path_1 = __importDefault(require("node:path"));
 const ProductCategory_model_1 = __importDefault(require("../../models/product/ProductCategory.model"));
 // import { productCategoryImageUploadOptions } from "../../config";
 const getAllProductCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const categories = yield ProductCategory_model_1.default.findAll({});
         categories.forEach((category) => __awaiter(void 0, void 0, void 0, function* () {
-            const imageKey = "PhotoPath";
-            const imagePath = category[imageKey];
-            if (!imagePath)
-                return;
-            const host = req.protocol + "://" + req.get("host");
-            const imageFullPath = new URL(node_path_1.default.join(host, imagePath)).toString();
-            category.setDataValue("PhotoPath", imageFullPath);
+            category.setFullURL(req, "PhotoPath");
         }));
         res.status(200).json(categories);
     }
@@ -41,13 +34,7 @@ const getProductCategoryById = (req, res) => __awaiter(void 0, void 0, void 0, f
     const { ProductCategoryGUID } = req.params;
     try {
         const category = yield ProductCategory_model_1.default.findByPk(ProductCategoryGUID);
-        const imageKey = "PhotoPath";
-        const imagePath = category === null || category === void 0 ? void 0 : category[imageKey];
-        if (!imagePath)
-            return;
-        const host = req.protocol + "://" + req.get("host");
-        const imageFullPath = new URL(node_path_1.default.join(host, imagePath)).toString();
-        category.setDataValue("PhotoPath", imageFullPath);
+        category === null || category === void 0 ? void 0 : category.setFullURL(req, "PhotoPath");
         if (!category) {
             return res.status(400).json({
                 message: "Product category not found!",

@@ -29,10 +29,6 @@ __decorate([
     __metadata("design:type", String)
 ], Sale.prototype, "SaleOrderID", void 0);
 __decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Date)
-], Sale.prototype, "SaleOrderDate", void 0);
-__decorate([
     (0, sequelize_typescript_1.ForeignKey)(() => GlobalType_model_1.default),
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.VIRTUAL,
@@ -95,11 +91,11 @@ __decorate([
 Sale = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: "tbl_SalesMaster",
-        timestamps: true,
+        timestamps: false,
         createdAt: "CreatedDate",
         updatedAt: "UpdatedDate",
         deletedAt: "DeletedDate",
-        paranoid: true,
+        paranoid: false,
     })
 ], Sale);
 exports.default = Sale;

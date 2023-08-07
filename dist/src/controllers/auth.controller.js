@@ -43,7 +43,7 @@ const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
                     console.log(err);
                 }
             });
-            createdUser.PhotoPath = node_path_1.default.join(req.protocol + "://" + req.get("host"), createdUser.PhotoPath);
+            createdUser.setFullURL(req, "PhotoPath");
         }
         // const token = await createdUser.authenticate(req.body.Password);
         return res.status(201).json({
@@ -79,14 +79,7 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
         if (!user) {
             throw new custom_error_1.UserNotFoundExceptionError("User not found!");
         }
-        const imageKey = "PhotoPath";
-        const imagePath = user === null || user === void 0 ? void 0 : user[imageKey];
-        if (imagePath) {
-            const host = req.protocol + "://" + req.get("host");
-            const imageFullPath = new URL(node_path_1.default.join(host, imagePath));
-            user.setDataValue("PhotoPath", imageFullPath);
-            console.log("user===>", user);
-        }
+        user.setFullURL(req, "PhotoPath");
         const token = yield (user === null || user === void 0 ? void 0 : user.authenticate(Password));
         res.status(200).json({
             message: "Login successful!",
@@ -115,13 +108,7 @@ const getCurrentUser = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
             },
             include: [UserAddress_model_1.default],
         });
-        const imageKey = "PhotoPath";
-        const imagePath = user === null || user === void 0 ? void 0 : user[imageKey];
-        if (!imagePath)
-            return;
-        const host = req.protocol + "://" + req.get("host");
-        const imageFullPath = new URL(node_path_1.default.join(host, imagePath));
-        user.setDataValue("PhotoPath", imageFullPath);
+        user === null || user === void 0 ? void 0 : user.setFullURL(req, "PhotoPath");
         res.json([user]);
     }
     catch (error) {
@@ -270,7 +257,12 @@ const getOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function
             },
         ],
     });
-    salemasters.forEach((sale) => {
+    salemasters === null || salemasters === void 0 ? void 0 : salemasters.forEach((sale) => {
+        var _a;
+        (_a = sale === null || sale === void 0 ? void 0 : sale.SaleDetails) === null || _a === void 0 ? void 0 : _a.forEach(saleDetail => {
+            var _a;
+            (_a = saleDetail === null || saleDetail === void 0 ? void 0 : saleDetail.product) === null || _a === void 0 ? void 0 : _a.setFullURL(req, "PhotoPath");
+        });
         if (sale.SaleTypeRef) {
             sale.setDataValue("SaleType", sale.SaleTypeRef.GlobalTypeName);
             sale.setDataValue("SaleTypeRef", undefined);
@@ -317,7 +309,7 @@ const createOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
             if (!saleDetail.ProductGUID) {
                 throw new Error("ProductGUID is required");
             }
-            else if (!saleDetail.Quantity) {
+            else if (!saleDetail.Qty) {
                 throw new Error("Quantity is required");
             }
             else if (!saleDetail.Amount) {
@@ -330,7 +322,10 @@ const createOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         const sale = yield Sale_model_1.default.create(saleData, { transaction });
         const saleDetails = yield SaleDetail_model_1.default.bulkCreate(SalesDetails.map((saleDetail) => (Object.assign({ SalesMasterGUID: sale.SalesMasterGUID }, saleDetail))), { transaction });
         transaction.commit();
-        res.json(Object.assign(Object.assign({}, sale), { SaleDetails: saleDetails }));
+        res.json({
+            sale,
+            SaleDetails: saleDetails,
+        });
     }
     catch (error) {
         transaction.rollback();

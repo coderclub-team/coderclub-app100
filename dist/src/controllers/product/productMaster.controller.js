@@ -100,7 +100,9 @@ const getProductMasterById = (req, res) => __awaiter(void 0, void 0, void 0, fun
                             StoreGUID: authuser.StoreGUID,
                         }
                         : undefined,
-                },
+                }, {
+                    model: ProductReview_model_1.default
+                }
             ],
             attributes: {
                 exclude: ["UnitsInStock"],
@@ -293,6 +295,9 @@ function mapAllProducts(products, req) {
         const options = yield getProductOptions();
         const host = req.protocol + "://" + req.get("host");
         products.forEach((product) => {
+            var _a;
+            product.setFullURL(req, "PhotoPath");
+            (_a = product === null || product === void 0 ? void 0 : product.ProductCategory) === null || _a === void 0 ? void 0 : _a.setFullURL(req, "PhotoPath");
             // adding attributes to product
             const found = options.find((o) => o.ProductName === product.ProductName);
             if (found) {

@@ -42,10 +42,7 @@ const getAllEmployees = (req, res) => __awaiter(void 0, void 0, void 0, function
             },
         }).then((employees) => {
             employees.forEach((employee) => {
-                const photoPath = employee.getDataValue("PhotoPath");
-                if (photoPath) {
-                    employee.PhotoPath = node_path_1.default.join(req.protocol + "://" + req.get("host"), photoPath);
-                }
+                employee.setFullURL(req, "PhotoPath");
             });
             return employees;
         });
@@ -71,7 +68,7 @@ const getEmployeeById = (req, res) => __awaiter(void 0, void 0, void 0, function
             },
         }).then((employee) => {
             if (employee === null || employee === void 0 ? void 0 : employee.PhotoPath)
-                employee.PhotoPath = node_path_1.default.join(req.protocol + "://" + req.get("host"), employee === null || employee === void 0 ? void 0 : employee.PhotoPath);
+                employee.setFullURL(req, "PhotoPath");
             return employee;
         });
         if (!employee) {

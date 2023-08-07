@@ -236,6 +236,14 @@ let User = User_1 = class User extends sequelize_typescript_1.Model {
             }
         });
     }
+    setFullURL(request, key) {
+        const PORT = process.env.PORT || 3000;
+        const originalPath = this.getDataValue(key);
+        if (!originalPath)
+            return;
+        const fullPath = `${request.protocol}://${request.hostname}:${PORT}/${this.getDataValue("PhotoPath")}`;
+        this.setDataValue(key, fullPath);
+    }
 };
 User.fields = {
     password: { type: sequelize_1.DataTypes.STRING, allowNull: false, exclude: true },

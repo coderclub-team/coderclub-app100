@@ -9,6 +9,7 @@ import {
 } from "sequelize-typescript";
 import Sale from "./Sale.model";
 import ProductMaster from "./product/ProductMaster.model";
+import { Request } from "express";
 
 @Table({
   tableName: "tbl_SalesDetails",
@@ -69,6 +70,8 @@ export default class SaleDetail extends Model {
   CreatedGUID!: number;
   @Column
   CreatedDate!: Date;
+
+
 }
 
 // EXEC sp_help tbl_SalesDetails

@@ -42,6 +42,14 @@ let Employee = Employee_1 = class Employee extends sequelize_typescript_1.Model 
             }
         });
     }
+    setFullURL(request, key) {
+        const PORT = process.env.PORT || 3000;
+        const originalPath = this.getDataValue(key);
+        if (!originalPath)
+            return;
+        const fullPath = `${request.protocol}://${request.hostname}:${PORT}/${this.getDataValue("PhotoPath")}`;
+        this.setDataValue(key, fullPath);
+    }
 };
 __decorate([
     (0, sequelize_typescript_1.Column)({

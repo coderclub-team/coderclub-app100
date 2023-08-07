@@ -18,11 +18,11 @@ import SaleDetail from "./SaleDetail.model";
 
 @Table({
   tableName: "tbl_SalesMaster",
-  timestamps: true,
+  timestamps: false,
   createdAt: "CreatedDate",
   updatedAt: "UpdatedDate",
   deletedAt: "DeletedDate",
-  paranoid: true,
+  paranoid: false,
 })
 export default class Sale extends Model{
   @PrimaryKey
@@ -32,8 +32,8 @@ export default class Sale extends Model{
 
   @Column
   SaleOrderID!: string;
-  @Column
-  SaleOrderDate!: Date;
+  // @Column
+  // SaleOrderDate: Date=new Date();
 
   @ForeignKey(() => GlobalType)
   @Column({

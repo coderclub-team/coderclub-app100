@@ -28,13 +28,8 @@ export const getAllEmployees = async (req: Request, res: Response) => {
       },
     }).then((employees) => {
       employees.forEach((employee) => {
-        const photoPath = employee.getDataValue("PhotoPath");
-        if (photoPath) {
-          employee.PhotoPath = path.join(
-            req.protocol + "://" + req.get("host"),
-            photoPath
-          );
-        }
+        employee.setFullURL(req, "PhotoPath");
+       
       });
       return employees;
     });
@@ -59,10 +54,7 @@ export const getEmployeeById = async (req: Request, res: Response) => {
       },
     }).then((employee) => {
       if (employee?.PhotoPath)
-        employee.PhotoPath = path.join(
-          req.protocol + "://" + req.get("host"),
-          employee?.PhotoPath
-        );
+        employee.setFullURL(req, "PhotoPath");
 
       return employee;
     });

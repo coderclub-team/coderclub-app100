@@ -12,20 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_typescript_1 = require("sequelize-typescript");
 // Path: src/models/ProductCategory.ts
 let ProductCategory = class ProductCategory extends sequelize_typescript_1.Model {
-    // check if the category name already exists before create
-    // @BeforeCreate
-    // static async checkIfCategoryExists(instance: ProductCategory) {
-    //   const count = await ProductCategory.count({
-    //     where: {
-    //       ProductCategoryName: instance.ProductCategoryName,
-    //       ParentCategoryRefGUID:
-    //         null as unknown as WhereAttributeHashValue<number>,
-    //     },
-    //   });
-    //   if (count) {
-    //     throw new Error("Category already exists");
-    //   }
-    // }
     static beforeBulkCreateHook(instances) {
         instances.forEach((instance) => {
             Object.entries(instance.toJSON()).forEach(([key, value]) => {
@@ -41,6 +27,14 @@ let ProductCategory = class ProductCategory extends sequelize_typescript_1.Model
                 instance.setDataValue(key, value.trim());
             }
         });
+    }
+    setFullURL(request, key) {
+        const PORT = process.env.PORT || 3000;
+        const originalPath = this.getDataValue(key);
+        if (!originalPath)
+            return;
+        const fullPath = `${request.protocol}://${request.hostname}:${PORT}/${this.getDataValue("PhotoPath")}`;
+        this.setDataValue("PhotoPath", fullPath);
     }
 };
 __decorate([

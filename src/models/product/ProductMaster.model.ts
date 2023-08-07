@@ -20,6 +20,7 @@ import ProductSubCategory from "./ProductSubCategory.model";
 import ProductReview from "./ProductReview.model";
 import ProductStockMaster from "./ProductStockMaster";
 import os from "node:os";
+import { Request } from "express";
 const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
 
 @Table({
@@ -32,6 +33,9 @@ const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
   // deletedAt: "DeletedDate",
 })
 class ProductMaster extends Model {
+
+
+
   @PrimaryKey
   @Column({
     type: DataType.BIGINT,
@@ -111,32 +115,7 @@ class ProductMaster extends Model {
   @Column
   UOMTypeGUID!: string;
 
-  @Column({
-    get() {
-      const value = this.getDataValue("PhotoPath") as string;
-      if (value) {
-        const networkInterfaces = os.networkInterfaces();
-        let hostAddress;
-        for (const interfaceName in networkInterfaces) {
-          const interfaceInfo = networkInterfaces[interfaceName];
-          for (const info of interfaceInfo!) {
-            // Look for IPv4 addresses and exclude loopback addresses (127.0.0.1)
-            if (info.family === "IPv4" && !info.internal) {
-              hostAddress = info.address;
-              break;
-            }
-          }
-          if (hostAddress) {
-            break;
-          }
-        }
-        const url = `${protocol}://${hostAddress}:3000/${value}`;
-        console.log("afterFindHook-url", url);
-        this.setDataValue("PhotoPath", url);
-        return url;
-      } else return null;
-    },
-  })
+  @Column
   PhotoPath!: string;
   @Column
   ProductType!: string;
@@ -265,6 +244,16 @@ class ProductMaster extends Model {
         instance.setDataValue(key as keyof ProductMaster, value.trim());
       }
     });
+  }
+
+
+
+  setFullURL(request: Request,key: string) {
+    const PORT = process.env.PORT || 3000;
+   const originalPath= this.getDataValue(key as keyof ProductMaster)
+   if(!originalPath) return;
+    const fullPath = `${request.protocol}://${request.hostname}:${PORT}/${this.getDataValue("PhotoPath")}`;
+    this.setDataValue(key, fullPath);
   }
 }
 

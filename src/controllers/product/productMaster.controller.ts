@@ -340,6 +340,8 @@ async function mapAllProducts(products: ProductMaster[], req: Request) {
   const host = req.protocol + "://" + req.get("host");
 
   products.forEach((product: ProductMaster) => {
+    product.setFullURL(req,"PhotoPath");
+    product?.ProductCategory?.setFullURL(req,"PhotoPath")
     // adding attributes to product
     const found = options.find((o) => o.ProductName === product.ProductName);
     if (found) {

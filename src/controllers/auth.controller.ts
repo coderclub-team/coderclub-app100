@@ -37,10 +37,8 @@ export const register = async (
           console.log(err);
         }
       });
-      createdUser.PhotoPath = path.join(
-        req.protocol + "://" + req.get("host"),
-        createdUser.PhotoPath
-      );
+      createdUser.setFullURL(req, "PhotoPath");
+     
     }
     // const token = await createdUser.authenticate(req.body.Password);
     return res.status(201).json({
@@ -80,15 +78,7 @@ export const login = async (
     if (!user) {
       throw new UserNotFoundExceptionError("User not found!");
     }
-    const imageKey = "PhotoPath";
-    const imagePath = user?.[imageKey as keyof User];
-    if(imagePath){
-      const host = req.protocol + "://" + req.get("host");
-      const imageFullPath = new URL(path.join(host, imagePath));
-      user.setDataValue("PhotoPath", imageFullPath);
-      console.log("user===>",user);
-  
-    }
+    user.setFullURL(req, "PhotoPath");
    
     const token = await user?.authenticate(Password);
     res.status(200).json({
@@ -121,12 +111,7 @@ export const getCurrentUser = async (
       include: [UserAddress],
     });
 
-    const imageKey = "PhotoPath";
-    const imagePath = user?.[imageKey as keyof User];
-    if (!imagePath) return;
-    const host = req.protocol + "://" + req.get("host");
-    const imageFullPath = new URL(path.join(host, imagePath));
-    user.setDataValue("PhotoPath", imageFullPath);
+    user?.setFullURL(req, "PhotoPath");
 
     res.json([user]);
   } catch (error) {
@@ -297,7 +282,11 @@ export const getOrders = async (
     ],
   });
 
-  salemasters.forEach((sale) => {
+  salemasters?.forEach((sale) => {
+    sale?.SaleDetails?.forEach(saleDetail=>{
+      saleDetail?.product?.setFullURL(req,"PhotoPath")
+    })
+   
     if (sale.SaleTypeRef) {
       sale.setDataValue("SaleType", sale.SaleTypeRef.GlobalTypeName);
       sale.setDataValue("SaleTypeRef", undefined);
@@ -359,7 +348,7 @@ export const createOrder = async (
       if(!saleDetail.ProductGUID){
         throw new Error("ProductGUID is required");
       }
-      else if(!saleDetail.Quantity){
+      else if(!saleDetail.Qty){
         throw new Error("Quantity is required");
       }
       else if(!saleDetail.Amount){
@@ -381,7 +370,7 @@ export const createOrder = async (
     );
     transaction.commit();
     res.json({
-      ...sale,
+      sale,
       SaleDetails: saleDetails,
     });
   } catch (error) {

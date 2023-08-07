@@ -22,7 +22,8 @@ import { expireSubscription } from "./controllers/productSubscriptions.controlle
 // Set the base URL and store it in app.locals
 const app = express();
 app.use(express.static("public"));
-app.use(cors());
+app.use(cors())
+
 
 // parse application/json
 
