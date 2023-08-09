@@ -32,6 +32,8 @@ export const getAllProductMasters = async (req: Request, res: Response) => {
     SKU,
     IsFeatured,
     NewArrival,
+    ProductCategoryGUID
+
   } = req.query;
 
   const where: MyWhereType = omitUndefined({
@@ -45,6 +47,7 @@ export const getAllProductMasters = async (req: Request, res: Response) => {
     }),
     SKU: SKU,
     IsFeatured: IsFeatured,
+    ProductCategoryGUID: ProductCategoryGUID
   });
 
   try {

@@ -31,10 +31,10 @@ const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, fun
         authuser = (0, decodeJWT_1.default)(req);
     }
     catch (error) { }
-    const { ProductGUID, ProductID, ProductName, ProductCode, ProductType, SKU, IsFeatured, NewArrival, } = req.query;
+    const { ProductGUID, ProductID, ProductName, ProductCode, ProductType, SKU, IsFeatured, NewArrival, ProductCategoryGUID } = req.query;
     const where = (0, functions_1.omitUndefined)(Object.assign(Object.assign({ ProductGUID: ProductGUID, ProductID: ProductID, ProductName: ProductName, ProductCode: ProductCode !== undefined ? { [sequelize_1.Op.like]: `%${ProductCode}%` } : undefined }, (ProductType !== undefined && {
         ProductType: { [sequelize_1.Op.like]: `%${ProductType}%` },
-    })), { SKU: SKU, IsFeatured: IsFeatured }));
+    })), { SKU: SKU, IsFeatured: IsFeatured, ProductCategoryGUID: ProductCategoryGUID }));
     try {
         var products = yield ProductMaster_model_1.default.findAll({
             where,
