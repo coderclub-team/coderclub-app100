@@ -24,6 +24,9 @@ class ProductSubscription extends Model<ProductSubscription> {
   @Column(DataType.INTEGER)
   UserGUID!: number;
 
+  @BelongsTo(() => User)
+  User!: User;
+
   @ForeignKey(() => ProductMaster)
   @Column(DataType.INTEGER)
   ProductGUID!: number;

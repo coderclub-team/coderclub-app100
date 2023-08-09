@@ -52,7 +52,7 @@ __decorate([
 __decorate([
     (0, sequelize_typescript_1.BelongsTo)(() => User_model_1.default),
     __metadata("design:type", User_model_1.default)
-], ProductReview.prototype, "user", void 0);
+], ProductReview.prototype, "User", void 0);
 __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", Date)

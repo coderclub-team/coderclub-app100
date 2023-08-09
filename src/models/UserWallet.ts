@@ -2,7 +2,11 @@
 
 
 
-import { Column, DataType, Model, Sequelize, Table } from "sequelize-typescript";
+import { AfterCreate, Column, DataType, Model, Sequelize, Table } from "sequelize-typescript";
+import Message from "./Message.model";
+import User from "./User.model";
+import { getWalletBalance } from "../controllers/userWallet.controller";
+import UserWalletBalance from "./UserWalletBalances";
 
 @Table({
     timestamps: true,
@@ -86,4 +90,26 @@ DeletedGUID!: number;
     defaultValue: 'FULLFILLED'
 })
 Status!: string;
+
+@AfterCreate
+static async updateBalance(instance: UserWallet) {
+   const user= await User.findByPk(instance.getDataValue("UserGUID"))
+    const balance= await UserWalletBalance.findOne({
+         where: {UserGUID: instance.getDataValue("UserGUID")}
+    })
+    if(instance.getDataValue("Credit") > 0){
+     Message.sendRechargeSuccessMessage({
+        MobileNo: user?.getDataValue("MobileNo"),
+        RechargeAmount: instance.getDataValue("Credit"),
+        RechargeDate: instance.getDataValue("CreatedDate") as Date,
+        Balance: balance?.getDataValue("Balance"),
+        DigitalCard:user?.DigitalCard!,
+     }).then((Response)=>{
+            console.log("sendRechargeSuccessMessage Response", Response);
+     })
+     .catch((error)=>{
+            console.log("Error in sending message", error);
+        })
+}
+}
 }

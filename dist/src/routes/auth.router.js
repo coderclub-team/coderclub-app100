@@ -10,7 +10,6 @@ const config_1 = require("../../config");
 const auth_controller_1 = require("../controllers/auth.controller");
 const handleSequelizeError_1 = __importDefault(require("../middlewares/handleSequelizeError"));
 const authGaurd_middleware_1 = __importDefault(require("../middlewares/authGaurd.middleware"));
-const payment_controller_1 = require("../controllers/payment.controller");
 const userController_1 = require("../controllers/userController.");
 const authRouter = (0, express_1.Router)();
 const upload = (0, multer_1.default)({
@@ -56,5 +55,5 @@ authRouter.get("/current-user", auth_controller_1.getCurrentUser, handleSequeliz
 authRouter.get("/orders", authGaurd_middleware_1.default, auth_controller_1.getOrders, handleSequelizeError_1.default);
 authRouter.post("/orders", authGaurd_middleware_1.default, auth_controller_1.createOrder, handleSequelizeError_1.default);
 authRouter.patch("/orders/:SalesMasterGUID", authGaurd_middleware_1.default, auth_controller_1.cancelOrder, handleSequelizeError_1.default);
-authRouter.get("/orders/payments/createOrder", authGaurd_middleware_1.default, payment_controller_1.generateRazorpayIntent, handleSequelizeError_1.default);
+authRouter.get("/orders/payments/createOrder", authGaurd_middleware_1.default, handleSequelizeError_1.default, handleSequelizeError_1.default);
 exports.default = authRouter;

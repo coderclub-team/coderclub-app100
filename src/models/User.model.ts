@@ -14,8 +14,10 @@ import {
   BeforeBulkUpdate,
   ForeignKey,
   HasMany,
+  AfterCreate,
 } from "sequelize-typescript";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 import moment from "moment";
 import { DataTypes } from "sequelize";
@@ -27,6 +29,7 @@ import {
 import jwt from "jsonwebtoken";
 import UserAddress from "./UserAddress.model";
 import { Request } from "express";
+import Message from "./Message.model";
 
 @Table({
   tableName: "tbl_Users",
@@ -112,6 +115,7 @@ export default class User extends Model {
   @Column({
     type: DataType.STRING(200),
     allowNull: true,
+    defaultValue: "./identities/user-identity.png"
   })
   PhotoPath!: string;
 
@@ -284,6 +288,21 @@ export default class User extends Model {
     password: { type: DataTypes.STRING, allowNull: false, exclude: true },
   };
 
+  @Column({
+    type: DataType.VIRTUAL,
+    get() {
+      const hash = crypto.createHash('sha256');
+      const hashDigest = hash.update(this.getDataValue("UserGUID").toString()).digest('hex');
+      // Extract the first 16 characters of the hash to get a 16-digit number
+            // const uniqueNumber = hashDigest.substring(0, 16);
+
+      const uniqueNumber = parseInt(hashDigest.substring(0, 16), 16);
+      return uniqueNumber;
+
+    },
+  })
+  DigitalCard?:number
+
   private _token!: string;
 
   get token(): string {
@@ -304,6 +323,18 @@ export default class User extends Model {
       const { OTP, OtpExpiryDate } = instance.generateOTP();
       instance.OTP = OTP;
       instance.OtpExpiryDate = OtpExpiryDate;
+    }
+  }
+  @AfterCreate
+  static async sendOTPMessage(instance: User) {
+    if (instance.MobileNo) {
+      const { OTP, OtpExpiryDate } = instance.generateOTP();
+      instance.OTP = OTP;
+      instance.OtpExpiryDate = OtpExpiryDate;
+      await Message.sendOTPMessage({
+        MobileNo: instance.getDataValue("MobileNo"),
+        OTP:OTP,
+      })
     }
   }
 
@@ -363,7 +394,7 @@ export default class User extends Model {
     for (let i = 0; i < 6; i++) {
       OTP += digits[Math.floor(Math.random() * 10)];
     }
-    if (process.env.NDOE_ENV !== "production") {
+    if (process.env.NODE_ENV !== "production") {
       OTP = "998877";
     }
     // one hour from now
@@ -392,6 +423,10 @@ export default class User extends Model {
       const { OTP, OtpExpiryDate } = this.generateOTP();
       this.OTP = OTP;
       this.OtpExpiryDate = OtpExpiryDate ? OtpExpiryDate : null;
+      await Message.sendOTPMessage({
+        MobileNo: this.getDataValue("MobileNo"),
+        OTP:OTP,
+      })
       return await this.save();
     } catch (error: any) {
       return Promise.reject(error.message);
@@ -501,9 +536,35 @@ export default class User extends Model {
   }
   setFullURL(request: Request,key :keyof User) {
     const hostname= request.protocol + "://" + request.get("host")
-    const originalPath= this.getDataValue(key)
+    const originalPath= this.getDataValue(key) || "identities/user-identity.png"
     if(!originalPath) return;
-     const fullPath = `${hostname}/${this.getDataValue("PhotoPath")}`;
+     const fullPath = `${hostname}/${originalPath}`;
      this.setDataValue(key, fullPath);
    }
+
+   @AfterCreate
+    static async sendWelcomeMessage(instance: User) {
+      if (instance.Account_Deactivated) {
+        return Promise.reject("Account is deactivated by admin");
+      }
+      // else if (this.Password_Attempt && this.Password_Attempt >= 3) {
+      //   return Promise.reject("Account is locked due to multiple attempts");
+      // }
+
+      const { OTP, OtpExpiryDate } = instance.generateOTP();
+      instance.OTP = OTP;
+      instance.OtpExpiryDate = OtpExpiryDate ? OtpExpiryDate : null
+      
+      if (instance.MobileNo) {
+        await Message.sendWelcomeMessage({
+          MobileNo: instance.getDataValue("MobileNo"),
+          OTP: instance.getDataValue("OTP"),
+        })
+      }
+    }
+
+
+   
+
+
 }

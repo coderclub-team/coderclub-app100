@@ -23,6 +23,7 @@ const sequelize_1 = require("sequelize");
 const ProductCategory_model_1 = __importDefault(require("../../models/product/ProductCategory.model"));
 const functions_1 = require("../../utils/functions");
 const ProductReview_model_1 = __importDefault(require("../../models/product/ProductReview.model"));
+const User_model_1 = __importDefault(require("../../models/User.model"));
 const ProductStockMaster_1 = __importDefault(require("../../models/product/ProductStockMaster"));
 const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let authuser;
@@ -101,7 +102,8 @@ const getProductMasterById = (req, res) => __awaiter(void 0, void 0, void 0, fun
                         }
                         : undefined,
                 }, {
-                    model: ProductReview_model_1.default
+                    model: ProductReview_model_1.default,
+                    include: [User_model_1.default]
                 }
             ],
             attributes: {

@@ -83,6 +83,6 @@ authRouter.get("/current-user", getCurrentUser, handleSequelizeError);
 authRouter.get("/orders", authGaurd, getOrders,handleSequelizeError);
 authRouter.post("/orders", authGaurd, createOrder,handleSequelizeError);
 authRouter.patch("/orders/:SalesMasterGUID", authGaurd, cancelOrder,handleSequelizeError);
-authRouter.get("/orders/payments/createOrder", authGaurd,generateRazorpayIntent,handleSequelizeError);
+authRouter.get("/orders/payments/createOrder", authGaurd,handleSequelizeError,handleSequelizeError);
 
 export default authRouter;

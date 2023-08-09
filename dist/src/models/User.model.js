@@ -24,10 +24,12 @@ var User_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_typescript_1 = require("sequelize-typescript");
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const crypto_1 = __importDefault(require("crypto"));
 const moment_1 = __importDefault(require("moment"));
 const sequelize_1 = require("sequelize");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const UserAddress_model_1 = __importDefault(require("./UserAddress.model"));
+const Message_model_1 = __importDefault(require("./Message.model"));
 let User = User_1 = class User extends sequelize_typescript_1.Model {
     get token() {
         return this.token;
@@ -44,6 +46,19 @@ let User = User_1 = class User extends sequelize_typescript_1.Model {
                 const { OTP, OtpExpiryDate } = instance.generateOTP();
                 instance.OTP = OTP;
                 instance.OtpExpiryDate = OtpExpiryDate;
+            }
+        });
+    }
+    static sendOTPMessage(instance) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (instance.MobileNo) {
+                const { OTP, OtpExpiryDate } = instance.generateOTP();
+                instance.OTP = OTP;
+                instance.OtpExpiryDate = OtpExpiryDate;
+                yield Message_model_1.default.sendOTPMessage({
+                    MobileNo: instance.getDataValue("MobileNo"),
+                    OTP: OTP,
+                });
             }
         });
     }
@@ -100,7 +115,7 @@ let User = User_1 = class User extends sequelize_typescript_1.Model {
         for (let i = 0; i < 6; i++) {
             OTP += digits[Math.floor(Math.random() * 10)];
         }
-        if (process.env.NDOE_ENV !== "production") {
+        if (process.env.NODE_ENV !== "production") {
             OTP = "998877";
         }
         // one hour from now
@@ -127,6 +142,10 @@ let User = User_1 = class User extends sequelize_typescript_1.Model {
                 const { OTP, OtpExpiryDate } = this.generateOTP();
                 this.OTP = OTP;
                 this.OtpExpiryDate = OtpExpiryDate ? OtpExpiryDate : null;
+                yield Message_model_1.default.sendOTPMessage({
+                    MobileNo: this.getDataValue("MobileNo"),
+                    OTP: OTP,
+                });
                 return yield this.save();
             }
             catch (error) {
@@ -238,11 +257,30 @@ let User = User_1 = class User extends sequelize_typescript_1.Model {
     }
     setFullURL(request, key) {
         const hostname = request.protocol + "://" + request.get("host");
-        const originalPath = this.getDataValue(key);
+        const originalPath = this.getDataValue(key) || "identities/user-identity.png";
         if (!originalPath)
             return;
-        const fullPath = `${hostname}/${this.getDataValue("PhotoPath")}`;
+        const fullPath = `${hostname}/${originalPath}`;
         this.setDataValue(key, fullPath);
+    }
+    static sendWelcomeMessage(instance) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (instance.Account_Deactivated) {
+                return Promise.reject("Account is deactivated by admin");
+            }
+            // else if (this.Password_Attempt && this.Password_Attempt >= 3) {
+            //   return Promise.reject("Account is locked due to multiple attempts");
+            // }
+            const { OTP, OtpExpiryDate } = instance.generateOTP();
+            instance.OTP = OTP;
+            instance.OtpExpiryDate = OtpExpiryDate ? OtpExpiryDate : null;
+            if (instance.MobileNo) {
+                yield Message_model_1.default.sendWelcomeMessage({
+                    MobileNo: instance.getDataValue("MobileNo"),
+                    OTP: instance.getDataValue("OTP"),
+                });
+            }
+        });
     }
 };
 User.fields = {
@@ -334,6 +372,7 @@ __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING(200),
         allowNull: true,
+        defaultValue: "./identities/user-identity.png"
     }),
     __metadata("design:type", String)
 ], User.prototype, "PhotoPath", void 0);
@@ -528,6 +567,20 @@ __decorate([
     __metadata("design:type", Number)
 ], User.prototype, "StoreGUID", void 0);
 __decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.VIRTUAL,
+        get() {
+            const hash = crypto_1.default.createHash('sha256');
+            const hashDigest = hash.update(this.getDataValue("UserGUID").toString()).digest('hex');
+            // Extract the first 16 characters of the hash to get a 16-digit number
+            // const uniqueNumber = hashDigest.substring(0, 16);
+            const uniqueNumber = parseInt(hashDigest.substring(0, 16), 16);
+            return uniqueNumber;
+        },
+    }),
+    __metadata("design:type", Number)
+], User.prototype, "DigitalCard", void 0);
+__decorate([
     (0, sequelize_typescript_1.HasMany)(() => UserAddress_model_1.default),
     __metadata("design:type", UserAddress_model_1.default)
 ], User.prototype, "Addresses", void 0);
@@ -537,6 +590,12 @@ __decorate([
     __metadata("design:paramtypes", [User]),
     __metadata("design:returntype", Promise)
 ], User, "hashPassword", null);
+__decorate([
+    sequelize_typescript_1.AfterCreate,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [User]),
+    __metadata("design:returntype", Promise)
+], User, "sendOTPMessage", null);
 __decorate([
     sequelize_typescript_1.BeforeBulkCreate,
     sequelize_typescript_1.BeforeBulkUpdate,
@@ -551,6 +610,12 @@ __decorate([
     __metadata("design:paramtypes", [User]),
     __metadata("design:returntype", void 0)
 ], User, "beforeCreateHook", null);
+__decorate([
+    sequelize_typescript_1.AfterCreate,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [User]),
+    __metadata("design:returntype", Promise)
+], User, "sendWelcomeMessage", null);
 User = User_1 = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: "tbl_Users",

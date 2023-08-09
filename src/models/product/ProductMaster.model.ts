@@ -250,9 +250,9 @@ class ProductMaster extends Model {
 
   setFullURL(request: Request,key: keyof ProductMaster) {
     const hostname= request.protocol + "://" + request.get("host")
-    const originalPath= this.getDataValue(key)
+    const originalPath= this.getDataValue(key) || "identities/product-identity.png"
     if(!originalPath) return;
-     const fullPath = `${hostname}/${this.getDataValue("PhotoPath")}`;
+     const fullPath = `${hostname}/${originalPath}`;
      this.setDataValue(key, fullPath);
    }
 }

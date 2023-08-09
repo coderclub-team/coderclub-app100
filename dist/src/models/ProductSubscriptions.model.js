@@ -28,6 +28,10 @@ __decorate([
     __metadata("design:type", Number)
 ], ProductSubscription.prototype, "UserGUID", void 0);
 __decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => User_model_1.default),
+    __metadata("design:type", User_model_1.default)
+], ProductSubscription.prototype, "User", void 0);
+__decorate([
     (0, sequelize_typescript_1.ForeignKey)(() => ProductMaster_model_1.default),
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.INTEGER),
     __metadata("design:type", Number)

@@ -114,7 +114,8 @@ export const getProductMasterById = async (req: Request, res: Response) => {
               }
             : undefined,
         },{
-          model:ProductReview
+          model:ProductReview,
+          include:[User]
         }
       ],
       attributes: {

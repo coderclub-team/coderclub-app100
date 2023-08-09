@@ -30,10 +30,10 @@ let ProductCategory = class ProductCategory extends sequelize_typescript_1.Model
     }
     setFullURL(request, key) {
         const hostname = request.protocol + "://" + request.get("host");
-        const originalPath = this.getDataValue(key);
+        const originalPath = this.getDataValue(key) || "identities/product-identity.png";
         if (!originalPath)
             return;
-        const fullPath = `${hostname}/${this.getDataValue("PhotoPath")}`;
+        const fullPath = `${hostname}/${originalPath}`;
         this.setDataValue(key, fullPath);
     }
 };

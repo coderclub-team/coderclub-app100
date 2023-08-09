@@ -45,7 +45,6 @@ const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
             });
             createdUser.setFullURL(req, "PhotoPath");
         }
-        // const token = await createdUser.authenticate(req.body.Password);
         return res.status(201).json({
             message: "User created successfully!",
             user: createdUser,

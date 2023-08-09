@@ -5,3 +5,16 @@ GET https://coderclub-100.onrender.com/api/app/config
 ###
 
 GET https://coderclub-100.onrender.com/api/productcategories
+
+####
+
+GET https://api.textlocal.in/send/
+?apikey=NTA3MTM1Njg1OTMxNmY0ZjZkNmU2NDM0NDY2Zjc1NjY=
+&sender=GKDAIR
+&message=Dear+Customer%2C%0AThank+you+for+registering+with+Tamil+MIlk.+Your+Verification+Code+is++1234.%0AThank+You
+&numbers=9944781003
+
+####
+GET http://localhost:3000/api/messageme
+
+

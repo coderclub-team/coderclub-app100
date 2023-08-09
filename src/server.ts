@@ -1,7 +1,7 @@
 import ConnectDB from "./database";
 import * as dotenv from "dotenv"; // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 dotenv.config().parsed;
-import cron from 'node-cron'
+import cron from "node-cron";
 import express, { Request, Response } from "express";
 import authRouter from "./routes/auth.router";
 import authGaurd from "./middlewares/authGaurd.middleware";
@@ -19,11 +19,11 @@ import handleSequelizeError from "./middlewares/handleSequelizeError";
 import { billingcyclesRouter } from "./routes/general.router";
 import walletRouter from "./routes/wallet.router";
 import { expireSubscription } from "./controllers/productSubscriptions.controller";
+import Message from "./models/Message.model";
 // Set the base URL and store it in app.locals
 const app = express();
 app.use(express.static("public"));
-app.use(cors())
-
+app.use(cors());
 
 // parse application/json
 
@@ -97,18 +97,20 @@ app.use(
   handleSequelizeError
 );
 app.use("/api/billingcycles", billingcyclesRouter, handleSequelizeError);
-app.use("/api/wallets",authGaurd, walletRouter, handleSequelizeError);
+app.use("/api/wallets", authGaurd, walletRouter, handleSequelizeError);
 
 app.listen(3000, () => {
   console.log("Server started on port 3000");
 });
 
-cron.schedule('0 0 0 * * *', async() => {
- await expireSubscription()
-  console.log('running a task every day at 12:00 am');
-},{
-  scheduled: true,
-  timezone: "Asia/Kolkata"
-})
-
-
+cron.schedule(
+  "0 0 0 * * *",
+  async () => {
+    await expireSubscription();
+    console.log("running a task every day at 12:00 am");
+  },
+  {
+    scheduled: true,
+    timezone: "Asia/Kolkata",
+  }
+);

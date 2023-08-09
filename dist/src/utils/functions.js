@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.oneMonthAgo = exports.omitUndefined = void 0;
+exports.formatDateIndianStyle = exports.oneMonthAgo = exports.omitUndefined = void 0;
 function omitUndefined(obj) {
     const result = {};
     for (const key in obj) {
@@ -14,3 +14,8 @@ function omitUndefined(obj) {
 exports.omitUndefined = omitUndefined;
 exports.oneMonthAgo = new Date();
 exports.oneMonthAgo.setMonth(exports.oneMonthAgo.getMonth() - 1);
+function formatDateIndianStyle(date) {
+    const options = { year: "numeric", month: 'long', day: 'numeric' };
+    return new Intl.DateTimeFormat('en-IN', options).format(date);
+}
+exports.formatDateIndianStyle = formatDateIndianStyle;

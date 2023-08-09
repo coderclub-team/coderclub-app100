@@ -40,7 +40,7 @@ export const register = async (
       createdUser.setFullURL(req, "PhotoPath");
      
     }
-    // const token = await createdUser.authenticate(req.body.Password);
+    
     return res.status(201).json({
       message: "User created successfully!",
       user: createdUser,

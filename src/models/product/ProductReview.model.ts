@@ -48,7 +48,7 @@ class ProductReview extends Model {
   CreatedUserGUID?: string;
 
   @BelongsTo(() => User)
-  user!: User;
+  User!: User;
 
   @Column
   CreatedDate?: Date;

@@ -123,10 +123,10 @@ app.use("/api/wallets", authGaurd_middleware_1.default, wallet_router_1.default,
 app.listen(3000, () => {
     console.log("Server started on port 3000");
 });
-node_cron_1.default.schedule('0 0 0 * * *', () => __awaiter(void 0, void 0, void 0, function* () {
+node_cron_1.default.schedule("0 0 0 * * *", () => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, productSubscriptions_controller_1.expireSubscription)();
-    console.log('running a task every day at 12:00 am');
+    console.log("running a task every day at 12:00 am");
 }), {
     scheduled: true,
-    timezone: "Asia/Kolkata"
+    timezone: "Asia/Kolkata",
 });
