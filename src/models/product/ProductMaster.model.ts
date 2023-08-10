@@ -76,6 +76,12 @@ class ProductMaster extends Model {
   @Column({
     type: DataType.BIGINT,
     allowNull: false,
+    field: "Sale_Rate",
+  })
+  SaleRate!: number;
+  @Column({
+    type: DataType.BIGINT,
+    allowNull: false,
   })
   MRP!: number;
   @Column({

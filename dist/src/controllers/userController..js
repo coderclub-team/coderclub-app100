@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteCartItem = exports.addCartItem = exports.getCartItems = exports.deleteUserById = exports.updateUserById = exports.getUserById = exports.getAllUsers = void 0;
+exports.addCartItem = exports.getCartItems = exports.deleteUserById = exports.updateUserById = exports.getUserById = exports.getAllUsers = void 0;
 const User_model_1 = __importDefault(require("../models/User.model"));
 const node_path_1 = __importDefault(require("node:path"));
 const node_fs_1 = __importDefault(require("node:fs"));
@@ -184,7 +184,7 @@ const getCartItems = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
             },
             include: [ProductMaster_model_1.default],
         });
-        cartItems === null || cartItems === void 0 ? void 0 : cartItems.forEach(item => {
+        cartItems === null || cartItems === void 0 ? void 0 : cartItems.forEach((item) => {
             var _a;
             return (_a = item.Product) === null || _a === void 0 ? void 0 : _a.setFullURL(req, "PhotoPath");
         });
@@ -197,52 +197,51 @@ const getCartItems = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
 });
 exports.getCartItems = getCartItems;
 const addCartItem = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.body.user) {
-        req.body.CreatedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
+    const { UserGUID } = req.body.user || (0, decodeJWT_1.default)(req);
+    const { Quantity, ProductGUID } = req.body;
+    if (!ProductGUID || !Quantity) {
+        throw Error("ProductGUID and Quantity is required to add cart item!");
     }
     try {
-        if (!req.body.ProductGUID) {
-            throw Error("ProductGUID is required to add cart item!");
-        }
-        if (!req.body.Quantity) {
-            throw Error("Quantity is required to add cart item!");
-        }
-        const existingCartItem = yield CartItem_model_1.default.findOne({
+        //  mutating existing item
+        const item = yield CartItem_model_1.default.findOne({
             where: {
-                ProductGUID: req.body.ProductGUID,
-                CreatedGUID: req.body.CreatedGUID,
+                ProductGUID,
+                CreatedGUID: UserGUID,
             },
             include: [ProductMaster_model_1.default],
         });
-        if (existingCartItem) {
-            existingCartItem.Quantity =
-                (existingCartItem === null || existingCartItem === void 0 ? void 0 : existingCartItem.Quantity) + req.body.Quantity;
-            if (existingCartItem.Quantity < 0) {
-                throw Error(`Cart item quantity ${existingCartItem.Quantity} not allowed!`);
+        if (item) {
+            item.Quantity += req.body.Quantity;
+            if (item.Quantity < 0) {
+                throw Error(`Cart item quantity ${item.Quantity} not allowed!`);
             }
-            if (existingCartItem.Quantity === 0) {
-                existingCartItem.destroy();
+            else if (item.Quantity === 0) {
+                item.destroy();
                 return res.status(200).send({
                     message: "CartItem deleted successfully!",
                     CartItem: null,
+                    cartTotal: yield cartTotal(req)
                 });
             }
-            existingCartItem.save();
+            yield item.save();
             return res.status(200).send({
                 message: "CartItem updated successfully!",
-                CartItem: existingCartItem,
+                CartItem: item,
+                cartTotal: yield cartTotal(req)
             });
         }
+        //  mutating existing item
         if (req.body.Quantity < 1) {
             throw Error("Minimum Quantity is required to add cart item!");
         }
-        const cartitem = yield CartItem_model_1.default.create(req.body);
+        const cartitem = yield CartItem_model_1.default.create(Object.assign(Object.assign({}, req.body), { CreatedGUID: UserGUID }), {
+            include: [ProductMaster_model_1.default],
+        });
         res.status(200).send({
             message: "CartItem added successfully!",
-            cartitem,
+            CartItem: cartitem,
+            cartTotal: yield cartTotal(req),
         });
     }
     catch (error) {
@@ -250,5 +249,23 @@ const addCartItem = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.addCartItem = addCartItem;
-const deleteCartItem = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () { });
-exports.deleteCartItem = deleteCartItem;
+const cartTotal = (req) => __awaiter(void 0, void 0, void 0, function* () {
+    const { UserGUID } = req.body.user || (0, decodeJWT_1.default)(req);
+    const items = yield CartItem_model_1.default.findAll({
+        where: {
+            CreatedGUID: {
+                [sequelize_1.Op.eq]: UserGUID,
+            },
+        },
+        include: [ProductMaster_model_1.default],
+    });
+    const total = items.reduce((acc, item) => {
+        var _a, _b, _c;
+        const qty = item === null || item === void 0 ? void 0 : item.getDataValue("Quantity");
+        const sale_price = ((_a = item === null || item === void 0 ? void 0 : item.Product) === null || _a === void 0 ? void 0 : _a.getDataValue("SaleRate")) ||
+            ((_b = item === null || item === void 0 ? void 0 : item.Product) === null || _b === void 0 ? void 0 : _b.getDataValue("UnitPrice")) ||
+            ((_c = item === null || item === void 0 ? void 0 : item.Product) === null || _c === void 0 ? void 0 : _c.getDataValue("MRP"));
+        return acc + qty * sale_price;
+    }, 0);
+    return total;
+});

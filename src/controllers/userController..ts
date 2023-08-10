@@ -28,7 +28,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
       include: [UserAddress],
     });
     users.forEach((user) => {
-      user.setFullURL(req, "PhotoPath")
+      user.setFullURL(req, "PhotoPath");
     });
 
     return res.status(200).json(users);
@@ -55,7 +55,7 @@ export const getUserById = async (req: Request, res: Response) => {
         message: "User not found!",
       });
     }
-    user.setFullURL(req, "PhotoPath")
+    user.setFullURL(req, "PhotoPath");
 
     return res.status(200).json(user);
   } catch (error) {
@@ -67,10 +67,7 @@ export const updateUserById = async (
   res: Response,
   next: NextFunction
 ) => {
-
-
-
-  const { UserGUID } = req.body.user|| decodeJWT(req)
+  const { UserGUID } = req.body.user || decodeJWT(req);
   const { deleted } = req.query;
   const paranoid = deleted === "true" ? false : true;
 
@@ -97,7 +94,6 @@ export const updateUserById = async (
 
     const oldPhotoPath = user.PhotoPath;
 
-
     delete req.body.MobileNo;
     delete req.body.Password;
 
@@ -111,7 +107,7 @@ export const updateUserById = async (
       fs.rename(req.body.tmpPath, req.body.uploadPath, (err) => {
         if (err) console.log(err);
         else {
-          user?.setFullURL(req, "PhotoPath")
+          user?.setFullURL(req, "PhotoPath");
         }
       });
     }
@@ -200,9 +196,9 @@ export const getCartItems = async (
       },
       include: [ProductMaster],
     });
-    cartItems?.forEach(item=>{
-     return item.Product?.setFullURL(req,"PhotoPath")
-    })
+    cartItems?.forEach((item) => {
+      return item.Product?.setFullURL(req, "PhotoPath");
+    });
     res.status(200).send(cartItems);
   } catch (error: any) {
     console.log("message===>", error?.message);
@@ -214,63 +210,86 @@ export const addCartItem = async (
   res: Response,
   next: NextFunction
 ) => {
-  if (req.body.user) {
-    req.body.CreatedGUID = req.body.user.UserGUID;
-  } else {
-    req.body.CreatedGUID = decodeJWT(req).UserGUID;
-  }
-  try {
-    if (!req.body.ProductGUID) {
-      throw Error("ProductGUID is required to add cart item!");
-    }
-    if (!req.body.Quantity) {
-      throw Error("Quantity is required to add cart item!");
-    }
+  const { UserGUID } = req.body.user || decodeJWT(req);
+  const { Quantity, ProductGUID } = req.body;
 
-    const existingCartItem = await CartItem.findOne({
+  if (!ProductGUID || !Quantity) {
+    throw Error("ProductGUID and Quantity is required to add cart item!");
+  }
+
+  try {
+    //  mutating existing item
+    const item = await CartItem.findOne({
       where: {
-        ProductGUID: req.body.ProductGUID,
-        CreatedGUID: req.body.CreatedGUID,
+        ProductGUID,
+        CreatedGUID: UserGUID,
       },
       include: [ProductMaster],
     });
-    if (existingCartItem) {
-      existingCartItem!.Quantity =
-        existingCartItem?.Quantity + req.body.Quantity;
-      if (existingCartItem!.Quantity! < 0) {
-        throw Error(
-          `Cart item quantity ${existingCartItem!.Quantity!} not allowed!`
-        );
-      }
-      if (existingCartItem!.Quantity! === 0) {
-        existingCartItem.destroy();
+    if (item) {
+      item!.Quantity += req.body.Quantity;
+
+      if (item!.Quantity! < 0) {
+        throw Error(`Cart item quantity ${item!.Quantity!} not allowed!`);
+      } else if (item!.Quantity! === 0) {
+        item.destroy();
         return res.status(200).send({
           message: "CartItem deleted successfully!",
           CartItem: null,
+          cartTotal:await cartTotal(req)
+
         });
       }
 
-      existingCartItem.save();
+      await item.save();
+      
       return res.status(200).send({
         message: "CartItem updated successfully!",
-        CartItem: existingCartItem,
+        CartItem: item,
+        cartTotal:await cartTotal(req)
       });
     }
+    //  mutating existing item
 
     if (req.body.Quantity < 1) {
       throw Error("Minimum Quantity is required to add cart item!");
     }
-    const cartitem = await CartItem.create(req.body);
+    const cartitem = await CartItem.create({
+      ...req.body,
+      CreatedGUID: UserGUID,
+    },
+    {
+      include: [ProductMaster],
+    });
+   
+   
     res.status(200).send({
       message: "CartItem added successfully!",
-      cartitem,
+      CartItem: cartitem,
+      cartTotal:await cartTotal(req),
     });
   } catch (error) {
     next(error);
   }
 };
-export const deleteCartItem = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {};
+
+const cartTotal=async(req:Request)=>{
+  const { UserGUID } = req.body.user || decodeJWT(req);
+  const items = await CartItem.findAll({
+    where: {
+      CreatedGUID: {
+        [Op.eq]: UserGUID,
+      },
+    },
+    include: [ProductMaster],
+  });
+  const total = items.reduce((acc, item) => {
+    const qty = item?.getDataValue("Quantity");
+    const sale_price =
+      item?.Product?.getDataValue("SaleRate") ||
+      item?.Product?.getDataValue("UnitPrice") ||
+      item?.Product?.getDataValue("MRP");
+    return acc + qty * sale_price;
+  }, 0);
+  return total;
+}

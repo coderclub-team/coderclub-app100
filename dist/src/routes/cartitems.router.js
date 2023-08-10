@@ -9,5 +9,4 @@ const handleSequelizeError_1 = __importDefault(require("../middlewares/handleSeq
 const router = express_1.default.Router();
 router.get("", userController_1.getCartItems, handleSequelizeError_1.default);
 router.post("", userController_1.addCartItem, handleSequelizeError_1.default);
-router.delete("", userController_1.deleteCartItem, handleSequelizeError_1.default);
 exports.default = router;
