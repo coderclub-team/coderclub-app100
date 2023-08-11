@@ -31,6 +31,7 @@ const BillingCycles_model_1 = __importDefault(require("./models/product/BillingC
 const ProductStockMaster_1 = __importDefault(require("./models/product/ProductStockMaster"));
 const UserWallet_1 = __importDefault(require("./models/UserWallet"));
 const UserWalletBalances_1 = __importDefault(require("./models/UserWalletBalances"));
+const Promotion_model_1 = require("./models/Promotion.model");
 exports.sequelize = new sequelize_typescript_1.Sequelize(config_1.sequelizeConnectionOptions);
 exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
     exports.sequelize
@@ -61,7 +62,8 @@ exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
         ProductSubscriptions_model_1.default,
         ProductStockMaster_1.default,
         UserWallet_1.default,
-        UserWalletBalances_1.default
+        UserWalletBalances_1.default,
+        Promotion_model_1.Promotion
     ]);
     User_model_1.default.sync();
     ProductCategory_model_1.default.sync();

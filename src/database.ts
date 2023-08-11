@@ -17,6 +17,7 @@ import BillingCycles from "./models/product/BillingCycles.model";
 import ProductStockMaster from "./models/product/ProductStockMaster";
 import UserWallet from "./models/UserWallet";
 import UserWalletBalance from "./models/UserWalletBalances";
+import { Promotion } from "./models/Promotion.model";
 
 export const sequelize = new Sequelize(sequelizeConnectionOptions);
 
@@ -51,7 +52,8 @@ export default async () => {
     ProductSubscription,
     ProductStockMaster,
     UserWallet,
-    UserWalletBalance
+    UserWalletBalance,
+    Promotion
   ]);
   User.sync();
   ProductCategory.sync();

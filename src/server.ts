@@ -18,6 +18,8 @@ import productSubscriptionsRouter from "./routes/productSubscriptions.router";
 import handleSequelizeError from "./middlewares/handleSequelizeError";
 import { billingcyclesRouter } from "./routes/general.router";
 import walletRouter from "./routes/wallet.router";
+import promotionRouter from "./routes/promotion.router";
+
 import { expireSubscription } from "./controllers/productSubscriptions.controller";
 import Message from "./models/Message.model";
 // Set the base URL and store it in app.locals
@@ -98,6 +100,7 @@ app.use(
 );
 app.use("/api/billingcycles", billingcyclesRouter, handleSequelizeError);
 app.use("/api/wallets", authGaurd, walletRouter, handleSequelizeError);
+app.use("/api/promotions", promotionRouter, handleSequelizeError);
 
 app.listen(3000, () => {
   console.log("Server started on port 3000");
