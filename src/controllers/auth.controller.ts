@@ -318,6 +318,7 @@ export const createOrder = async (
       CustomerGUID=req.body.user.UserGUID,
       SalesDetails,
       CreatedGUID,
+      PaymentTransactionID
     } = req.body;
     const saleData = {
       SaleOrderID,
@@ -326,7 +327,8 @@ export const createOrder = async (
       CustomerGUID,
       CreatedGUID,
       SalePlatform,
-      ModeOfPayment
+      ModeOfPayment,
+      PaymentTransactionID
     };
     if(!SaleOrderDate){
       throw new Error("SaleOrderDate is required");
@@ -342,6 +344,8 @@ export const createOrder = async (
     }
     else if(!SalePlatform){
       throw new Error("SalePlatform is required");
+    } else if(!PaymentTransactionID){
+      throw new Error("PaymentTransactionID is required");
     }
     
     SalesDetails.forEach((saleDetail: any) => {

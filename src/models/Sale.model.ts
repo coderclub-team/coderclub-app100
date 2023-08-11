@@ -70,7 +70,8 @@ export default class Sale extends Model{
 
   @Column
   Status!:string
-
+  @Column
+  PaymentTransactionID!:string
 
   // @BelongsTo(() => User)
   // Customer!: User;

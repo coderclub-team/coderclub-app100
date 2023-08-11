@@ -279,7 +279,7 @@ const createOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     }
     const transaction = yield database_1.sequelize.transaction();
     try {
-        const { SaleOrderID, SaleOrderDate, ModeOfPayment, SaleChannel, SalePlatform, CustomerGUID = req.body.user.UserGUID, SalesDetails, CreatedGUID, } = req.body;
+        const { SaleOrderID, SaleOrderDate, ModeOfPayment, SaleChannel, SalePlatform, CustomerGUID = req.body.user.UserGUID, SalesDetails, CreatedGUID, PaymentTransactionID } = req.body;
         const saleData = {
             SaleOrderID,
             SaleOrderDate,
@@ -287,7 +287,8 @@ const createOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
             CustomerGUID,
             CreatedGUID,
             SalePlatform,
-            ModeOfPayment
+            ModeOfPayment,
+            PaymentTransactionID
         };
         if (!SaleOrderDate) {
             throw new Error("SaleOrderDate is required");
@@ -303,6 +304,9 @@ const createOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         }
         else if (!SalePlatform) {
             throw new Error("SalePlatform is required");
+        }
+        else if (!PaymentTransactionID) {
+            throw new Error("PaymentTransactionID is required");
         }
         SalesDetails.forEach((saleDetail) => {
             if (!saleDetail.ProductGUID) {
