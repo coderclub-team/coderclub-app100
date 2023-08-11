@@ -14,6 +14,7 @@ import GlobalType from "./GlobalType.model";
 import { sequelize } from "../database";
 import User from "./User.model";
 import SaleDetail from "./SaleDetail.model";
+import { Promotion } from "./Promotion.model";
 
 
 @Table({
@@ -72,6 +73,16 @@ export default class Sale extends Model{
   Status!:string
   @Column
   PaymentTransactionID!:string
+
+  @ForeignKey(() => Promotion)
+  @Column({
+    type: DataType.NUMBER,
+    
+  })
+  PromotionGUID!: number;
+
+  @BelongsTo(() => Promotion)
+  Promotion?: Promotion;
 
   // @BelongsTo(() => User)
   // Customer!: User;

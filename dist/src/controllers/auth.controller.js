@@ -25,6 +25,7 @@ const SaleDetail_model_1 = __importDefault(require("../models/SaleDetail.model")
 const UserAddress_model_1 = __importDefault(require("../models/UserAddress.model"));
 const database_1 = require("../database");
 const ProductMaster_model_1 = __importDefault(require("../models/product/ProductMaster.model"));
+const Promotion_model_1 = require("../models/Promotion.model");
 const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.file) {
         const { filename, path: tmpPath } = req.file;
@@ -254,6 +255,9 @@ const getOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function
                         model: ProductMaster_model_1.default,
                     }]
             },
+            {
+                model: Promotion_model_1.Promotion
+            }
         ],
     });
     salemasters === null || salemasters === void 0 ? void 0 : salemasters.forEach((sale) => {
@@ -279,7 +283,7 @@ const createOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     }
     const transaction = yield database_1.sequelize.transaction();
     try {
-        const { SaleOrderID, SaleOrderDate, ModeOfPayment, SaleChannel, SalePlatform, CustomerGUID = req.body.user.UserGUID, SalesDetails, CreatedGUID, PaymentTransactionID } = req.body;
+        const { SaleOrderID, SaleOrderDate, ModeOfPayment, SaleChannel, SalePlatform, CustomerGUID = req.body.user.UserGUID, SalesDetails, CreatedGUID, PaymentTransactionID, PromotionGUID } = req.body;
         const saleData = {
             SaleOrderID,
             SaleOrderDate,
@@ -288,7 +292,8 @@ const createOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
             CreatedGUID,
             SalePlatform,
             ModeOfPayment,
-            PaymentTransactionID
+            PaymentTransactionID,
+            PromotionGUID
         };
         if (!SaleOrderDate) {
             throw new Error("SaleOrderDate is required");

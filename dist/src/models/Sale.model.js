@@ -16,6 +16,7 @@ const sequelize_typescript_1 = require("sequelize-typescript");
 const GlobalType_model_1 = __importDefault(require("./GlobalType.model"));
 const User_model_1 = __importDefault(require("./User.model"));
 const SaleDetail_model_1 = __importDefault(require("./SaleDetail.model"));
+const Promotion_model_1 = require("./Promotion.model");
 let Sale = class Sale extends sequelize_typescript_1.Model {
 };
 __decorate([
@@ -85,6 +86,17 @@ __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", String)
 ], Sale.prototype, "PaymentTransactionID", void 0);
+__decorate([
+    (0, sequelize_typescript_1.ForeignKey)(() => Promotion_model_1.Promotion),
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.NUMBER,
+    }),
+    __metadata("design:type", Number)
+], Sale.prototype, "PromotionGUID", void 0);
+__decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => Promotion_model_1.Promotion),
+    __metadata("design:type", Promotion_model_1.Promotion)
+], Sale.prototype, "Promotion", void 0);
 __decorate([
     (0, sequelize_typescript_1.HasMany)(() => SaleDetail_model_1.default, {
         foreignKey: "SalesMasterGUID",

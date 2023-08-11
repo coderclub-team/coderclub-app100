@@ -11,6 +11,7 @@ import SaleDetail from "../models/SaleDetail.model";
 import UserAddress from "../models/UserAddress.model";
 import { sequelize } from "../database";
 import ProductMaster from "../models/product/ProductMaster.model";
+import { Promotion } from "../models/Promotion.model";
 
 export const register = async (
   req: Request,
@@ -279,6 +280,9 @@ export const getOrders = async (
           model:ProductMaster,
         }]
       },
+      {
+        model:Promotion
+      }
     ],
   });
 
@@ -318,7 +322,8 @@ export const createOrder = async (
       CustomerGUID=req.body.user.UserGUID,
       SalesDetails,
       CreatedGUID,
-      PaymentTransactionID
+      PaymentTransactionID,
+      PromotionGUID
     } = req.body;
     const saleData = {
       SaleOrderID,
@@ -328,7 +333,8 @@ export const createOrder = async (
       CreatedGUID,
       SalePlatform,
       ModeOfPayment,
-      PaymentTransactionID
+      PaymentTransactionID,
+      PromotionGUID
     };
     if(!SaleOrderDate){
       throw new Error("SaleOrderDate is required");
