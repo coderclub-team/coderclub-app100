@@ -29,6 +29,9 @@ export const getUserSubscriptions = async (
         model:ProductMaster
       }]
     });
+    subscriptions.forEach((subscription) => {
+      subscription?.Product?.setFullURL(req,"PhotoPath")
+    })
 
     res.status(200).json(subscriptions);
   } catch (error) {

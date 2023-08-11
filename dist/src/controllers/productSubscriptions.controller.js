@@ -37,6 +37,10 @@ const getUserSubscriptions = (req, res, next) => __awaiter(void 0, void 0, void 
                     model: ProductMaster_model_1.default
                 }]
         });
+        subscriptions.forEach((subscription) => {
+            var _a;
+            (_a = subscription === null || subscription === void 0 ? void 0 : subscription.Product) === null || _a === void 0 ? void 0 : _a.setFullURL(req, "PhotoPath");
+        });
         res.status(200).json(subscriptions);
     }
     catch (error) {
