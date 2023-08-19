@@ -30,6 +30,7 @@ const sequelize_1 = require("sequelize");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const UserAddress_model_1 = __importDefault(require("./UserAddress.model"));
 const Message_model_1 = __importDefault(require("./Message.model"));
+const ProductSubscriptions_model_1 = __importDefault(require("./ProductSubscriptions.model"));
 let User = User_1 = class User extends sequelize_typescript_1.Model {
     get token() {
         return this.token;
@@ -584,6 +585,10 @@ __decorate([
     (0, sequelize_typescript_1.HasMany)(() => UserAddress_model_1.default),
     __metadata("design:type", UserAddress_model_1.default)
 ], User.prototype, "Addresses", void 0);
+__decorate([
+    (0, sequelize_typescript_1.HasMany)(() => ProductSubscriptions_model_1.default),
+    __metadata("design:type", Array)
+], User.prototype, "Subscriptions", void 0);
 __decorate([
     sequelize_typescript_1.BeforeCreate,
     __metadata("design:type", Function),

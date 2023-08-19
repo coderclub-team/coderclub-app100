@@ -1,5 +1,6 @@
 import {
   AutoIncrement,
+  BeforeCreate,
   BelongsTo,
   BelongsToMany,
   Column,
@@ -92,4 +93,12 @@ export default class Sale extends Model{
     as: "SaleDetails",
   })
   SaleDetails!: SaleDetail[];
+
+  @BeforeCreate
+  static async addSaleOrderID(sale: Sale) {
+    const result = await sequelize.query("SELECT IDENT_CURRENT('tbl_SalesMaster')+1 as NEXTID") as any[][];
+    const id = result[0][0].NEXTID;
+    sale.SaleOrderID = `S${id.toString().padStart(7, '0')}`;
+  }
+
 }

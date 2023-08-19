@@ -6,6 +6,8 @@ import ProductSubscription from "../models/ProductSubscriptions.model";
 import BillingCycles from "../models/product/BillingCycles.model";
 import { Op } from "sequelize";
 import ProductMaster from "../models/product/ProductMaster.model";
+import { sequelize } from "../database";
+import UserWallet from "../models/UserWallet";
 
 export const getUserSubscriptions = async (
   req: Request,
@@ -25,13 +27,15 @@ export const getUserSubscriptions = async (
   try {
     const subscriptions = await ProductSubscription.findAll({
       where: where,
-      include: [{
-        model:ProductMaster
-      }]
+      include: [
+        {
+          model: ProductMaster,
+        },
+      ],
     });
     subscriptions.forEach((subscription) => {
-      subscription?.Product?.setFullURL(req,"PhotoPath")
-    })
+      subscription?.Product?.setFullURL(req, "PhotoPath");
+    });
 
     res.status(200).json(subscriptions);
   } catch (error) {
@@ -50,54 +54,70 @@ export const subscribeProduct = async (
     req.body.CreatedGUID = decodeJWT(req).UserGUID;
   }
   req.body.UserGUID = req.body.CreatedGUID;
-  if (!req.body.CreatedGUID) {
-    throw Error("ProductGUID is required for subscription!");
-  } else if (!req.body.PaymentMethod) {
-    throw Error("PaymentMethod is required for subscription!");
-  } else if (!req.body.SubscriptionPrice) {
-    throw Error("SubscriptionPrice is required for subscription!");
-  } else if (!req.body.SubscriptionStartDate) {
-    throw Error("SubscriptionStartDate is required for subscription!");
-  } else if (!req.body.SubscriptionEndDate) {
-    throw Error("SubscriptionEndDate is required for subscription!");
-  } else if (!req.body.SubscriptionOccurrences) {
-    throw Error("SubscriptionOccurrences is required for subscription!");
-  } else if (!req.body.BillingCycleGUID) {
-    throw Error("BillingCycleGUID is required for subscription!");
-  }
+ 
   try {
-    const billingcycle = await BillingCycles.findByPk(
-      req.body.BillingCycleGUID
-    );
-    if (!billingcycle) throw Error("Invalid billing cycle!");
-    //   @Column
-    // BillingCycleName!: string;
-    // @Column
-    // NumberOfCycles!: string;
-    const cycle_name = billingcycle.getDataValue("BillingCycleName");
-    const num_cycles = billingcycle.getDataValue("NumberOfCycles");
-    switch (cycle_name) {
-      case "Daily":
-        {
-        }
-        break;
-      case "Monthly":
-        {
-        }
-        break;
+    if (!req.body.ProductGUID) {
+      throw Error("ProductGUID is required for subscription");
+    } else if (!req.body.SubscriptionPrice) {
+      throw Error("SubscriptionPrice is required for subscription");
+    } else if (!req.body.SubscriptionStartDate) {
+      throw Error("SubscriptionStartDate is required for subscription");
+    } else if (!req.body.SubscriptionEndDate) {
+      throw Error("SubscriptionEndDate is required for subscription");
+    } else if (!req.body.SubscriptionOccurrences) {
+      throw Error("SubscriptionOccurrences is required for subscription");
+    } else if (!req.body.BillingCycleGUID) {
+      throw Error("BillingCycleGUID is required for subscription");
+    } else if (req.body.WalletBalance < req.body.SubscriptionPrice) {
+      throw Error("Insufficient balance in wallet");
     }
-    //  "ProductGUID"; 1,
-    // BillingCycleGUID; req.body
-    // PaymentMethod;req.body
-    // SubscriptionPrice;req.body
-    // SubscriptionStartDate;req.body
-    // SubscriptionEndDate;req.body
-    //SubscriptionOccurrences;
-    const subscription = await ProductSubscription.create(req.body);
-    console.log("subscription", subscription.toJSON());
-    res.status(200).send({
-      message: "Subscription created successfully!",
-      subscription,
+
+    await sequelize.transaction(async (t) => {
+      try {
+        const billingcycle = await BillingCycles.findByPk(
+          req.body.BillingCycleGUID,
+          {
+            transaction: t,
+          }
+        );
+        if (!billingcycle) throw Error("Invalid billing cycle!");
+        const cycle_name = billingcycle.getDataValue("BillingCycleName");
+        switch (cycle_name) {
+          case "Daily":
+            {
+            }
+            break;
+          case "Monthly":
+            {
+            }
+            break;
+        }
+        const updatedWallet = await UserWallet.create({
+          UserGUID: req.body.CreatedGUID,
+          Debit: req.body.SubscriptionPrice,
+          CreatedGUID: req.body.CreatedGUID,
+        });
+        const subscription = await ProductSubscription.create(
+          {
+            ...req.body,
+            PaymentTransactionId: updatedWallet.getDataValue("WalletGUID"),
+            PaymentMethod: "WALLET",
+          },
+          {
+            transaction: t,
+          }
+        );
+        console.log("subscription", subscription.toJSON());
+        res.status(200).send({
+          message: "Subscription created successfully!",
+          subscription: subscription.toJSON(),
+          updatedWalletBalance:
+            req.body.WalletBalance - updatedWallet.getDataValue("Debit"),
+        });
+      } catch (error) {
+        await t.rollback();
+        next(error);
+      }
     });
   } catch (error) {
     next(error);
@@ -123,9 +143,11 @@ export const calcelSubscription = async (
     throw new Error("Status is required");
   }
   try {
-    const productSubscription=await ProductSubscription.findByPk(SubscriptionGUID)
-    if(!productSubscription) throw Error("Invalid subscription!")
-    productSubscription.Status=Status;
+    const productSubscription = await ProductSubscription.findByPk(
+      SubscriptionGUID
+    );
+    if (!productSubscription) throw Error("Invalid subscription!");
+    productSubscription.Status = Status;
     const subscription = await productSubscription.save();
     res.status(200).send({
       message: "Subscription updated successfully!",
@@ -134,32 +156,28 @@ export const calcelSubscription = async (
   } catch (error) {
     next(error);
   }
-
 };
 
 export const expireSubscription = async () => {
-  
   try {
     const expiredSubscriptions = await ProductSubscription.findAll({
       where: {
         SubscriptionEndDate: {
           [Op.lt]: new Date(),
         },
-        Status:{
-          [Op.notIn]:['EXPIRED','CANCELLED']
-        }
+        Status: {
+          [Op.notIn]: ["EXPIRED", "CANCELLED"],
+        },
       },
     });
 
     expiredSubscriptions.forEach(async (subscription) => {
       subscription.Status = "EXPIRED";
-     const updatedSubscription= await subscription.save();
-     console.log("expiry updated by a cron",updatedSubscription.toJSON());
-    })
-
-  } catch (error:any) {
-    console.log("expireSubscription_Fn",error.message);
-    
+      const updatedSubscription = await subscription.save();
+      console.log("expiry updated by a cron", updatedSubscription.toJSON());
+    });
+  } catch (error: any) {
+    console.log("expireSubscription_Fn", error.message);
   }
 
   // Do something with the expired subscriptions

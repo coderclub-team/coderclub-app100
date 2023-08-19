@@ -26,6 +26,7 @@ const UserAddress_model_1 = __importDefault(require("../models/UserAddress.model
 const database_1 = require("../database");
 const ProductMaster_model_1 = __importDefault(require("../models/product/ProductMaster.model"));
 const Promotion_model_1 = require("../models/Promotion.model");
+const ProductSubscriptions_model_1 = __importDefault(require("../models/ProductSubscriptions.model"));
 const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.file) {
         const { filename, path: tmpPath } = req.file;
@@ -74,7 +75,7 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
             where: {
                 MobileNo: MobileNo,
             },
-            include: [UserAddress_model_1.default],
+            include: [UserAddress_model_1.default, ProductSubscriptions_model_1.default,],
         });
         if (!user) {
             throw new custom_error_1.UserNotFoundExceptionError("User not found!");
@@ -297,9 +298,6 @@ const createOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         };
         if (!SaleOrderDate) {
             throw new Error("SaleOrderDate is required");
-        }
-        else if (!SaleOrderID) {
-            throw new Error("SaleOrderID is required");
         }
         else if (!ModeOfPayment) {
             throw new Error("ModeOfPayment is required");

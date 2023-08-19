@@ -71,6 +71,9 @@ class ProductSubscription extends Model<ProductSubscription> {
   @Column(DataType.STRING(100))
   PaymentMethod!: string;
 
+  @Column
+  PaymentTransactionId!:number
+
   @Column(DataType.DATE)
   LastPaymentDate!: Date;
 

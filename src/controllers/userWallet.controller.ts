@@ -3,6 +3,8 @@ import decodeJWT from "../utils/decodeJWT";
 import User from "../models/User.model";
 import UserWallet from "../models/UserWallet";
 import UserWalletBalance from "../models/UserWalletBalances";
+import ProductSubscription from "../models/ProductSubscriptions.model";
+import Sale from "../models/Sale.model";
 export const getWalletTransactions = async (
   req: Request,
   res: Response,
@@ -19,6 +21,7 @@ export const getWalletTransactions = async (
         UserGUID: req.body.CreatedGUID,
         Status: "FULLFILLED",
       },
+      include:[Sale,ProductSubscription],
       order: [["CreatedDate", "DESC"]],
     });
     res.json(transactions);

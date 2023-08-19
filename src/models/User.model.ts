@@ -30,6 +30,8 @@ import jwt from "jsonwebtoken";
 import UserAddress from "./UserAddress.model";
 import { Request } from "express";
 import Message from "./Message.model";
+import subscriptions from "razorpay/dist/types/subscriptions";
+import ProductSubscription from "./ProductSubscriptions.model";
 
 @Table({
   tableName: "tbl_Users",
@@ -314,6 +316,11 @@ export default class User extends Model {
 
   @HasMany(() => UserAddress)
   Addresses?: UserAddress;
+
+  @HasMany(()=>ProductSubscription)
+  Subscriptions?:ProductSubscription[]
+
+
   @BeforeCreate
   static async hashPassword(instance: User) {
     if (instance.Password) {

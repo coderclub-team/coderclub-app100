@@ -25,6 +25,8 @@ const sequelize_typescript_1 = require("sequelize-typescript");
 const Message_model_1 = __importDefault(require("./Message.model"));
 const User_model_1 = __importDefault(require("./User.model"));
 const UserWalletBalances_1 = __importDefault(require("./UserWalletBalances"));
+const ProductSubscriptions_model_1 = __importDefault(require("./ProductSubscriptions.model"));
+const Sale_model_1 = __importDefault(require("./Sale.model"));
 let UserWallet = class UserWallet extends sequelize_typescript_1.Model {
     static updateBalance(instance) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -65,6 +67,10 @@ __decorate([
     }),
     __metadata("design:type", Number)
 ], UserWallet.prototype, "UserGUID", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
+], UserWallet.prototype, "Description", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.DECIMAL(10, 2),
@@ -133,6 +139,28 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], UserWallet.prototype, "Status", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
+], UserWallet.prototype, "PaymentId", void 0);
+__decorate([
+    (0, sequelize_typescript_1.ForeignKey)(() => Sale_model_1.default),
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], UserWallet.prototype, "SalesMasterGUID", void 0);
+__decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => Sale_model_1.default),
+    __metadata("design:type", Sale_model_1.default)
+], UserWallet.prototype, "Order", void 0);
+__decorate([
+    (0, sequelize_typescript_1.ForeignKey)(() => ProductSubscriptions_model_1.default),
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], UserWallet.prototype, "SubscriptionGUID", void 0);
+__decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => ProductSubscriptions_model_1.default),
+    __metadata("design:type", ProductSubscriptions_model_1.default)
+], UserWallet.prototype, "Subscription", void 0);
 __decorate([
     sequelize_typescript_1.AfterCreate,
     __metadata("design:type", Function),

@@ -19,6 +19,8 @@ const ProductSubscriptions_model_1 = __importDefault(require("../models/ProductS
 const BillingCycles_model_1 = __importDefault(require("../models/product/BillingCycles.model"));
 const sequelize_1 = require("sequelize");
 const ProductMaster_model_1 = __importDefault(require("../models/product/ProductMaster.model"));
+const database_1 = require("../database");
+const UserWallet_1 = __importDefault(require("../models/UserWallet"));
 const getUserSubscriptions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.body.user) {
         req.body.CreatedGUID = req.body.user.UserGUID;
@@ -33,9 +35,11 @@ const getUserSubscriptions = (req, res, next) => __awaiter(void 0, void 0, void 
     try {
         const subscriptions = yield ProductSubscriptions_model_1.default.findAll({
             where: where,
-            include: [{
-                    model: ProductMaster_model_1.default
-                }]
+            include: [
+                {
+                    model: ProductMaster_model_1.default,
+                },
+            ],
         });
         subscriptions.forEach((subscription) => {
             var _a;
@@ -56,60 +60,66 @@ const subscribeProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, f
         req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
     }
     req.body.UserGUID = req.body.CreatedGUID;
-    if (!req.body.CreatedGUID) {
-        throw Error("ProductGUID is required for subscription!");
-    }
-    else if (!req.body.PaymentMethod) {
-        throw Error("PaymentMethod is required for subscription!");
-    }
-    else if (!req.body.SubscriptionPrice) {
-        throw Error("SubscriptionPrice is required for subscription!");
-    }
-    else if (!req.body.SubscriptionStartDate) {
-        throw Error("SubscriptionStartDate is required for subscription!");
-    }
-    else if (!req.body.SubscriptionEndDate) {
-        throw Error("SubscriptionEndDate is required for subscription!");
-    }
-    else if (!req.body.SubscriptionOccurrences) {
-        throw Error("SubscriptionOccurrences is required for subscription!");
-    }
-    else if (!req.body.BillingCycleGUID) {
-        throw Error("BillingCycleGUID is required for subscription!");
-    }
     try {
-        const billingcycle = yield BillingCycles_model_1.default.findByPk(req.body.BillingCycleGUID);
-        if (!billingcycle)
-            throw Error("Invalid billing cycle!");
-        //   @Column
-        // BillingCycleName!: string;
-        // @Column
-        // NumberOfCycles!: string;
-        const cycle_name = billingcycle.getDataValue("BillingCycleName");
-        const num_cycles = billingcycle.getDataValue("NumberOfCycles");
-        switch (cycle_name) {
-            case "Daily":
-                {
-                }
-                break;
-            case "Monthly":
-                {
-                }
-                break;
+        if (!req.body.ProductGUID) {
+            throw Error("ProductGUID is required for subscription");
         }
-        //  "ProductGUID"; 1,
-        // BillingCycleGUID; req.body
-        // PaymentMethod;req.body
-        // SubscriptionPrice;req.body
-        // SubscriptionStartDate;req.body
-        // SubscriptionEndDate;req.body
-        //SubscriptionOccurrences;
-        const subscription = yield ProductSubscriptions_model_1.default.create(req.body);
-        console.log("subscription", subscription.toJSON());
-        res.status(200).send({
-            message: "Subscription created successfully!",
-            subscription,
-        });
+        else if (!req.body.SubscriptionPrice) {
+            throw Error("SubscriptionPrice is required for subscription");
+        }
+        else if (!req.body.SubscriptionStartDate) {
+            throw Error("SubscriptionStartDate is required for subscription");
+        }
+        else if (!req.body.SubscriptionEndDate) {
+            throw Error("SubscriptionEndDate is required for subscription");
+        }
+        else if (!req.body.SubscriptionOccurrences) {
+            throw Error("SubscriptionOccurrences is required for subscription");
+        }
+        else if (!req.body.BillingCycleGUID) {
+            throw Error("BillingCycleGUID is required for subscription");
+        }
+        else if (req.body.WalletBalance < req.body.SubscriptionPrice) {
+            throw Error("Insufficient balance in wallet");
+        }
+        yield database_1.sequelize.transaction((t) => __awaiter(void 0, void 0, void 0, function* () {
+            try {
+                const billingcycle = yield BillingCycles_model_1.default.findByPk(req.body.BillingCycleGUID, {
+                    transaction: t,
+                });
+                if (!billingcycle)
+                    throw Error("Invalid billing cycle!");
+                const cycle_name = billingcycle.getDataValue("BillingCycleName");
+                switch (cycle_name) {
+                    case "Daily":
+                        {
+                        }
+                        break;
+                    case "Monthly":
+                        {
+                        }
+                        break;
+                }
+                const updatedWallet = yield UserWallet_1.default.create({
+                    UserGUID: req.body.CreatedGUID,
+                    Debit: req.body.SubscriptionPrice,
+                    CreatedGUID: req.body.CreatedGUID,
+                });
+                const subscription = yield ProductSubscriptions_model_1.default.create(Object.assign(Object.assign({}, req.body), { PaymentTransactionId: updatedWallet.getDataValue("WalletGUID"), PaymentMethod: "WALLET" }), {
+                    transaction: t,
+                });
+                console.log("subscription", subscription.toJSON());
+                res.status(200).send({
+                    message: "Subscription created successfully!",
+                    subscription: subscription.toJSON(),
+                    updatedWalletBalance: req.body.WalletBalance - updatedWallet.getDataValue("Debit"),
+                });
+            }
+            catch (error) {
+                yield t.rollback();
+                next(error);
+            }
+        }));
     }
     catch (error) {
         next(error);
@@ -153,8 +163,8 @@ const expireSubscription = () => __awaiter(void 0, void 0, void 0, function* () 
                     [sequelize_1.Op.lt]: new Date(),
                 },
                 Status: {
-                    [sequelize_1.Op.notIn]: ['EXPIRED', 'CANCELLED']
-                }
+                    [sequelize_1.Op.notIn]: ["EXPIRED", "CANCELLED"],
+                },
             },
         });
         expiredSubscriptions.forEach((subscription) => __awaiter(void 0, void 0, void 0, function* () {

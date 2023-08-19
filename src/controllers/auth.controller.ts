@@ -12,6 +12,7 @@ import UserAddress from "../models/UserAddress.model";
 import { sequelize } from "../database";
 import ProductMaster from "../models/product/ProductMaster.model";
 import { Promotion } from "../models/Promotion.model";
+import ProductSubscription from "../models/ProductSubscriptions.model";
 
 export const register = async (
   req: Request,
@@ -74,7 +75,7 @@ export const login = async (
       where: {
         MobileNo: MobileNo,
       },
-      include: [UserAddress],
+      include: [UserAddress,ProductSubscription,],
     });
     if (!user) {
       throw new UserNotFoundExceptionError("User not found!");
@@ -339,9 +340,7 @@ export const createOrder = async (
     if(!SaleOrderDate){
       throw new Error("SaleOrderDate is required");
     }
-    else if(!SaleOrderID){
-      throw new Error("SaleOrderID is required");
-    }
+  
     else if(!ModeOfPayment){
       throw new Error("ModeOfPayment is required");
     }

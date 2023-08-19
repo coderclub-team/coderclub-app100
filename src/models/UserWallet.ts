@@ -2,11 +2,17 @@
 
 
 
-import { AfterCreate, Column, DataType, Model, Sequelize, Table } from "sequelize-typescript";
+import { AfterCreate, BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, Model, Sequelize, Table } from "sequelize-typescript";
 import Message from "./Message.model";
 import User from "./User.model";
 import { getWalletBalance } from "../controllers/userWallet.controller";
 import UserWalletBalance from "./UserWalletBalances";
+import ProductSubscription from "./ProductSubscriptions.model";
+import Sale from "./Sale.model";
+
+
+
+
 
 @Table({
     timestamps: true,
@@ -31,6 +37,10 @@ WalletGUID!: number;
     allowNull: false
 })
 UserGUID!: number;
+
+@Column
+Description!:string
+
 
 @Column({
     type: DataType.DECIMAL(10, 2),
@@ -90,7 +100,23 @@ DeletedGUID!: number;
     defaultValue: 'FULLFILLED'
 })
 Status!: string;
+@Column
+PaymentId!:string;
 
+@ForeignKey(()=>Sale)
+@Column
+SalesMasterGUID!:number
+
+@BelongsTo(()=>Sale)
+Order!:Sale
+
+@ForeignKey(()=>ProductSubscription)
+@Column
+SubscriptionGUID!:number
+
+
+@BelongsTo(()=>ProductSubscription)
+Subscription!: ProductSubscription;
 @AfterCreate
 static async updateBalance(instance: UserWallet) {
    const user= await User.findByPk(instance.getDataValue("UserGUID"))

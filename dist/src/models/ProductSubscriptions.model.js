@@ -66,6 +66,10 @@ __decorate([
     __metadata("design:type", String)
 ], ProductSubscription.prototype, "PaymentMethod", void 0);
 __decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], ProductSubscription.prototype, "PaymentTransactionId", void 0);
+__decorate([
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.DATE),
     __metadata("design:type", Date)
 ], ProductSubscription.prototype, "LastPaymentDate", void 0);

@@ -17,6 +17,8 @@ const decodeJWT_1 = __importDefault(require("../utils/decodeJWT"));
 const User_model_1 = __importDefault(require("../models/User.model"));
 const UserWallet_1 = __importDefault(require("../models/UserWallet"));
 const UserWalletBalances_1 = __importDefault(require("../models/UserWalletBalances"));
+const ProductSubscriptions_model_1 = __importDefault(require("../models/ProductSubscriptions.model"));
+const Sale_model_1 = __importDefault(require("../models/Sale.model"));
 const getWalletTransactions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.body.user) {
         req.body.CreatedGUID = req.body.user.UserGUID;
@@ -30,6 +32,7 @@ const getWalletTransactions = (req, res, next) => __awaiter(void 0, void 0, void
                 UserGUID: req.body.CreatedGUID,
                 Status: "FULLFILLED",
             },
+            include: [Sale_model_1.default, ProductSubscriptions_model_1.default],
             order: [["CreatedDate", "DESC"]],
         });
         res.json(transactions);
