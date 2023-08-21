@@ -13,11 +13,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getWalletBalance = exports.creditOrDebit = exports.getWalletTransactions = void 0;
+<<<<<<<< HEAD:dist/src/controllers/user-wallet.controller.js
 const user_model_1 = __importDefault(require("../models/user.model"));
 const user_wallet_model_1 = __importDefault(require("../models/user-wallet.model"));
 const user_wallet_balance_model_1 = __importDefault(require("../models/user-wallet-balance.model"));
 const product_subscription_model_1 = __importDefault(require("../models/product-subscription.model"));
 const sale_model_1 = __importDefault(require("../models/sale.model"));
+========
+const User_model_1 = __importDefault(require("../models/User.model"));
+const UserWallet_1 = __importDefault(require("../models/UserWallet"));
+const UserWalletBalances_1 = __importDefault(require("../models/UserWalletBalances"));
+const ProductSubscriptions_model_1 = __importDefault(require("../models/ProductSubscriptions.model"));
+const Sale_model_1 = __importDefault(require("../models/Sale.model"));
+>>>>>>>> ada1a8c0c9add72257eaf8f8602dbaa3f708d609:dist/src/controllers/userWallet.controller.js
 const getWalletTransactions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     req.body.CreatedGUID = req.body.user.UserGUID;
     try {

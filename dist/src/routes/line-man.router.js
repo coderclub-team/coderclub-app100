@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const line_menu_controller_1 = require("../controllers/line-menu.controller");
+const router = (0, express_1.Router)();
+router.get("/", line_menu_controller_1.getAllLineMen);
+router.get("/:LineManGUID", line_menu_controller_1.getLineManById);
+router.post("/", line_menu_controller_1.createLineMan);
+router.put("/:LineManGUID", line_menu_controller_1.updateLineMan);
+router.delete("/:LineManGUID", line_menu_controller_1.deleteLineMan);
+router.get("/", line_menu_controller_1.getAllLineMen);
+exports.default = router;

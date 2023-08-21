@@ -12,15 +12,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ProductVariant = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
-<<<<<<<< HEAD:dist/src/models/sale-detail.model.js
-const sale_model_1 = __importDefault(require("./sale.model"));
-const product_master_model_1 = __importDefault(require("./product-master.model"));
-========
-const Sale_model_1 = __importDefault(require("./Sale.model"));
-const ProductMaster_model_1 = __importDefault(require("../models/ProductMaster.model"));
->>>>>>>> ada1a8c0c9add72257eaf8f8602dbaa3f708d609:dist/src/models/SaleDetail.model.js
-let SaleDetail = class SaleDetail extends sequelize_typescript_1.Model {
+const ProductMaster_model_1 = __importDefault(require("./ProductMaster.model"));
+let ProductVariant = class ProductVariant extends sequelize_typescript_1.Model {
+    // Define the virtual field as a getter method that returns an object with the dimensions
+    get dimensions() {
+        return {
+            width: this.Width,
+            height: this.Height,
+            length: this.Length,
+        };
+    }
     static beforeBulkCreateHook(instances) {
         instances.forEach((instance) => {
             Object.entries(instance.toJSON()).forEach(([key, value]) => {
@@ -40,120 +43,109 @@ let SaleDetail = class SaleDetail extends sequelize_typescript_1.Model {
 };
 __decorate([
     sequelize_typescript_1.PrimaryKey,
-    (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-        allowNull: false,
-        autoIncrementIdentity: true,
-    }),
-    __metadata("design:type", Number)
-], SaleDetail.prototype, "SalesDetailGUID", void 0);
-__decorate([
-    (0, sequelize_typescript_1.ForeignKey)(() => sale_model_1.default),
+    sequelize_typescript_1.AutoIncrement,
     sequelize_typescript_1.Column,
     __metadata("design:type", Number)
-], SaleDetail.prototype, "SalesMasterGUID", void 0);
+], ProductVariant.prototype, "ProductVariantGUID", void 0);
 __decorate([
-    (0, sequelize_typescript_1.BelongsTo)(() => sale_model_1.default),
-    __metadata("design:type", sale_model_1.default)
-], SaleDetail.prototype, "SalesMasterRef", void 0);
-__decorate([
-    (0, sequelize_typescript_1.ForeignKey)(() => product_master_model_1.default),
     sequelize_typescript_1.Column,
     __metadata("design:type", Number)
-], SaleDetail.prototype, "ProductGUID", void 0);
+], ProductVariant.prototype, "Unit_Price", void 0);
 __decorate([
-    (0, sequelize_typescript_1.BelongsTo)(() => product_master_model_1.default),
-    __metadata("design:type", product_master_model_1.default)
-], SaleDetail.prototype, "product", void 0);
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], ProductVariant.prototype, "MRP", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], ProductVariant.prototype, "GST", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], ProductVariant.prototype, "Qty", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], ProductVariant.prototype, "UnitsInStock", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Boolean)
+], ProductVariant.prototype, "IsActive", void 0);
 __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", String)
-], SaleDetail.prototype, "ProductName", void 0);
+], ProductVariant.prototype, "SKU", void 0);
 __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", String)
-], SaleDetail.prototype, "ProductCode", void 0);
+], ProductVariant.prototype, "UOM", void 0);
 __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", Number)
-], SaleDetail.prototype, "Qty", void 0);
+], ProductVariant.prototype, "Weight", void 0);
 __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", Number)
-], SaleDetail.prototype, "MRP", void 0);
+], ProductVariant.prototype, "Length", void 0);
 __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", Number)
-], SaleDetail.prototype, "SaleRate", void 0);
+], ProductVariant.prototype, "Width", void 0);
 __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", Number)
-], SaleDetail.prototype, "SGST", void 0);
+], ProductVariant.prototype, "Height", void 0);
 __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", Number)
-], SaleDetail.prototype, "CGST", void 0);
+], ProductVariant.prototype, "SaleRate", void 0);
+__decorate([
+    (0, sequelize_typescript_1.ForeignKey)(() => ProductMaster_model_1.default),
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], ProductVariant.prototype, "ProductMasterRefGUID", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
+], ProductVariant.prototype, "Size", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
+], ProductVariant.prototype, "Color", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
+], ProductVariant.prototype, "Flavour", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Boolean)
+], ProductVariant.prototype, "Featured", void 0);
 __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", Number)
-], SaleDetail.prototype, "DiscountPercent", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
-], SaleDetail.prototype, "DiscAmt", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
-], SaleDetail.prototype, "TaxAmount", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
-], SaleDetail.prototype, "Amount", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
-], SaleDetail.prototype, "CreatedGUID", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Date)
-], SaleDetail.prototype, "CreatedDate", void 0);
+], ProductVariant.prototype, "CreatedGUID", void 0);
 __decorate([
     sequelize_typescript_1.BeforeBulkCreate,
     sequelize_typescript_1.BeforeBulkUpdate,
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Array]),
     __metadata("design:returntype", void 0)
-], SaleDetail, "beforeBulkCreateHook", null);
+], ProductVariant, "beforeBulkCreateHook", null);
 __decorate([
     sequelize_typescript_1.BeforeCreate,
     sequelize_typescript_1.BeforeUpdate,
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [SaleDetail]),
+    __metadata("design:paramtypes", [ProductVariant]),
     __metadata("design:returntype", void 0)
-], SaleDetail, "beforeCreateHook", null);
-SaleDetail = __decorate([
+], ProductVariant, "beforeCreateHook", null);
+ProductVariant = __decorate([
     (0, sequelize_typescript_1.Table)({
-        tableName: "tbl_SalesDetails",
-        timestamps: false,
+        tableName: "tbl_ProductVariant",
+        timestamps: true,
         paranoid: false,
+        createdAt: "CreatedDate",
+        updatedAt: "ModifiedDate",
+        deletedAt: "DeletedDate",
     })
-], SaleDetail);
-exports.default = SaleDetail;
-// EXEC sp_help tbl_SalesDetails
-// SalesDetailGUID
-// SalesMasterGUID
-// ProductGUID
-// ProductCode
-// Qty
-// MRP
-// SaleRate
-// SGST
-// CGST
-// DiscountPercent
-// DiscAmt
-// TaxAmount
-// Amount
-// CreatedGUID
-// CreatedDate
+], ProductVariant);
+exports.ProductVariant = ProductVariant;

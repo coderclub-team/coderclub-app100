@@ -13,22 +13,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createProductReview = exports.createAttribute = exports.deleteProductMaster = exports.updateProductMaster = exports.createProductMaster = exports.getProductMasterById = exports.getAllProductMasters = void 0;
-<<<<<<<< HEAD:dist/src/controllers/product-master.controller.js
 const config_1 = require("../../config");
-const product_master_model_1 = __importDefault(require("../models/product-master.model"));
-========
-const config_1 = require("../../../config");
-const ProductMaster_model_1 = __importDefault(require("../../models/product/ProductMaster.model"));
->>>>>>>> ada1a8c0c9add72257eaf8f8602dbaa3f708d609:dist/src/controllers/product/productMaster.controller.js
+const ProductMaster_model_1 = __importDefault(require("../models/ProductMaster.model"));
 const node_path_1 = __importDefault(require("node:path"));
 const database_1 = require("../database");
-const product_variant_model_1 = require("../models/product-variant.model");
+const ProductVariant_model_1 = require("../models/ProductVariant.model");
 const sequelize_1 = require("sequelize");
-const product_category_model_1 = __importDefault(require("../models/product-category.model"));
+const ProductCategory_model_1 = __importDefault(require("../models/ProductCategory.model"));
 const functions_1 = require("../functions");
-const product_review_model_1 = __importDefault(require("../models/product-review.model"));
-const user_model_1 = __importDefault(require("../models/user.model"));
-const product_stock_master_model_1 = __importDefault(require("../models/product-stock-master.model"));
+const ProductReview_model_1 = __importDefault(require("../models/ProductReview.model"));
+const User_model_1 = __importDefault(require("../models/User.model"));
+const ProductStockMaster_1 = __importDefault(require("../models/ProductStockMaster"));
 const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let authuser;
     try {
@@ -40,17 +35,17 @@ const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, fun
         ProductType: { [sequelize_1.Op.like]: `%${ProductType}%` },
     })), { SKU: SKU, IsFeatured: IsFeatured, ProductCategoryGUID: ProductCategoryGUID }));
     try {
-        var products = yield product_master_model_1.default.findAll({
+        var products = yield ProductMaster_model_1.default.findAll({
             where,
             include: [
                 {
-                    model: product_category_model_1.default,
+                    model: ProductCategory_model_1.default,
                     attributes: {
                         include: ["ProductCategoryName", "PhotoPath"],
                     },
                 },
                 {
-                    model: product_stock_master_model_1.default,
+                    model: ProductStockMaster_1.default,
                     attributes: ["ProductGUID", "StoreGUID", "UnitsInStock"],
                     nested: true,
                     where: authuser
@@ -83,7 +78,7 @@ const getProductMasterById = (req, res) => __awaiter(void 0, void 0, void 0, fun
     }
     catch (error) { }
     try {
-        var products = yield product_master_model_1.default.findAll({
+        var products = yield ProductMaster_model_1.default.findAll({
             where: {
                 ProductGUID: {
                     [sequelize_1.Op.eq]: ProductGUID,
@@ -91,13 +86,13 @@ const getProductMasterById = (req, res) => __awaiter(void 0, void 0, void 0, fun
             },
             include: [
                 {
-                    model: product_category_model_1.default,
+                    model: ProductCategory_model_1.default,
                     attributes: {
                         include: ["ProductCategoryName", "PhotoPath"],
                     },
                 },
                 {
-                    model: product_stock_master_model_1.default,
+                    model: ProductStockMaster_1.default,
                     attributes: ["ProductGUID", "StoreGUID", "UnitsInStock"],
                     nested: true,
                     where: authuser
@@ -106,8 +101,8 @@ const getProductMasterById = (req, res) => __awaiter(void 0, void 0, void 0, fun
                         }
                         : undefined,
                 }, {
-                    model: product_review_model_1.default,
-                    include: [user_model_1.default]
+                    model: ProductReview_model_1.default,
+                    include: [User_model_1.default]
                 }
             ],
             attributes: {
@@ -152,7 +147,7 @@ const createProductMaster = (req, res, next) => __awaiter(void 0, void 0, void 0
         }
         t = yield database_1.sequelize.transaction();
         if (req.body.ProductType.toString().toLocaleUpperCase() === "SIMPLE") {
-            const product = yield product_master_model_1.default.create({
+            const product = yield ProductMaster_model_1.default.create({
                 ProductName,
                 ProductCode,
                 ProductType,
@@ -165,7 +160,7 @@ const createProductMaster = (req, res, next) => __awaiter(void 0, void 0, void 0
             }, {
                 transaction: t,
             });
-            let createdVariants = yield product_variant_model_1.ProductVariant.bulkCreate(variants.map((variant) => (Object.assign(Object.assign({}, variant), { ProductMasterRefGUID: product.ProductGUID, CreatedGUID: req.body.CreatedGUID }))), {
+            let createdVariants = yield ProductVariant_model_1.ProductVariant.bulkCreate(variants.map((variant) => (Object.assign(Object.assign({}, variant), { ProductMasterRefGUID: product.ProductGUID, CreatedGUID: req.body.CreatedGUID }))), {
                 transaction: t,
             });
             yield t.commit();
@@ -181,7 +176,7 @@ const createProductMaster = (req, res, next) => __awaiter(void 0, void 0, void 0
                     throw new Error("Size or Color or Flavour is required for each variant!");
                 }
             });
-            const product = yield product_master_model_1.default.create(req.body);
+            const product = yield ProductMaster_model_1.default.create(req.body);
             const objects = [];
             if (Array.isArray(req.body.ProductCategoryRefGUID)) {
                 let objs = req.body.ProductCategoryRefGUID.map((category) => ({
@@ -225,7 +220,7 @@ const updateProductMaster = (req, res) => __awaiter(void 0, void 0, void 0, func
     const { ProductMasterGUID } = req.params;
     req.body.ModifiedGUID = req.body.user.UserGUID;
     try {
-        const productMaster = yield product_master_model_1.default.findByPk(ProductMasterGUID);
+        const productMaster = yield ProductMaster_model_1.default.findByPk(ProductMasterGUID);
         if (!productMaster) {
             return res.status(400).json({
                 message: "Product master not found!",
@@ -246,13 +241,13 @@ const deleteProductMaster = (req, res) => __awaiter(void 0, void 0, void 0, func
     req.body.DeletedGUID = req.body.user.UserGUID;
     const { ProductMasterGUID } = req.params;
     try {
-        const productMaster = yield product_master_model_1.default.findByPk(ProductMasterGUID);
+        const productMaster = yield ProductMaster_model_1.default.findByPk(ProductMasterGUID);
         if (!productMaster) {
             return res.status(400).json({
                 message: "Product master not found!!",
             });
         }
-        yield product_master_model_1.default.destroy({
+        yield ProductMaster_model_1.default.destroy({
             where: {
                 ProductMasterGUID,
             },
@@ -373,7 +368,7 @@ const createProductReview = (req, res, next) => __awaiter(void 0, void 0, void 0
     delete req.body.user;
     try {
         if (req.body.ReviewGUID) {
-            let review = yield product_review_model_1.default.findByPk(req.body.ReviewGUID);
+            let review = yield ProductReview_model_1.default.findByPk(req.body.ReviewGUID);
             if (!review) {
                 throw Error("Inavlid ProductGUID!");
             }
@@ -385,7 +380,7 @@ const createProductReview = (req, res, next) => __awaiter(void 0, void 0, void 0
         }
         else {
             delete req.body.ReviewGUID;
-            const review = yield product_review_model_1.default.create(req.body);
+            const review = yield ProductReview_model_1.default.create(req.body);
             res.send({
                 message: `Product Review created successfully!`,
                 review,

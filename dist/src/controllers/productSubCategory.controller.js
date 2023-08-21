@@ -13,19 +13,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteProductSubCategory = exports.updateProductSubCategory = exports.createProductSubCategory = exports.getProductSubCategoryById = exports.getAllProductSubCategories = void 0;
-<<<<<<<< HEAD:dist/src/controllers/product-sub-category.controller.js
-const product_sub_category_model_1 = __importDefault(require("../models/product-sub-category.model"));
-const product_category_model_1 = __importDefault(require("../models/product-category.model"));
-========
-const ProductSubCategory_model_1 = __importDefault(require("../../models/product/ProductSubCategory.model"));
-const ProductCategory_model_1 = __importDefault(require("../../models/product/ProductCategory.model"));
->>>>>>>> ada1a8c0c9add72257eaf8f8602dbaa3f708d609:dist/src/controllers/product/productSubCategory.controller.js
+const ProductSubCategory_model_1 = __importDefault(require("../models/ProductSubCategory.model"));
+const ProductCategory_model_1 = __importDefault(require("../models/ProductCategory.model"));
 const getAllProductSubCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const productSubCategories = yield product_sub_category_model_1.default.findAll({
+        const productSubCategories = yield ProductSubCategory_model_1.default.findAll({
             // ProductCategory refe
             include: {
-                model: product_category_model_1.default,
+                model: ProductCategory_model_1.default,
                 attributes: ["ProductCategoryName"],
             },
         });
@@ -39,9 +34,9 @@ exports.getAllProductSubCategories = getAllProductSubCategories;
 const getProductSubCategoryById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { ProductSubCategoryGUID } = req.params;
     try {
-        const productSubCategory = yield product_sub_category_model_1.default.findByPk(ProductSubCategoryGUID, {
+        const productSubCategory = yield ProductSubCategory_model_1.default.findByPk(ProductSubCategoryGUID, {
             include: {
-                model: product_category_model_1.default,
+                model: ProductCategory_model_1.default,
                 attributes: ["ProductCategoryName"],
             },
         });
@@ -64,11 +59,11 @@ const createProductSubCategory = (req, res, next) => __awaiter(void 0, void 0, v
     req.body.CreatedGUID = req.body.user.UserGUID;
     try {
         // Check if the ProductCategoryGUID value exists in the ProductCategory table
-        const category = yield product_category_model_1.default.findByPk(req.body.ProductCategoryGUID);
+        const category = yield ProductCategory_model_1.default.findByPk(req.body.ProductCategoryGUID);
         // if (!category) {
         //   throw new ProductCategoryNotFoundException("Product category not found!");
         // }
-        const productSubCategory = yield product_sub_category_model_1.default.create(req.body);
+        const productSubCategory = yield ProductSubCategory_model_1.default.create(req.body);
         res.status(201).json({
             message: "Product sub category created successfully!",
             productSubCategory,
@@ -84,7 +79,7 @@ const updateProductSubCategory = (req, res, next) => __awaiter(void 0, void 0, v
     req.body.ModifiedGUID = req.body.user.UserGUID;
     const { ProductSubCategoryGUID } = req.params;
     try {
-        const productSubCategory = yield product_sub_category_model_1.default.findByPk(ProductSubCategoryGUID);
+        const productSubCategory = yield ProductSubCategory_model_1.default.findByPk(ProductSubCategoryGUID);
         if (!productSubCategory) {
             return res.status(400).json({
                 message: "Product sub category not found!",
@@ -110,7 +105,7 @@ exports.updateProductSubCategory = updateProductSubCategory;
 const deleteProductSubCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { ProductSubCategoryGUID } = req.params;
     try {
-        const productSubCategory = yield product_sub_category_model_1.default.findByPk(ProductSubCategoryGUID);
+        const productSubCategory = yield ProductSubCategory_model_1.default.findByPk(ProductSubCategoryGUID);
         if (!productSubCategory) {
             return res.status(400).json({
                 message: "Product sub category not found!",

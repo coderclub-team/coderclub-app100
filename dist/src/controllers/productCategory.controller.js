@@ -14,15 +14,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteProductCategory = exports.createProductCategory = exports.getProductCategoryById = exports.getAllProductCategories = void 0;
-<<<<<<<< HEAD:dist/src/controllers/product-category.controller.js
-const product_category_model_1 = __importDefault(require("../models/product-category.model"));
-========
-const ProductCategory_model_1 = __importDefault(require("../../models/product/ProductCategory.model"));
->>>>>>>> ada1a8c0c9add72257eaf8f8602dbaa3f708d609:dist/src/controllers/product/productCategory.controller.js
+const ProductCategory_model_1 = __importDefault(require("../models/ProductCategory.model"));
 // import { productCategoryImageUploadOptions } from "../../config";
 const getAllProductCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const categories = yield product_category_model_1.default.findAll({});
+        const categories = yield ProductCategory_model_1.default.findAll({});
         categories.forEach((category) => __awaiter(void 0, void 0, void 0, function* () {
             category.setFullURL(req, "PhotoPath");
         }));
@@ -36,7 +32,7 @@ exports.getAllProductCategories = getAllProductCategories;
 const getProductCategoryById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { ProductCategoryGUID } = req.params;
     try {
-        const category = yield product_category_model_1.default.findByPk(ProductCategoryGUID);
+        const category = yield ProductCategory_model_1.default.findByPk(ProductCategoryGUID);
         category === null || category === void 0 ? void 0 : category.setFullURL(req, "PhotoPath");
         if (!category) {
             return res.status(400).json({
@@ -56,7 +52,7 @@ exports.getProductCategoryById = getProductCategoryById;
 const createProductCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     req.body.CreatedGUID = req.body.user.UserGUID;
     try {
-        const productCategory = yield product_category_model_1.default.create(req.body);
+        const productCategory = yield ProductCategory_model_1.default.create(req.body);
         res.send({
             message: "Product category created successfully!",
             productCategory,
@@ -71,7 +67,7 @@ exports.createProductCategory = createProductCategory;
 const deleteProductCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { ProductCategoryGUID } = req.params;
     try {
-        const productCategory = yield product_category_model_1.default.findByPk(ProductCategoryGUID);
+        const productCategory = yield ProductCategory_model_1.default.findByPk(ProductCategoryGUID);
         if (!productCategory) {
             return res.status(400).json({
                 message: "Product category not found!",

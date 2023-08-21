@@ -8,19 +8,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_typescript_1 = require("sequelize-typescript");
-<<<<<<<< HEAD:dist/src/models/cart-item.js
-const product_master_model_1 = __importDefault(require("./product-master.model"));
-const user_model_1 = __importDefault(require("./user.model"));
-========
-const ProductMaster_model_1 = __importDefault(require("./ProductMaster.model"));
-const User_model_1 = __importDefault(require("./User.model"));
->>>>>>>> ada1a8c0c9add72257eaf8f8602dbaa3f708d609:dist/src/models/CartItem.model.js
-let CartItem = class CartItem extends sequelize_typescript_1.Model {
+// Path: src/models/ProductCategory.ts
+let ProductCategory = class ProductCategory extends sequelize_typescript_1.Model {
     static beforeBulkCreateHook(instances) {
         instances.forEach((instance) => {
             Object.entries(instance.toJSON()).forEach(([key, value]) => {
@@ -37,54 +28,77 @@ let CartItem = class CartItem extends sequelize_typescript_1.Model {
             }
         });
     }
+    setFullURL(request, key) {
+        const hostname = request.protocol + "://" + request.get("host");
+        const originalPath = this.getDataValue(key) || "identities/product-identity.png";
+        if (!originalPath)
+            return;
+        const fullPath = `${hostname}/${originalPath}`;
+        this.setDataValue(key, fullPath);
+    }
 };
 __decorate([
     sequelize_typescript_1.PrimaryKey,
     sequelize_typescript_1.AutoIncrement,
     sequelize_typescript_1.Column,
     __metadata("design:type", Number)
-], CartItem.prototype, "CartItemGUID", void 0);
+], ProductCategory.prototype, "ProductCategoryGUID", void 0);
 __decorate([
-    (0, sequelize_typescript_1.ForeignKey)(() => product_master_model_1.default),
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING(400),
+        allowNull: false,
+        field: "ProductCategoryName",
+    }),
+    __metadata("design:type", String)
+], ProductCategory.prototype, "ProductCategoryName", void 0);
+__decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", Number)
-], CartItem.prototype, "ProductGUID", void 0);
+], ProductCategory.prototype, "IsActive", void 0);
 __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", Number)
-], CartItem.prototype, "Quantity", void 0);
+], ProductCategory.prototype, "SortOrder", void 0);
 __decorate([
     sequelize_typescript_1.Column,
-    (0, sequelize_typescript_1.ForeignKey)(() => user_model_1.default),
+    __metadata("design:type", String)
+], ProductCategory.prototype, "PhotoPath", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
+], ProductCategory.prototype, "ProductCategoryDescription", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
+], ProductCategory.prototype, "ProductCategorySlug", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.VIRTUAL,
+        get() {
+            return this.getDataValue("ProductCount");
+        },
+    }),
     __metadata("design:type", Number)
-], CartItem.prototype, "CreatedGUID", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Date)
-], CartItem.prototype, "CreatedDate", void 0);
-__decorate([
-    (0, sequelize_typescript_1.BelongsTo)(() => product_master_model_1.default),
-    __metadata("design:type", product_master_model_1.default)
-], CartItem.prototype, "Product", void 0);
+], ProductCategory.prototype, "ProductCount", void 0);
 __decorate([
     sequelize_typescript_1.BeforeBulkCreate,
     sequelize_typescript_1.BeforeBulkUpdate,
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Array]),
     __metadata("design:returntype", void 0)
-], CartItem, "beforeBulkCreateHook", null);
+], ProductCategory, "beforeBulkCreateHook", null);
 __decorate([
     sequelize_typescript_1.BeforeCreate,
     sequelize_typescript_1.BeforeUpdate,
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [CartItem]),
+    __metadata("design:paramtypes", [ProductCategory]),
     __metadata("design:returntype", void 0)
-], CartItem, "beforeCreateHook", null);
-CartItem = __decorate([
+], ProductCategory, "beforeCreateHook", null);
+ProductCategory = __decorate([
     (0, sequelize_typescript_1.Table)({
-        tableName: "tbl_CartItems",
-        timestamps: false,
+        tableName: "tbl_ProductCategory",
         paranoid: false,
+        timestamps: false,
     })
-], CartItem);
-exports.default = CartItem;
+], ProductCategory);
+exports.default = ProductCategory;

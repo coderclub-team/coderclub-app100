@@ -13,9 +13,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_typescript_1 = require("sequelize-typescript");
+<<<<<<<< HEAD:dist/src/models/product-subscription.model.js
 const product_master_model_1 = __importDefault(require("./product-master.model"));
 const user_model_1 = __importDefault(require("./user.model"));
 const billing_cycle_model_1 = __importDefault(require("./billing-cycle.model"));
+========
+const ProductMaster_model_1 = __importDefault(require("./ProductMaster.model"));
+const User_model_1 = __importDefault(require("./User.model"));
+const BillingCycles_model_1 = __importDefault(require("./BillingCycles.model"));
+>>>>>>>> ada1a8c0c9add72257eaf8f8602dbaa3f708d609:dist/src/models/ProductSubscriptions.model.js
 let ProductSubscription = class ProductSubscription extends sequelize_typescript_1.Model {
     static beforeBulkCreateHook(instances) {
         instances.forEach((instance) => {
