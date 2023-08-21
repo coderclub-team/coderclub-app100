@@ -13,13 +13,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteProductSubCategory = exports.updateProductSubCategory = exports.createProductSubCategory = exports.getProductSubCategoryById = exports.getAllProductSubCategories = void 0;
-<<<<<<<< HEAD:dist/src/controllers/product-sub-category.controller.js
 const product_sub_category_model_1 = __importDefault(require("../models/product-sub-category.model"));
 const product_category_model_1 = __importDefault(require("../models/product-category.model"));
-========
-const ProductSubCategory_model_1 = __importDefault(require("../../models/product/ProductSubCategory.model"));
-const ProductCategory_model_1 = __importDefault(require("../../models/product/ProductCategory.model"));
->>>>>>>> ada1a8c0c9add72257eaf8f8602dbaa3f708d609:dist/src/controllers/product/productSubCategory.controller.js
 const getAllProductSubCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const productSubCategories = yield product_sub_category_model_1.default.findAll({

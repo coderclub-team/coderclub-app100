@@ -13,13 +13,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteStoreMaster = exports.updateStoreMaster = exports.createStoreMaster = exports.getStoreMasterById = exports.getAllStoreMasters = void 0;
-<<<<<<<< HEAD:dist/src/controllers/store-master.controller.js
 const store_master_model_1 = __importDefault(require("../models/store-master.model"));
 const product_category_model_1 = __importDefault(require("../models/product-category.model"));
-========
-const StoreMaster_model_1 = __importDefault(require("../models/StoreMaster.model"));
-const ProductCategory_model_1 = __importDefault(require("../models/ProductCategory.model"));
->>>>>>>> ada1a8c0c9add72257eaf8f8602dbaa3f708d609:dist/src/controllers/StoreMaster.controller.js
 const getAllStoreMasters = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const storeMasters = yield store_master_model_1.default.findAll({

@@ -14,17 +14,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.expireSubscription = exports.calcelSubscription = exports.subscribeProduct = exports.getUserSubscriptions = void 0;
 const functions_1 = require("../functions");
-<<<<<<<< HEAD:dist/src/controllers/product-subscription.controller.js
 const product_subscription_model_1 = __importDefault(require("../models/product-subscription.model"));
 const billing_cycle_model_1 = __importDefault(require("../models/billing-cycle.model"));
 const sequelize_1 = require("sequelize");
 const product_master_model_1 = __importDefault(require("../models/product-master.model"));
-========
-const ProductSubscriptions_model_1 = __importDefault(require("../models/ProductSubscriptions.model"));
-const BillingCycles_model_1 = __importDefault(require("../models/BillingCycles.model"));
-const sequelize_1 = require("sequelize");
-const ProductMaster_model_1 = __importDefault(require("../models/ProductMaster.model"));
->>>>>>>> ada1a8c0c9add72257eaf8f8602dbaa3f708d609:dist/src/controllers/productSubscriptions.controller.js
 const database_1 = require("../database");
 const user_wallet_model_1 = __importDefault(require("../models/user-wallet.model"));
 const getUserSubscriptions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {

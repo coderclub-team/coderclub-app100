@@ -13,11 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteAddress = exports.updateAddress = exports.createAddress = exports.getMyAddresses = void 0;
-<<<<<<<< HEAD:dist/src/controllers/user-address.conroller.js
 const user_address_model_1 = __importDefault(require("../models/user-address.model"));
-========
-const UserAddress_model_1 = __importDefault(require("../models/UserAddress.model"));
->>>>>>>> ada1a8c0c9add72257eaf8f8602dbaa3f708d609:dist/src/controllers/userAddress.conroller.js
 const getMyAddresses = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     req.body.CreatedGUID = req.body.user.UserGUID;
     req.body.UserGUID = req.body.CreatedGUID;

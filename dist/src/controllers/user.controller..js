@@ -13,22 +13,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.addCartItem = exports.getCartItems = exports.deleteUserById = exports.updateUserById = exports.getUserById = exports.getAllUsers = void 0;
-<<<<<<<< HEAD:dist/src/controllers/user.controller..js
 const user_model_1 = __importDefault(require("../models/user.model"));
 const user_address_model_1 = __importDefault(require("../models/user-address.model"));
 const cart_item_1 = __importDefault(require("../models/cart-item"));
 const sequelize_1 = require("sequelize");
 const product_master_model_1 = __importDefault(require("../models/product-master.model"));
-========
-const User_model_1 = __importDefault(require("../models/User.model"));
-const node_path_1 = __importDefault(require("node:path"));
-const node_fs_1 = __importDefault(require("node:fs"));
-const config_1 = require("../../config");
-const UserAddress_model_1 = __importDefault(require("../models/UserAddress.model"));
-const CartItem_model_1 = __importDefault(require("../models/CartItem.model"));
-const sequelize_1 = require("sequelize");
-const ProductMaster_model_1 = __importDefault(require("../models/ProductMaster.model"));
->>>>>>>> ada1a8c0c9add72257eaf8f8602dbaa3f708d609:dist/src/controllers/userController..js
 const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { deleted } = req.query;
     const paranoid = deleted === "true" ? false : true;
@@ -82,7 +71,6 @@ const getUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 });
 exports.getUserById = getUserById;
 const updateUserById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-<<<<<<<< HEAD:dist/src/controllers/user.controller..js
     console.log("req.body===>", JSON.stringify(req.body.user));
     res.status(200).json({ message: "User updated successfully!" });
     // const { UserGUID } = req.body.user;
@@ -140,59 +128,6 @@ const updateUserById = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     // } catch (error) {
     //   next(error);
     // }
-========
-    const { UserGUID } = req.body.user;
-    const { deleted } = req.query;
-    const paranoid = deleted === "true" ? false : true;
-    if (req.file) {
-        const { filename, path: tmpPath } = req.file;
-        req.body.tmpPath = tmpPath;
-        req.body.uploadPath = node_path_1.default.join(config_1.userImageUploadOptions.relativePath, filename);
-        req.body.PhotoPath = node_path_1.default.join(config_1.userImageUploadOptions.directory, filename);
-    }
-    try {
-        let user = yield User_model_1.default.findByPk(UserGUID, {
-            paranoid,
-        });
-        if (user && user.DeletedDate && !paranoid) {
-            yield user.restore();
-            // user.DeletedDate = null;
-        }
-        else if (!user) {
-            return res.status(400).json({ message: "User not found!" });
-        }
-        const oldPhotoPath = user.PhotoPath;
-        delete req.body.MobileNo;
-        delete req.body.Password;
-        Object.keys(req.body).forEach((key) => {
-            if (user) {
-                user.setDataValue(key, req.body[key]);
-            }
-        });
-        if (req.body.tmpPath && req.body.uploadPath) {
-            node_fs_1.default.rename(req.body.tmpPath, req.body.uploadPath, (err) => {
-                if (err)
-                    console.log(err);
-                else {
-                    user === null || user === void 0 ? void 0 : user.setFullURL(req, "PhotoPath");
-                }
-            });
-        }
-        if (oldPhotoPath && oldPhotoPath !== user.PhotoPath) {
-            node_fs_1.default.unlink(node_path_1.default.join(config_1.userImageUploadOptions.relativePath, node_path_1.default.basename(oldPhotoPath)), (err) => {
-                if (err)
-                    console.log(err);
-                else
-                    console.log("Old photo deleted successfully!");
-            });
-        }
-        yield user.save();
-        res.status(201).json({ message: "User updated successfully!", user: user });
-    }
-    catch (error) {
-        next(error);
-    }
->>>>>>>> ada1a8c0c9add72257eaf8f8602dbaa3f708d609:dist/src/controllers/userController..js
 });
 exports.updateUserById = updateUserById;
 const deleteUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -301,11 +236,7 @@ const addCartItem = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
 exports.addCartItem = addCartItem;
 const cartTotal = (req) => __awaiter(void 0, void 0, void 0, function* () {
     const { UserGUID } = req.body.user;
-<<<<<<<< HEAD:dist/src/controllers/user.controller..js
     const items = yield cart_item_1.default.findAll({
-========
-    const items = yield CartItem_model_1.default.findAll({
->>>>>>>> ada1a8c0c9add72257eaf8f8602dbaa3f708d609:dist/src/controllers/userController..js
         where: {
             CreatedGUID: {
                 [sequelize_1.Op.eq]: UserGUID,
