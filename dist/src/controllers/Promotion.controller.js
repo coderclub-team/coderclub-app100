@@ -9,15 +9,45 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllPromotions = void 0;
+exports.checkPromoCode = exports.getAllPromotions = void 0;
 const promotion_model_1 = require("../models/promotion.model");
+const sequelize_1 = require("sequelize");
 const getAllPromotions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const promotions = yield promotion_model_1.Promotion.findAll();
-        res.status(200).json(promotions);
+        const promotions = yield promotion_model_1.Promotion.findAll({
+            where: {
+                StartDate: {
+                    [sequelize_1.Op.lte]: new Date(),
+                },
+                EndDate: {
+                    [sequelize_1.Op.gte]: new Date(),
+                },
+                Stock: {
+                    [sequelize_1.Op.gte]: 1,
+                },
+                CurrentStock: {
+                    [sequelize_1.Op.gte]: 1,
+                },
+            },
+        });
+        res.json(promotions);
     }
     catch (error) {
         next(error);
     }
 });
 exports.getAllPromotions = getAllPromotions;
+const checkPromoCode = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    if (req.body.PromoCode === req.body.promotion.PromoCode) {
+        res.status(200).json({
+            message: "PromoCode is valid",
+            PromotionGUID: req.body.PromotionGUID
+        });
+    }
+    else {
+        res.status(400).json({
+            message: "PromoCode is invalid"
+        });
+    }
+});
+exports.checkPromoCode = checkPromoCode;

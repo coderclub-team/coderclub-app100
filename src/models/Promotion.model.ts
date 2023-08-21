@@ -60,7 +60,7 @@ export class Promotion extends Model {
     EndDate!: Date;
 
     @Column
-    IsActive!: boolean;
+    Status!:string;
 
     @Column
     Type!: string;

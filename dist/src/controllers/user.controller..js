@@ -173,7 +173,10 @@ const getCartItems = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
             var _a;
             return (_a = item.Product) === null || _a === void 0 ? void 0 : _a.setFullURL(req, "PhotoPath");
         });
-        res.status(200).send(cartItems);
+        res.status(200).send({
+            CartItem: cartItems,
+            CartTotal: yield cartTotal(req)
+        });
     }
     catch (error) {
         console.log("message===>", error === null || error === void 0 ? void 0 : error.message);

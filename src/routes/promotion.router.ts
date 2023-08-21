@@ -1,8 +1,11 @@
 import express from 'express';
-import { getAllPromotions } from '../controllers/promotion.controller';
+import { checkPromoCode, getAllPromotions } from '../controllers/promotion.controller';
+import couponGuard from '../middlewares/coupon-gaurd.moddleware';
+import authGaurdMiddleware from '../middlewares/auth-gaurd.middleware';
 
 const router = express.Router();
 
 router.get('/', getAllPromotions);
+router.get('/check',authGaurdMiddleware,couponGuard, checkPromoCode);
 
 export default router;

@@ -73,8 +73,8 @@ __decorate([
 ], Promotion.prototype, "EndDate", void 0);
 __decorate([
     sequelize_typescript_1.Column,
-    __metadata("design:type", Boolean)
-], Promotion.prototype, "IsActive", void 0);
+    __metadata("design:type", String)
+], Promotion.prototype, "Status", void 0);
 __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", String)

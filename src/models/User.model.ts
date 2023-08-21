@@ -26,6 +26,7 @@ import { Request } from "express";
 import Message from "../entities/message.class";
 import ProductSubscription from "./product-subscription.model";
 
+// 
 @Table({
   tableName: "tbl_Users",
   timestamps: true,

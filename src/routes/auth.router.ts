@@ -20,6 +20,7 @@ import handleSequelizeError from "../middlewares/handle-sequelize-error.middlewa
 import authGaurd from "../middlewares/auth-gaurd.middleware";
 import { updateUserById } from "../controllers/user.controller.";
 import { generateRazorpayIntent } from "../controllers/payment.controller";
+import couponGuard from "../middlewares/coupon-gaurd.moddleware";
 
 const authRouter = Router();
 const upload = multer({
@@ -82,7 +83,7 @@ authRouter.post("/forget-password", forgotPassword, handleSequelizeError);
 authRouter.get("/current-user",  authGaurd, getCurrentUser, handleSequelizeError);
 
 authRouter.get("/orders", authGaurd, getOrders,handleSequelizeError);
-authRouter.post("/orders", authGaurd, createOrder,handleSequelizeError);
+authRouter.post("/orders", authGaurd,couponGuard, createOrder,handleSequelizeError);
 authRouter.patch("/orders/:SalesMasterGUID", authGaurd, cancelOrder,handleSequelizeError);
 authRouter.get("/orders/payments/createOrder", authGaurd,generateRazorpayIntent,handleSequelizeError);
 

@@ -182,7 +182,11 @@ export const getCartItems = async (
     cartItems?.forEach((item) => {
       return item.Product?.setFullURL(req, "PhotoPath");
     });
-    res.status(200).send(cartItems);
+    res.status(200).send({
+      CartItem: cartItems,
+      CartTotal:await cartTotal(req)
+
+    });
   } catch (error: any) {
     console.log("message===>", error?.message);
     next(error);
