@@ -10,6 +10,12 @@ export const sequelizeConnectionOptions: SequelizeOptions = {
   username: "gkdairy",
   password: "yinq9327YI",
   database: "GKDairy",
+  pool: {
+    max: 5,
+    min: 0,
+    idle: 10000,
+  },
+  
 
   dialectOptions: {
     options: {

@@ -14,19 +14,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cancelOrder = exports.createOrder = exports.getOrders = exports.signout = exports.resetPassword = exports.forgotPassword = exports.sendOTP = exports.verifyAccount = exports.getCurrentUser = exports.login = exports.register = void 0;
 const node_path_1 = __importDefault(require("node:path"));
-const User_model_1 = __importDefault(require("../models/User.model"));
+const user_model_1 = __importDefault(require("../models/user.model"));
 const node_fs_1 = __importDefault(require("node:fs"));
 const config_1 = require("../../config");
 const custom_error_1 = require("../../custom.error");
-const decodeJWT_1 = __importDefault(require("../utils/decodeJWT"));
-const Sale_model_1 = __importDefault(require("../models/Sale.model"));
-const GlobalType_model_1 = __importDefault(require("../models/GlobalType.model"));
-const SaleDetail_model_1 = __importDefault(require("../models/SaleDetail.model"));
-const UserAddress_model_1 = __importDefault(require("../models/UserAddress.model"));
+const sale_model_1 = __importDefault(require("../models/sale.model"));
+const global_type_model_1 = __importDefault(require("../models/global-type.model"));
+const sale_detail_model_1 = __importDefault(require("../models/sale-detail.model"));
+const user_address_model_1 = __importDefault(require("../models/user-address.model"));
 const database_1 = require("../database");
-const ProductMaster_model_1 = __importDefault(require("../models/product/ProductMaster.model"));
-const Promotion_model_1 = require("../models/Promotion.model");
-const ProductSubscriptions_model_1 = __importDefault(require("../models/ProductSubscriptions.model"));
+const product_master_model_1 = __importDefault(require("../models/product-master.model"));
+const promotion_model_1 = require("../models/promotion.model");
+const product_subscription_model_1 = __importDefault(require("../models/product-subscription.model"));
 const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.file) {
         const { filename, path: tmpPath } = req.file;
@@ -34,8 +33,9 @@ const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         req.body.uploadPath = node_path_1.default.join(config_1.userImageUploadOptions.relativePath, filename);
         req.body.PhotoPath = node_path_1.default.join(config_1.userImageUploadOptions.directory, filename);
     }
+    console.log("register", req.body);
     try {
-        const createdUser = yield User_model_1.default.create(req.body);
+        const createdUser = yield user_model_1.default.create(req.body);
         if (!createdUser) {
             throw new custom_error_1.UserNotFoundExceptionError("User not found!");
         }
@@ -71,11 +71,11 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
         if (!MobileNo || !Password) {
             throw new Error("MobileNo or Password is missing");
         }
-        const user = yield User_model_1.default.findOne({
+        const user = yield user_model_1.default.findOne({
             where: {
                 MobileNo: MobileNo,
             },
-            include: [UserAddress_model_1.default, ProductSubscriptions_model_1.default,],
+            include: [user_address_model_1.default, product_subscription_model_1.default,],
         });
         if (!user) {
             throw new custom_error_1.UserNotFoundExceptionError("User not found!");
@@ -96,18 +96,12 @@ exports.login = login;
 const getCurrentUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     // get user fromtoken
     try {
-        let authuser;
-        if (req.body.user) {
-            authuser = req.body.user;
-        }
-        else {
-            authuser = (0, decodeJWT_1.default)(req);
-        }
-        const user = yield User_model_1.default.findByPk(authuser.UserGUID, {
+        console.log("auth_user==>", req.body.user);
+        const user = yield user_model_1.default.findByPk(req.body.user.UserGUID, {
             attributes: {
                 exclude: ["Password"],
             },
-            include: [UserAddress_model_1.default],
+            include: [user_address_model_1.default],
         });
         user === null || user === void 0 ? void 0 : user.setFullURL(req, "PhotoPath");
         res.json([user]);
@@ -122,7 +116,7 @@ const verifyAccount = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     const { deleted } = req.query;
     const paranoid = deleted === "true" ? false : true;
     try {
-        const user = yield User_model_1.default.findOne({
+        const user = yield user_model_1.default.findOne({
             where: {
                 MobileNo,
             },
@@ -149,7 +143,7 @@ const sendOTP = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
     const { deleted } = req.query;
     const paranoid = deleted === "true" ? false : true;
     try {
-        const user = yield User_model_1.default.findOne({
+        const user = yield user_model_1.default.findOne({
             where: {
                 MobileNo,
             },
@@ -174,7 +168,7 @@ const forgotPassword = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     const { deleted } = req.query;
     const paranoid = deleted === "true" ? false : true;
     try {
-        const user = yield User_model_1.default.findOne({
+        const user = yield user_model_1.default.findOne({
             where: {
                 MobileNo,
             },
@@ -199,7 +193,7 @@ const resetPassword = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     const { deleted } = req.query;
     const paranoid = deleted === "true" ? false : true;
     try {
-        const user = yield User_model_1.default.findOne({
+        const user = yield user_model_1.default.findOne({
             where: {
                 MobileNo,
             },
@@ -228,7 +222,7 @@ const signout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.signout = signout;
 const getOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const salemasters = yield Sale_model_1.default.findAll({
+    const salemasters = yield sale_model_1.default.findAll({
         where: {
             CustomerGUID: req.body.user.UserGUID,
         },
@@ -241,7 +235,7 @@ const getOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function
             //   as: "Customer",
             // },
             {
-                model: GlobalType_model_1.default,
+                model: global_type_model_1.default,
                 as: "SaleTypeRef",
                 //  Sale type shoudl be astring value of arributes.GlobaleTypeName
                 attributes: {
@@ -250,14 +244,14 @@ const getOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function
                 },
             },
             {
-                model: SaleDetail_model_1.default,
+                model: sale_detail_model_1.default,
                 all: true,
                 include: [{
-                        model: ProductMaster_model_1.default,
+                        model: product_master_model_1.default,
                     }]
             },
             {
-                model: Promotion_model_1.Promotion
+                model: promotion_model_1.Promotion
             }
         ],
     });
@@ -276,12 +270,7 @@ const getOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function
 });
 exports.getOrders = getOrders;
 const createOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.body.user) {
-        req.body.CreatedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
+    req.body.CreatedGUID = req.body.user.UserGUID;
     const transaction = yield database_1.sequelize.transaction();
     try {
         const { SaleOrderID, SaleOrderDate, ModeOfPayment, SaleChannel, SalePlatform, CustomerGUID = req.body.user.UserGUID, SalesDetails, CreatedGUID, PaymentTransactionID, PromotionGUID } = req.body;
@@ -325,8 +314,8 @@ const createOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         if (!Array.isArray(SalesDetails)) {
             throw new Error("SaleDetails should be an array");
         }
-        const sale = yield Sale_model_1.default.create(saleData, { transaction });
-        const saleDetails = yield SaleDetail_model_1.default.bulkCreate(SalesDetails.map((saleDetail) => (Object.assign({ SalesMasterGUID: sale.SalesMasterGUID }, saleDetail))), { transaction });
+        const sale = yield sale_model_1.default.create(saleData, { transaction });
+        const saleDetails = yield sale_detail_model_1.default.bulkCreate(SalesDetails.map((saleDetail) => (Object.assign({ SalesMasterGUID: sale.SalesMasterGUID }, saleDetail))), { transaction });
         transaction.commit();
         res.json({
             sale,
@@ -349,7 +338,7 @@ const cancelOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     }
     const transaction = yield database_1.sequelize.transaction();
     try {
-        const sale = yield Sale_model_1.default.findByPk(SalesMasterGUID, { transaction });
+        const sale = yield sale_model_1.default.findByPk(SalesMasterGUID, { transaction });
         if (!sale) {
             throw new Error("Sale not found!");
         }

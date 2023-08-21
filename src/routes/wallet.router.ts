@@ -1,6 +1,6 @@
 import express from "express";
-import handleSequelizeError from "../middlewares/handleSequelizeError";
-import { creditOrDebit, getWalletBalance, getWalletTransactions, } from "../controllers/userWallet.controller";
+import handleSequelizeError from "../middlewares/handle-sequelize-error.middleware";
+import { creditOrDebit, getWalletBalance, getWalletTransactions, } from "../controllers/user-wallet.controller";
 
 const router = express.Router();
 router.get("/", getWalletTransactions, handleSequelizeError);

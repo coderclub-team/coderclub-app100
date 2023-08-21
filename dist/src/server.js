@@ -35,28 +35,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * FILEPATH: /Users/arul/shalom/coderclub-app100/src/server.ts
+ *
+ * This file contains the server configuration and routing logic for the application.
+ * It imports the necessary modules and sets up the server to listen on port 3000.
+ */
 const database_1 = __importDefault(require("./database"));
 const dotenv = __importStar(require("dotenv")); // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 dotenv.config().parsed;
 const node_cron_1 = __importDefault(require("node-cron"));
 const express_1 = __importDefault(require("express"));
 const auth_router_1 = __importDefault(require("./routes/auth.router"));
-const authGaurd_middleware_1 = __importDefault(require("./middlewares/authGaurd.middleware"));
+const auth_gaurd_middleware_1 = __importDefault(require("./middlewares/auth-gaurd.middleware"));
 const node_path_1 = __importDefault(require("node:path"));
 const cors_1 = __importDefault(require("cors"));
 const user_router_1 = __importDefault(require("./routes/user.router"));
-const productCategory_router_1 = __importDefault(require("./routes/product/productCategory.router"));
-const productSubCategory_router_1 = __importDefault(require("./routes/product/productSubCategory.router"));
-const ProductMaster_router_1 = __importDefault(require("./routes/product/ProductMaster.router"));
+const product_category_router_1 = __importDefault(require("./routes/product-category.router"));
+const product_sub_category_router_1 = __importDefault(require("./routes/product-sub-category.router"));
+const product_master_router_1 = __importDefault(require("./routes/product-master.router"));
 const sale_router_1 = __importDefault(require("./routes/sale.router"));
-const cartitems_router_1 = __importDefault(require("./routes/cartitems.router"));
-const userAddresses_route_1 = __importDefault(require("./routes/userAddresses.route"));
-const productSubscriptions_router_1 = __importDefault(require("./routes/productSubscriptions.router"));
-const handleSequelizeError_1 = __importDefault(require("./middlewares/handleSequelizeError"));
+const cart_item_router_1 = __importDefault(require("./routes/cart-item.router"));
+const user_address_route_1 = __importDefault(require("./routes/user-address.route"));
+const product_subscription_router_1 = __importDefault(require("./routes/product-subscription.router"));
+const handle_sequelize_error_middleware_1 = __importDefault(require("./middlewares/handle-sequelize-error.middleware"));
 const general_router_1 = require("./routes/general.router");
 const wallet_router_1 = __importDefault(require("./routes/wallet.router"));
 const promotion_router_1 = __importDefault(require("./routes/promotion.router"));
-const productSubscriptions_controller_1 = require("./controllers/productSubscriptions.controller");
+const product_subscription_controller_1 = require("./controllers/product-subscription.controller");
 // Set the base URL and store it in app.locals
 const app = (0, express_1.default)();
 app.use(express_1.default.static("public"));
@@ -65,19 +71,22 @@ app.use((0, cors_1.default)());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use(express_1.default.json());
 console.log("Connecting to DB", node_path_1.default.join("public"));
+// Database connection
 (0, database_1.default)()
-    .then(() => {
-    console.log("Connected to DB");
-})
-    .catch((err) => {
-    console.log("Error connecting to DB", err);
-});
-app.use("/api/users", authGaurd_middleware_1.default, user_router_1.default);
-app.use("/api/cartitems", authGaurd_middleware_1.default, cartitems_router_1.default);
-app.use("/api/addresses", authGaurd_middleware_1.default, userAddresses_route_1.default);
-app.use("/api/productMasters", ProductMaster_router_1.default);
-app.use("/api/productcategories", productCategory_router_1.default);
-app.use("/api/productsubcategories", productSubCategory_router_1.default);
+    .then((r) => console.log("Connected to DB"))
+    .catch((e) => console.log("Error connecting to DB", e));
+app.use("/api/users", auth_gaurd_middleware_1.default, user_router_1.default);
+app.use("/api/cartitems", auth_gaurd_middleware_1.default, cart_item_router_1.default);
+app.use("/api/addresses", auth_gaurd_middleware_1.default, user_address_route_1.default);
+app.use("/api/productMasters", product_master_router_1.default);
+app.use("/api/productcategories", product_category_router_1.default);
+app.use("/api/productsubcategories", product_sub_category_router_1.default);
+app.use("/api/sales", auth_gaurd_middleware_1.default, sale_router_1.default);
+app.use("/api", auth_router_1.default);
+app.use("/api/subscriptions", auth_gaurd_middleware_1.default, product_subscription_router_1.default, handle_sequelize_error_middleware_1.default);
+app.use("/api/billingcycles", general_router_1.billingcyclesRouter, handle_sequelize_error_middleware_1.default);
+app.use("/api/wallets", auth_gaurd_middleware_1.default, wallet_router_1.default, handle_sequelize_error_middleware_1.default);
+app.use("/api/promotions", promotion_router_1.default, handle_sequelize_error_middleware_1.default);
 app.get("/api/app/config", (req, res) => {
     const app_config = {
         splashlogo: [
@@ -116,17 +125,13 @@ app.get("/api/app/config", (req, res) => {
     });
     res.status(200).json(app_config);
 });
-app.use("/api/sales", authGaurd_middleware_1.default, sale_router_1.default);
-app.use("/api", auth_router_1.default);
-app.use("/api/subscriptions", authGaurd_middleware_1.default, productSubscriptions_router_1.default, handleSequelizeError_1.default);
-app.use("/api/billingcycles", general_router_1.billingcyclesRouter, handleSequelizeError_1.default);
-app.use("/api/wallets", authGaurd_middleware_1.default, wallet_router_1.default, handleSequelizeError_1.default);
-app.use("/api/promotions", promotion_router_1.default, handleSequelizeError_1.default);
+// app listening on port 3000
 app.listen(3000, () => {
     console.log("Server started on port 3000");
 });
+// cron job updating subscription status
 node_cron_1.default.schedule("0 0 0 * * *", () => __awaiter(void 0, void 0, void 0, function* () {
-    yield (0, productSubscriptions_controller_1.expireSubscription)();
+    yield (0, product_subscription_controller_1.expireSubscription)();
     console.log("running a task every day at 12:00 am");
 }), {
     scheduled: true,

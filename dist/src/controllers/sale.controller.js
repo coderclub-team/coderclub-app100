@@ -13,23 +13,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getSaleById = exports.getAllSales = void 0;
-const SaleDetail_model_1 = __importDefault(require("../models/SaleDetail.model"));
-const Sale_model_1 = __importDefault(require("../models/Sale.model"));
-const GlobalType_model_1 = __importDefault(require("../models/GlobalType.model"));
-const User_model_1 = __importDefault(require("../models/User.model"));
+const sale_detail_model_1 = __importDefault(require("../models/sale-detail.model"));
+const sale_model_1 = __importDefault(require("../models/sale.model"));
+const global_type_model_1 = __importDefault(require("../models/global-type.model"));
+const user_model_1 = __importDefault(require("../models/user.model"));
 function getAllSales(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const salemasters = yield Sale_model_1.default.findAll({
+        const salemasters = yield sale_model_1.default.findAll({
             attributes: {
                 exclude: ["CustomerGUID", "SaleTypeRef"],
             },
             include: [
                 {
-                    model: User_model_1.default,
+                    model: user_model_1.default,
                     as: "Customer",
                 },
                 {
-                    model: GlobalType_model_1.default,
+                    model: global_type_model_1.default,
                     as: "SaleTypeRef",
                     //  Sale type shoudl be astring value of arributes.GlobaleTypeName
                     attributes: {
@@ -38,7 +38,7 @@ function getAllSales(req, res) {
                     },
                 },
                 {
-                    model: SaleDetail_model_1.default,
+                    model: sale_detail_model_1.default,
                     all: true,
                 },
             ],
@@ -56,17 +56,17 @@ exports.getAllSales = getAllSales;
 function getSaleById(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const { SalemanGUID } = req.params;
-        const sale = yield Sale_model_1.default.findOne({
+        const sale = yield sale_model_1.default.findOne({
             where: {
                 SalemanGUID: SalemanGUID,
             },
             include: [
                 {
-                    model: User_model_1.default,
+                    model: user_model_1.default,
                     as: "Customer",
                 },
                 {
-                    model: GlobalType_model_1.default,
+                    model: global_type_model_1.default,
                     as: "SaleTypeRef",
                     //  Sale type shoudl be astring value of arributes.GlobaleTypeName
                     attributes: {
@@ -75,7 +75,7 @@ function getSaleById(req, res) {
                     },
                 },
                 {
-                    model: SaleDetail_model_1.default,
+                    model: sale_detail_model_1.default,
                     all: true,
                 },
             ],

@@ -22,17 +22,33 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_typescript_1 = require("sequelize-typescript");
-const GlobalType_model_1 = __importDefault(require("./GlobalType.model"));
+const global_type_model_1 = __importDefault(require("./global-type.model"));
 const database_1 = require("../database");
-const User_model_1 = __importDefault(require("./User.model"));
-const SaleDetail_model_1 = __importDefault(require("./SaleDetail.model"));
-const Promotion_model_1 = require("./Promotion.model");
+const user_model_1 = __importDefault(require("./user.model"));
+const sale_detail_model_1 = __importDefault(require("./sale-detail.model"));
+const promotion_model_1 = require("./promotion.model");
 let Sale = class Sale extends sequelize_typescript_1.Model {
     static addSaleOrderID(sale) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield database_1.sequelize.query("SELECT IDENT_CURRENT('tbl_SalesMaster')+1 as NEXTID");
             const id = result[0][0].NEXTID;
             sale.SaleOrderID = `S${id.toString().padStart(7, '0')}`;
+        });
+    }
+    static beforeBulkCreateHook(instances) {
+        instances.forEach((instance) => {
+            Object.entries(instance.toJSON()).forEach(([key, value]) => {
+                if (typeof value === "string") {
+                    instance.setDataValue(key, value.trim());
+                }
+            });
+        });
+    }
+    static beforeCreateHook(instance) {
+        Object.entries(instance.toJSON()).forEach(([key, value]) => {
+            if (typeof value === "string") {
+                instance.setDataValue(key, value.trim());
+            }
         });
     }
 };
@@ -47,7 +63,7 @@ __decorate([
     __metadata("design:type", String)
 ], Sale.prototype, "SaleOrderID", void 0);
 __decorate([
-    (0, sequelize_typescript_1.ForeignKey)(() => GlobalType_model_1.default),
+    (0, sequelize_typescript_1.ForeignKey)(() => global_type_model_1.default),
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.VIRTUAL,
         field: "SaleType",
@@ -55,8 +71,8 @@ __decorate([
     __metadata("design:type", String)
 ], Sale.prototype, "SaleType", void 0);
 __decorate([
-    (0, sequelize_typescript_1.BelongsTo)(() => GlobalType_model_1.default),
-    __metadata("design:type", GlobalType_model_1.default)
+    (0, sequelize_typescript_1.BelongsTo)(() => global_type_model_1.default),
+    __metadata("design:type", global_type_model_1.default)
 ], Sale.prototype, "SaleTypeRef", void 0);
 __decorate([
     sequelize_typescript_1.Column,
@@ -83,7 +99,7 @@ __decorate([
     __metadata("design:type", Date)
 ], Sale.prototype, "CreatedDate", void 0);
 __decorate([
-    (0, sequelize_typescript_1.ForeignKey)(() => User_model_1.default),
+    (0, sequelize_typescript_1.ForeignKey)(() => user_model_1.default),
     sequelize_typescript_1.Column,
     __metadata("design:type", Number)
 ], Sale.prototype, "CustomerGUID", void 0);
@@ -104,18 +120,18 @@ __decorate([
     __metadata("design:type", String)
 ], Sale.prototype, "PaymentTransactionID", void 0);
 __decorate([
-    (0, sequelize_typescript_1.ForeignKey)(() => Promotion_model_1.Promotion),
+    (0, sequelize_typescript_1.ForeignKey)(() => promotion_model_1.Promotion),
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.NUMBER,
     }),
     __metadata("design:type", Number)
 ], Sale.prototype, "PromotionGUID", void 0);
 __decorate([
-    (0, sequelize_typescript_1.BelongsTo)(() => Promotion_model_1.Promotion),
-    __metadata("design:type", Promotion_model_1.Promotion)
+    (0, sequelize_typescript_1.BelongsTo)(() => promotion_model_1.Promotion),
+    __metadata("design:type", promotion_model_1.Promotion)
 ], Sale.prototype, "Promotion", void 0);
 __decorate([
-    (0, sequelize_typescript_1.HasMany)(() => SaleDetail_model_1.default, {
+    (0, sequelize_typescript_1.HasMany)(() => sale_detail_model_1.default, {
         foreignKey: "SalesMasterGUID",
         as: "SaleDetails",
     }),
@@ -127,6 +143,20 @@ __decorate([
     __metadata("design:paramtypes", [Sale]),
     __metadata("design:returntype", Promise)
 ], Sale, "addSaleOrderID", null);
+__decorate([
+    sequelize_typescript_1.BeforeBulkCreate,
+    sequelize_typescript_1.BeforeBulkUpdate,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Array]),
+    __metadata("design:returntype", void 0)
+], Sale, "beforeBulkCreateHook", null);
+__decorate([
+    sequelize_typescript_1.BeforeCreate,
+    sequelize_typescript_1.BeforeUpdate,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Sale]),
+    __metadata("design:returntype", void 0)
+], Sale, "beforeCreateHook", null);
 Sale = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: "tbl_SalesMaster",

@@ -8,8 +8,8 @@ import {
   getAllUsers,
   getUserById,
   updateUserById,
-} from "../controllers/userController.";
-import handleSequelizeError from "../middlewares/handleSequelizeError";
+} from "../controllers/user.controller.";
+import handleSequelizeError from "../middlewares/handle-sequelize-error.middleware";
 
 const userRouter = Router();
 

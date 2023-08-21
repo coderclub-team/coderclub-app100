@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 
-import SaleDetail from "../models/SaleDetail.model";
-import Sale from "../models/Sale.model";
-import GlobalType from "../models/GlobalType.model";
+import SaleDetail from "../models/sale-detail.model";
+import Sale from "../models/sale.model";
+import GlobalType from "../models/global-type.model";
 import { Sequelize } from "sequelize";
-import User from "../models/User.model";
+import User from "../models/user.model";
 
 export async function getAllSales(req: Request, res: Response) {
   const salemasters = await Sale.findAll({

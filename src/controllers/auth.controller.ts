@@ -1,18 +1,17 @@
 import { NextFunction, Request, Response } from "express";
 import path from "node:path";
-import User from "../models/User.model";
+import User from "../models/user.model";
 import fs from "node:fs";
 import { userImageUploadOptions } from "../../config";
 import { UserNotFoundExceptionError } from "../../custom.error";
-import decodeJWT from "../utils/decodeJWT";
-import Sale from "../models/Sale.model";
-import GlobalType from "../models/GlobalType.model";
-import SaleDetail from "../models/SaleDetail.model";
-import UserAddress from "../models/UserAddress.model";
+import Sale from "../models/sale.model";
+import GlobalType from "../models/global-type.model";
+import SaleDetail from "../models/sale-detail.model";
+import UserAddress from "../models/user-address.model";
 import { sequelize } from "../database";
-import ProductMaster from "../models/product/ProductMaster.model";
-import { Promotion } from "../models/Promotion.model";
-import ProductSubscription from "../models/ProductSubscriptions.model";
+import ProductMaster from "../models/product-master.model";
+import { Promotion } from "../models/promotion.model";
+import ProductSubscription from "../models/product-subscription.model";
 
 export const register = async (
   req: Request,
@@ -28,6 +27,8 @@ export const register = async (
     );
     req.body.PhotoPath = path.join(userImageUploadOptions.directory, filename);
   }
+  
+  console.log("register", req.body);
   try {
     const createdUser = await User.create(req.body);
     if (!createdUser) {
@@ -100,13 +101,9 @@ export const getCurrentUser = async (
 ) => {
   // get user fromtoken
   try {
-    let authuser: User;
-    if (req.body.user) {
-      authuser = req.body.user;
-    } else {
-      authuser = decodeJWT(req) as User;
-    }
-    const user = await User.findByPk(authuser.UserGUID, {
+    console.log("auth_user==>",req.body.user)
+    
+    const user = await User.findByPk(req.body.user.UserGUID, {
       attributes: {
         exclude: ["Password"],
       },
@@ -306,11 +303,8 @@ export const createOrder = async (
   res: Response,
   next: NextFunction
 ) => {
-  if (req.body.user) {
-    req.body.CreatedGUID = req.body.user.UserGUID;
-  } else {
-    req.body.CreatedGUID = decodeJWT(req).UserGUID;
-  }
+  req.body.CreatedGUID = req.body.user.UserGUID;
+ 
   const transaction = await sequelize.transaction();
   
   try {
