@@ -13,13 +13,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createProductReview = exports.createAttribute = exports.deleteProductMaster = exports.updateProductMaster = exports.createProductMaster = exports.getProductMasterById = exports.getAllProductMasters = void 0;
-<<<<<<<< HEAD:dist/src/controllers/product-master.controller.js
 const config_1 = require("../../config");
 const product_master_model_1 = __importDefault(require("../models/product-master.model"));
-========
-const config_1 = require("../../../config");
-const ProductMaster_model_1 = __importDefault(require("../../models/product/ProductMaster.model"));
->>>>>>>> ada1a8c0c9add72257eaf8f8602dbaa3f708d609:dist/src/controllers/product/productMaster.controller.js
 const node_path_1 = __importDefault(require("node:path"));
 const database_1 = require("../database");
 const product_variant_model_1 = require("../models/product-variant.model");

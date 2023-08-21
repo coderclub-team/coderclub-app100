@@ -14,11 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteProductCategory = exports.createProductCategory = exports.getProductCategoryById = exports.getAllProductCategories = void 0;
-<<<<<<<< HEAD:dist/src/controllers/product-category.controller.js
 const product_category_model_1 = __importDefault(require("../models/product-category.model"));
-========
-const ProductCategory_model_1 = __importDefault(require("../../models/product/ProductCategory.model"));
->>>>>>>> ada1a8c0c9add72257eaf8f8602dbaa3f708d609:dist/src/controllers/product/productCategory.controller.js
 // import { productCategoryImageUploadOptions } from "../../config";
 const getAllProductCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
