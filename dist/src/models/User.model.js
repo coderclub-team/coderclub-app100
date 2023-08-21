@@ -31,6 +31,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const user_address_model_1 = __importDefault(require("./user-address.model"));
 const message_class_1 = __importDefault(require("../entities/message.class"));
 const product_subscription_model_1 = __importDefault(require("./product-subscription.model"));
+// 
 let User = User_1 = class User extends sequelize_typescript_1.Model {
     get token() {
         return this.token;

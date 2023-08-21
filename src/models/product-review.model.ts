@@ -9,13 +9,13 @@ import {
   BelongsTo,
   Column,
   ForeignKey,
-  HasOne,
   Model,
   PrimaryKey,
   Table,
 } from "sequelize-typescript";
 import ProductMaster from "./product-master.model";
 import User from "./user.model";
+
 
 // ReviewGUID;
 // Review;
