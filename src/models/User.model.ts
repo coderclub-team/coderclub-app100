@@ -8,21 +8,23 @@ import {
   UpdatedAt,
   DeletedAt,
   BeforeUpdate,
-  Unique,
-  BeforeSave,
   BeforeBulkCreate,
   BeforeBulkUpdate,
+  ForeignKey,
+  HasMany,
+  AfterCreate,
 } from "sequelize-typescript";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 import moment from "moment";
 import { DataTypes } from "sequelize";
 
-import {
-  IncorrectPasswordError,
-  UserNotFoundExceptionError,
-} from "../../custom.error";
 import jwt from "jsonwebtoken";
+import UserAddress from "./user-address.model";
+import { Request } from "express";
+import Message from "../entities/message.class";
+import ProductSubscription from "./product-subscription.model";
 
 @Table({
   tableName: "tbl_Users",
@@ -108,6 +110,7 @@ export default class User extends Model {
   @Column({
     type: DataType.STRING(200),
     allowNull: true,
+    defaultValue: "./identities/user-identity.png",
   })
   PhotoPath!: string;
 
@@ -153,6 +156,10 @@ export default class User extends Model {
     },
   })
   public Landline!: number | null;
+
+  @Column
+  @ForeignKey(() => UserAddress)
+  PrimaryAddressGUID?: number;
 
   @Column({
     type: DataType.DATEONLY,
@@ -234,6 +241,12 @@ export default class User extends Model {
   })
   OtpExpiryDate!: Date | null;
 
+  @Column
+  DeviceToken!: string;
+
+  @Column
+  DeviceType!: string;
+
   @CreatedAt
   @Column({
     type: DataType.DATEONLY,
@@ -264,9 +277,27 @@ export default class User extends Model {
   })
   public ModifiedGUID!: number | null;
 
+  @Column
+  StoreGUID!: number;
   static readonly fields = {
     password: { type: DataTypes.STRING, allowNull: false, exclude: true },
   };
+
+  @Column({
+    type: DataType.VIRTUAL,
+    get() {
+      const userId = this.getDataValue("UserGUID");
+      if (!userId) return;
+      const hash = crypto.createHash("sha256");
+      const hashDigest = hash.update(userId).digest("hex");
+      // Extract the first 16 characters of the hash to get a 16-digit number
+      // const uniqueNumber = hashDigest.substring(0, 16);
+
+      const uniqueNumber = parseInt(hashDigest.substring(0, 16), 16);
+      return uniqueNumber;
+    },
+  })
+  DigitalCard?: number;
 
   private _token!: string;
 
@@ -277,6 +308,12 @@ export default class User extends Model {
     this._token = token;
   }
 
+  @HasMany(() => UserAddress)
+  Addresses?: UserAddress;
+
+  @HasMany(() => ProductSubscription)
+  Subscriptions?: ProductSubscription[];
+
   @BeforeCreate
   static async hashPassword(instance: User) {
     if (instance.Password) {
@@ -286,6 +323,18 @@ export default class User extends Model {
       const { OTP, OtpExpiryDate } = instance.generateOTP();
       instance.OTP = OTP;
       instance.OtpExpiryDate = OtpExpiryDate;
+    }
+  }
+  @AfterCreate
+  static async sendOTPMessage(instance: User) {
+    if (instance.MobileNo) {
+      const { OTP, OtpExpiryDate } = instance.generateOTP();
+      instance.OTP = OTP;
+      instance.OtpExpiryDate = OtpExpiryDate;
+      await Message.sendOTPMessage({
+        MobileNo: instance.getDataValue("MobileNo"),
+        OTP: OTP,
+      });
     }
   }
 
@@ -313,6 +362,8 @@ export default class User extends Model {
       });
 
       return Promise.reject("Incorrect password");
+    } else if (this.Status == 0) {
+      return Promise.reject("Account is not activated");
     }
 
     try {
@@ -343,7 +394,7 @@ export default class User extends Model {
     for (let i = 0; i < 6; i++) {
       OTP += digits[Math.floor(Math.random() * 10)];
     }
-    if (process.env.NDOE_ENV !== "production") {
+    if (process.env.NODE_ENV !== "production") {
       OTP = "998877";
     }
     // one hour from now
@@ -372,6 +423,10 @@ export default class User extends Model {
       const { OTP, OtpExpiryDate } = this.generateOTP();
       this.OTP = OTP;
       this.OtpExpiryDate = OtpExpiryDate ? OtpExpiryDate : null;
+      await Message.sendOTPMessage({
+        MobileNo: this.getDataValue("MobileNo"),
+        OTP: OTP,
+      });
       return await this.save();
     } catch (error: any) {
       return Promise.reject(error.message);
@@ -403,7 +458,12 @@ export default class User extends Model {
     }
   }
 
-  async resetPassword(password: string, otp: string): Promise<User> {
+  async resetPassword(
+    password: string,
+    otp: string,
+    email?: string,
+    mobileno?: string
+  ): Promise<User> {
     try {
       if (!password) {
         return Promise.reject("Password is required");
@@ -423,8 +483,14 @@ export default class User extends Model {
       this.OtpExpiryDate = null;
       this.Password_Attempt = 0;
       this.Status = 1;
+      if (email) {
+        this.EmailAddress = email;
+      }
+      if (mobileno) {
+        this.MobileNo = mobileno;
+      }
 
-      return this.save({
+      return await this.save({
         fields: ["Password", "OTP", "OtpExpiryDate", "Password_Attempt"],
       });
     } catch (error: any) {
@@ -470,5 +536,34 @@ export default class User extends Model {
         instance.setDataValue(key as keyof User, value.trim());
       }
     });
+  }
+  setFullURL(request: Request, key: keyof User) {
+    const hostname = request.protocol + "://" + request.get("host");
+    const originalPath =
+      this.getDataValue(key) || "identities/user-identity.png";
+    if (!originalPath) return;
+    const fullPath = `${hostname}/${originalPath}`;
+    this.setDataValue(key, fullPath);
+  }
+
+  @AfterCreate
+  static async sendWelcomeMessage(instance: User) {
+    if (instance.Account_Deactivated) {
+      return Promise.reject("Account is deactivated by admin");
+    }
+    // else if (this.Password_Attempt && this.Password_Attempt >= 3) {
+    //   return Promise.reject("Account is locked due to multiple attempts");
+    // }
+
+    const { OTP, OtpExpiryDate } = instance.generateOTP();
+    instance.OTP = OTP;
+    instance.OtpExpiryDate = OtpExpiryDate ? OtpExpiryDate : null;
+
+    if (instance.MobileNo) {
+      await Message.sendWelcomeMessage({
+        MobileNo: instance.getDataValue("MobileNo"),
+        OTP: instance.getDataValue("OTP"),
+      });
+    }
   }
 }

@@ -8,37 +8,15 @@ import {
   getAllUsers,
   getUserById,
   updateUserById,
-} from "../controllers/userController.";
-import authGaurdMiddleware from "../middlewares/authGaurd.middleware";
-import handleSequelizeError from "../middlewares/handleSequelizeError";
-import authRouter from "./auth.router";
+} from "../controllers/user.controller.";
+import handleSequelizeError from "../middlewares/handle-sequelize-error.middleware";
 
 const userRouter = Router();
-const upload = multer({
-  storage: userImageUploadOptions.storage,
-  limits: userImageUploadOptions.limits,
-  fileFilter: (req, file, cb) => {
-    if (
-      file.mimetype === "image/png" ||
-      file.mimetype === "image/jpg" ||
-      file.mimetype === "image/jpeg"
-    ) {
-      cb(null, true);
-    } else {
-      cb(null, false);
-      return cb(new Error("Only .png, .jpg and .jpeg format allowed!"));
-    }
-  },
-});
+
 
 userRouter.get("/", getAllUsers);
 userRouter.get("/:UserGUID", getUserById);
-userRouter.put(
-  "/:UserGUID",
-  upload.single("file"),
-  updateUserById,
-  handleSequelizeError
-);
+
 userRouter.delete("/:UserGUID", deleteUserById, handleSequelizeError);
 
 export default userRouter;

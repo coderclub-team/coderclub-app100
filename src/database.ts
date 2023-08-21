@@ -1,18 +1,29 @@
 import { Sequelize } from "sequelize-typescript";
 import { sequelizeConnectionOptions } from "../config";
-import ProductMaster from "./models/product/ProductMaster.model";
-import User from "./models/User.model";
-
-import ProductCategory from "./models/product/ProductCategory.model";
-import ProductSubCategory from "./models/product/ProductSubCategory.model";
-import Sale from "./models/Sale.model";
-import SaleDetail from "./models/SaleDetail.model";
-import GlobalType from "./models/GlobalType.model";
-import GlobalTypeCategory from "./models/GlobalTypeCategory.nodel";
+import ProductMaster from "./models/product-master.model";
+import User from "./models/user.model";
+import ProductCategory from "./models/product-category.model";
+import ProductSubCategory from "./models/product-sub-category.model";
+import Sale from "./models/sale.model";
+import SaleDetail from "./models/sale-detail.model";
+import GlobalType from "./models/global-type.model";
+import GlobalTypeCategory from "./models/global-type-category.nodel";
+import ProductReview from "./models/product-review.model";
+import UserAddress from "./models/user-address.model";
+import CartItem from "./models/cart-item";
+import ProductSubscription from "./models/product-subscription.model";
+import BillingCycles from "./models/billing-cycle.model";
+import ProductStockMaster from "./models/product-stock-master.model";
+import UserWallet from "./models/user-wallet.model";
+import UserWalletBalance from "./models/user-wallet-balance.model";
+import { Promotion } from "./models/promotion.model";
 
 export const sequelize = new Sequelize(sequelizeConnectionOptions);
 
 export default async () => {
+
+
+  
   sequelize
     .authenticate({
       logging: console.log,
@@ -36,18 +47,15 @@ export default async () => {
 
     Sale,
     SaleDetail,
+    ProductReview,
+    UserAddress,
+    CartItem,
+    BillingCycles,
+    ProductSubscription,
+    ProductStockMaster,
+    UserWallet,
+    UserWalletBalance,
+    Promotion
   ]);
-  User.sync();
-  ProductCategory.sync();
-  GlobalTypeCategory.sync();
-  GlobalType.sync();
-  ProductSubCategory.sync();
-  ProductMaster.sync();
-
-  Sale.sync({
-    schema: "dbo",
-  });
-  SaleDetail.sync();
-
-  return sequelize;
+  // return sequelize;
 };

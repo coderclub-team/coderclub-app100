@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getAllSales } from "../controllers/sale.controller";
+import { getAllSales, getSaleById } from "../controllers/sale.controller";
 // import {
 //   createLineMan,
 //   deleteLineMan,
@@ -11,7 +11,7 @@ import { getAllSales } from "../controllers/sale.controller";
 const router = Router();
 
 router.get("/", getAllSales);
-// router.get("/:LineManGUID", getLineManById);
+router.get("/:SaleMasterGUID", getSaleById);
 // router.post("/", createLineMan);
 // router.put("/:LineManGUID", updateLineMan);
 // router.delete("/:LineManGUID", deleteLineMan);

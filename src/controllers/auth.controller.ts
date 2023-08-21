@@ -1,13 +1,18 @@
 import { NextFunction, Request, Response } from "express";
 import path from "node:path";
-import User from "../models/User.model";
+import User from "../models/user.model";
 import fs from "node:fs";
 import { userImageUploadOptions } from "../../config";
 import { UserNotFoundExceptionError } from "../../custom.error";
-import decodeJWT from "../utils/decodeJWT";
-import Sale from "../models/Sale.model";
-import GlobalType from "../models/GlobalType.model";
-import SaleDetail from "../models/SaleDetail.model";
+import Sale from "../models/sale.model";
+import GlobalType from "../models/global-type.model";
+import SaleDetail from "../models/sale-detail.model";
+import UserAddress from "../models/user-address.model";
+import { sequelize } from "../database";
+import ProductMaster from "../models/product-master.model";
+import { Promotion } from "../models/promotion.model";
+import ProductSubscription from "../models/product-subscription.model";
+
 export const register = async (
   req: Request,
   res: Response,
@@ -22,6 +27,8 @@ export const register = async (
     );
     req.body.PhotoPath = path.join(userImageUploadOptions.directory, filename);
   }
+  
+  console.log("register", req.body);
   try {
     const createdUser = await User.create(req.body);
     if (!createdUser) {
@@ -33,12 +40,10 @@ export const register = async (
           console.log(err);
         }
       });
-      createdUser.PhotoPath = path.join(
-        req.protocol + "://" + req.get("host"),
-        createdUser.PhotoPath
-      );
+      createdUser.setFullURL(req, "PhotoPath");
+     
     }
-    // const token = await createdUser.authenticate(req.body.Password);
+    
     return res.status(201).json({
       message: "User created successfully!",
       user: createdUser,
@@ -71,17 +76,13 @@ export const login = async (
       where: {
         MobileNo: MobileNo,
       },
+      include: [UserAddress,ProductSubscription,],
     });
     if (!user) {
       throw new UserNotFoundExceptionError("User not found!");
     }
-    const imageKey = "PhotoPath";
-    const imagePath = user?.[imageKey as keyof User];
-    if (!imagePath) return;
-    const host = req.protocol + "://" + req.get("host");
-    const imageFullPath = path.join(host, imagePath);
-    user.setDataValue("PhotoPath", imageFullPath);
-
+    user.setFullURL(req, "PhotoPath");
+   
     const token = await user?.authenticate(Password);
     res.status(200).json({
       message: "Login successful!",
@@ -100,29 +101,18 @@ export const getCurrentUser = async (
 ) => {
   // get user fromtoken
   try {
-    let authuser: User;
-    if (req.body.user) {
-      authuser = req.body.user;
-    } else {
-      authuser = decodeJWT(req) as User;
-    }
-    const user = await User.findByPk(authuser.UserGUID, {
+    console.log("auth_user==>",req.body.user)
+    
+    const user = await User.findByPk(req.body.user.UserGUID, {
       attributes: {
         exclude: ["Password"],
       },
+      include: [UserAddress],
     });
 
-    const imageKey = "PhotoPath";
-    const imagePath = user?.[imageKey as keyof User];
-    if (!imagePath) return;
-    const host = req.protocol + "://" + req.get("host");
-    const imageFullPath = path.join(host, imagePath);
-    user.setDataValue("PhotoPath", imageFullPath);
+    user?.setFullURL(req, "PhotoPath");
 
-    res.json({
-      message: "Current user fetched successfully!",
-      user: user,
-    });
+    res.json([user]);
   } catch (error) {
     next(error);
   }
@@ -221,7 +211,7 @@ export const resetPassword = async (
   next: NextFunction
 ) => {
   // reset password by verifying OTP
-  const { MobileNo, OTP, Password } = req.body;
+  const { MobileNo, OTP, Password,EmailAddress } = req.body;
   const { deleted } = req.query;
   const paranoid = deleted === "true" ? false : true;
   try {
@@ -236,7 +226,7 @@ export const resetPassword = async (
         message: "User not found!",
       });
     }
-    await user.resetPassword(Password, OTP);
+    await user.resetPassword(Password, OTP,EmailAddress,MobileNo);
     res.status(200).json({
       message: "Password reset successfully!",
       user,
@@ -259,16 +249,18 @@ export const getOrders = async (
   const salemasters = await Sale.findAll({
     where: {
       CustomerGUID: req.body.user.UserGUID,
+      
     },
+    
     attributes: {
       exclude: ["CustomerGUID", "SaleTypeRef"],
     },
 
     include: [
-      {
-        model: User,
-        as: "Customer",
-      },
+      // {
+      //   model: User,
+      //   as: "Customer",
+      // },
       {
         model: GlobalType,
         as: "SaleTypeRef",
@@ -282,11 +274,21 @@ export const getOrders = async (
       {
         model: SaleDetail,
         all: true,
+        include: [{
+          model:ProductMaster,
+        }]
       },
+      {
+        model:Promotion
+      }
     ],
   });
 
-  salemasters.forEach((sale) => {
+  salemasters?.forEach((sale) => {
+    sale?.SaleDetails?.forEach(saleDetail=>{
+      saleDetail?.product?.setFullURL(req,"PhotoPath")
+    })
+   
     if (sale.SaleTypeRef) {
       sale.setDataValue("SaleType", sale.SaleTypeRef.GlobalTypeName);
       sale.setDataValue("SaleTypeRef", undefined);
@@ -295,3 +297,117 @@ export const getOrders = async (
 
   res.json(salemasters);
 };
+
+export const createOrder = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  req.body.CreatedGUID = req.body.user.UserGUID;
+ 
+  const transaction = await sequelize.transaction();
+  
+  try {
+    const {
+      SaleOrderID,
+      SaleOrderDate,
+      ModeOfPayment,
+      SaleChannel,
+      SalePlatform,
+      CustomerGUID=req.body.user.UserGUID,
+      SalesDetails,
+      CreatedGUID,
+      PaymentTransactionID,
+      PromotionGUID
+    } = req.body;
+    const saleData = {
+      SaleOrderID,
+      SaleOrderDate,
+      SaleChannel,
+      CustomerGUID,
+      CreatedGUID,
+      SalePlatform,
+      ModeOfPayment,
+      PaymentTransactionID,
+      PromotionGUID
+    };
+    if(!SaleOrderDate){
+      throw new Error("SaleOrderDate is required");
+    }
+  
+    else if(!ModeOfPayment){
+      throw new Error("ModeOfPayment is required");
+    }
+    else if(!SaleChannel){
+      throw new Error("SaleChannel is required");
+    }
+    else if(!SalePlatform){
+      throw new Error("SalePlatform is required");
+    } else if(!PaymentTransactionID){
+      throw new Error("PaymentTransactionID is required");
+    }
+    
+    SalesDetails.forEach((saleDetail: any) => {
+      if(!saleDetail.ProductGUID){
+        throw new Error("ProductGUID is required");
+      }
+      else if(!saleDetail.Qty){
+        throw new Error("Quantity is required");
+      }
+      else if(!saleDetail.Amount){
+        throw new Error("Amount is required");
+      }
+    });
+
+    if(!Array.isArray(SalesDetails)){
+      throw new Error("SaleDetails should be an array");
+    }
+    
+    const sale = await Sale.create(saleData, { transaction });
+    const saleDetails = await SaleDetail.bulkCreate(
+      SalesDetails.map((saleDetail: any) => ({
+        SalesMasterGUID: sale.SalesMasterGUID,
+        ...saleDetail,
+      })),
+      { transaction }
+    );
+    transaction.commit();
+    res.json({
+      sale,
+      SaleDetails: saleDetails,
+    });
+  } catch (error) {
+    transaction.rollback();
+    next(error);
+  }
+};
+
+export const cancelOrder = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { SalesMasterGUID } = req.params;
+  if(!SalesMasterGUID){
+    throw new Error("SalesMasterGUID is required");
+  }else if(!req.body.Status){
+    throw new Error("Status is required");
+  }
+  const transaction = await sequelize.transaction();
+  try {
+    const sale = await Sale.findByPk(SalesMasterGUID, { transaction });
+    if (!sale) {
+      throw new Error("Sale not found!");
+    }
+     sale.Status=req.body.Status;
+   const user=await sale.save({ transaction });
+    transaction.commit();
+    res.json({
+      message: "Sale updated successfully!",
+      user,
+    });
+  } catch (error) {
+    transaction.rollback();
+    next(error);
+  }
+}
