@@ -28,9 +28,9 @@ const crypto_1 = __importDefault(require("crypto"));
 const moment_1 = __importDefault(require("moment"));
 const sequelize_1 = require("sequelize");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const UserAddress_model_1 = __importDefault(require("./UserAddress.model"));
-const Message_model_1 = __importDefault(require("./Message.model"));
-const ProductSubscriptions_model_1 = __importDefault(require("./ProductSubscriptions.model"));
+const user_address_model_1 = __importDefault(require("./user-address.model"));
+const message_class_1 = __importDefault(require("../entities/message.class"));
+const product_subscription_model_1 = __importDefault(require("./product-subscription.model"));
 let User = User_1 = class User extends sequelize_typescript_1.Model {
     get token() {
         return this.token;
@@ -56,7 +56,7 @@ let User = User_1 = class User extends sequelize_typescript_1.Model {
                 const { OTP, OtpExpiryDate } = instance.generateOTP();
                 instance.OTP = OTP;
                 instance.OtpExpiryDate = OtpExpiryDate;
-                yield Message_model_1.default.sendOTPMessage({
+                yield message_class_1.default.sendOTPMessage({
                     MobileNo: instance.getDataValue("MobileNo"),
                     OTP: OTP,
                 });
@@ -143,7 +143,7 @@ let User = User_1 = class User extends sequelize_typescript_1.Model {
                 const { OTP, OtpExpiryDate } = this.generateOTP();
                 this.OTP = OTP;
                 this.OtpExpiryDate = OtpExpiryDate ? OtpExpiryDate : null;
-                yield Message_model_1.default.sendOTPMessage({
+                yield message_class_1.default.sendOTPMessage({
                     MobileNo: this.getDataValue("MobileNo"),
                     OTP: OTP,
                 });
@@ -276,7 +276,7 @@ let User = User_1 = class User extends sequelize_typescript_1.Model {
             instance.OTP = OTP;
             instance.OtpExpiryDate = OtpExpiryDate ? OtpExpiryDate : null;
             if (instance.MobileNo) {
-                yield Message_model_1.default.sendWelcomeMessage({
+                yield message_class_1.default.sendWelcomeMessage({
                     MobileNo: instance.getDataValue("MobileNo"),
                     OTP: instance.getDataValue("OTP"),
                 });
@@ -373,7 +373,7 @@ __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING(200),
         allowNull: true,
-        defaultValue: "./identities/user-identity.png"
+        defaultValue: "./identities/user-identity.png",
     }),
     __metadata("design:type", String)
 ], User.prototype, "PhotoPath", void 0);
@@ -426,7 +426,7 @@ __decorate([
 ], User.prototype, "Landline", void 0);
 __decorate([
     sequelize_typescript_1.Column,
-    (0, sequelize_typescript_1.ForeignKey)(() => UserAddress_model_1.default),
+    (0, sequelize_typescript_1.ForeignKey)(() => user_address_model_1.default),
     __metadata("design:type", Number)
 ], User.prototype, "PrimaryAddressGUID", void 0);
 __decorate([
@@ -571,8 +571,11 @@ __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.VIRTUAL,
         get() {
-            const hash = crypto_1.default.createHash('sha256');
-            const hashDigest = hash.update(this.getDataValue("UserGUID").toString()).digest('hex');
+            const userId = this.getDataValue("UserGUID");
+            if (!userId)
+                return;
+            const hash = crypto_1.default.createHash("sha256");
+            const hashDigest = hash.update(userId).digest("hex");
             // Extract the first 16 characters of the hash to get a 16-digit number
             // const uniqueNumber = hashDigest.substring(0, 16);
             const uniqueNumber = parseInt(hashDigest.substring(0, 16), 16);
@@ -582,11 +585,11 @@ __decorate([
     __metadata("design:type", Number)
 ], User.prototype, "DigitalCard", void 0);
 __decorate([
-    (0, sequelize_typescript_1.HasMany)(() => UserAddress_model_1.default),
-    __metadata("design:type", UserAddress_model_1.default)
+    (0, sequelize_typescript_1.HasMany)(() => user_address_model_1.default),
+    __metadata("design:type", user_address_model_1.default)
 ], User.prototype, "Addresses", void 0);
 __decorate([
-    (0, sequelize_typescript_1.HasMany)(() => ProductSubscriptions_model_1.default),
+    (0, sequelize_typescript_1.HasMany)(() => product_subscription_model_1.default),
     __metadata("design:type", Array)
 ], User.prototype, "Subscriptions", void 0);
 __decorate([

@@ -14,7 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteLineMan = exports.updateLineMan = exports.createLineMan = exports.getLineManById = exports.getAllLineMen = void 0;
 const LineMan_model_1 = __importDefault(require("../models/LineMan.model"));
-const decodeJWT_1 = __importDefault(require("../utils/decodeJWT"));
 const getAllLineMen = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const lineMen = yield LineMan_model_1.default.findAll({
         attributes: {
@@ -48,12 +47,7 @@ const getLineManById = (req, res) => __awaiter(void 0, void 0, void 0, function*
 });
 exports.getLineManById = getLineManById;
 const createLineMan = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.body.user) {
-        req.body.CreatedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
+    req.body.CreatedGUID = req.body.user.UserGUID;
     const lineMan = yield LineMan_model_1.default.create(req.body);
     res.status(201).json({
         message: "LineMan created successfully",
@@ -62,12 +56,7 @@ const createLineMan = (req, res) => __awaiter(void 0, void 0, void 0, function* 
 });
 exports.createLineMan = createLineMan;
 const updateLineMan = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.body.user) {
-        req.body.ModifiedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.ModifiedGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
+    req.body.ModifiedGUID = req.body.user.UserGUID;
     const { LineManGUID } = req.params;
     const lineMan = yield LineMan_model_1.default.findByPk(LineManGUID);
     if (!lineMan) {
@@ -80,7 +69,7 @@ const updateLineMan = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             req.body.ModifiedGUID = req.body.user.UserGUID;
         }
         else {
-            req.body.ModifiedGUID = (0, decodeJWT_1.default)(req).UserGUID;
+            req.body.ModifiedGUID = req.body.user.UserGUID;
         }
         yield lineMan.update(req.body);
         res.status(200).json({
@@ -95,7 +84,7 @@ const deleteLineMan = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         req.body.DeletedGUID = req.body.user.UserGUID;
     }
     else {
-        req.body.DeletedGUID = (0, decodeJWT_1.default)(req).UserGUID;
+        req.body.DeletedGUID = req.body.user.UserGUID;
     }
     const { LineManGUID } = req.params;
     const lineMan = yield LineMan_model_1.default.findByPk(LineManGUID);
@@ -109,7 +98,7 @@ const deleteLineMan = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             req.body.DeletedGUID = req.body.user.UserGUID;
         }
         else {
-            req.body.DeletedGUID = (0, decodeJWT_1.default)(req).UserGUID;
+            req.body.DeletedGUID = req.body.user.UserGUID;
         }
         yield lineMan.update(req.body);
         res.status(200).json({

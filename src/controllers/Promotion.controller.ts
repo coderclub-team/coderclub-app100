@@ -1,11 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import Employee from "../models/Employee.model";
-import mutler from "multer";
-import path from "node:path";
-import fs from "node:fs";
-import decodeJWT from "../utils/decodeJWT";
-import { employeeImageUploadOptions } from "../../config";
-import { Promotion } from "../models/Promotion.model";
+import { Promotion } from "../models/promotion.model";
 
 
 export const getAllPromotions=async(req:Request,res:Response,next:NextFunction)=>{

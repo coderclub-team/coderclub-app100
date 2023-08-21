@@ -17,7 +17,6 @@ const Employee_model_1 = __importDefault(require("../models/Employee.model"));
 const multer_1 = __importDefault(require("multer"));
 const node_path_1 = __importDefault(require("node:path"));
 const node_fs_1 = __importDefault(require("node:fs"));
-const decodeJWT_1 = __importDefault(require("../utils/decodeJWT"));
 const config_1 = require("../../config");
 multer_1.default.diskStorage({
     destination: (req, file, cb) => {
@@ -88,12 +87,7 @@ const getEmployeeById = (req, res) => __awaiter(void 0, void 0, void 0, function
 exports.getEmployeeById = getEmployeeById;
 const createEmployee = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    if (req.body.user.UserGUID) {
-        req.body.CreatedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
+    req.body.CreatedGUID = req.body.user.UserGUID;
     if (req.file)
         req.body.PhotoPath = node_path_1.default.join(config_1.employeeImageUploadOptions.directory, (_a = req === null || req === void 0 ? void 0 : req.file) === null || _a === void 0 ? void 0 : _a.filename);
     try {
@@ -112,7 +106,7 @@ exports.createEmployee = createEmployee;
 const updateEmployee = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _b;
     const { EmployeeID } = req.params;
-    req.body.ModifiedGUID = (0, decodeJWT_1.default)(req).UserGUID;
+    req.body.ModifiedGUID = req.body.user.UserGUID;
     if (req.file)
         req.body.PhotoPath = node_path_1.default.join(config_1.employeeImageUploadOptions.directory, (_b = req === null || req === void 0 ? void 0 : req.file) === null || _b === void 0 ? void 0 : _b.filename);
     try {

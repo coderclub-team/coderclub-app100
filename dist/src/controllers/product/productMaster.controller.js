@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createProductReview = exports.createAttribute = exports.deleteProductMaster = exports.updateProductMaster = exports.createProductMaster = exports.getProductMasterById = exports.getAllProductMasters = void 0;
 const config_1 = require("../../../config");
 const ProductMaster_model_1 = __importDefault(require("../../models/product/ProductMaster.model"));
-const decodeJWT_1 = __importDefault(require("../../utils/decodeJWT"));
 const node_path_1 = __importDefault(require("node:path"));
 const database_1 = require("../../database");
 const ProductVariant_model_1 = require("../../models/product/ProductVariant.model");
@@ -28,7 +27,7 @@ const ProductStockMaster_1 = __importDefault(require("../../models/product/Produ
 const getAllProductMasters = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let authuser;
     try {
-        authuser = (0, decodeJWT_1.default)(req);
+        authuser = req.body.user;
     }
     catch (error) { }
     const { ProductGUID, ProductID, ProductName, ProductCode, ProductType, SKU, IsFeatured, NewArrival, ProductCategoryGUID } = req.query;
@@ -75,7 +74,7 @@ const getProductMasterById = (req, res) => __awaiter(void 0, void 0, void 0, fun
     const { ProductGUID } = req.params;
     let authuser;
     try {
-        authuser = (0, decodeJWT_1.default)(req);
+        authuser = req.body.user;
     }
     catch (error) { }
     try {
@@ -132,12 +131,7 @@ const createProductMaster = (req, res, next) => __awaiter(void 0, void 0, void 0
             message: "Product type is simple, More than one variant not allowed!",
         });
     }
-    if (req.body.user) {
-        req.body.CreatedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
+    req.body.CreatedGUID = req.body.user.UserGUID;
     console.log("req.body", req.body);
     const { ProductName, ProductCode, ProductType, PhotoPath, GalleryPhotoPath1, GalleryPhotoPath2, GalleryPhotoPath3, GalleryPhotoPath4, variants, } = req.body;
     let t = undefined;
@@ -224,12 +218,7 @@ const createProductMaster = (req, res, next) => __awaiter(void 0, void 0, void 0
 exports.createProductMaster = createProductMaster;
 const updateProductMaster = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { ProductMasterGUID } = req.params;
-    if (req.body.user.UserGUID) {
-        req.body.ModifiedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.ModifiedGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
+    req.body.ModifiedGUID = req.body.user.UserGUID;
     try {
         const productMaster = yield ProductMaster_model_1.default.findByPk(ProductMasterGUID);
         if (!productMaster) {
@@ -249,12 +238,7 @@ const updateProductMaster = (req, res) => __awaiter(void 0, void 0, void 0, func
 });
 exports.updateProductMaster = updateProductMaster;
 const deleteProductMaster = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.body.user.UserGUID) {
-        req.body.DeletedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.DeletedGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
+    req.body.DeletedGUID = req.body.user.UserGUID;
     const { ProductMasterGUID } = req.params;
     try {
         const productMaster = yield ProductMaster_model_1.default.findByPk(ProductMasterGUID);
@@ -380,12 +364,7 @@ from tbl_ProductMaster as p1 GROUP by ProductName
 const createProductReview = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { productGUID } = req.params;
     req.body.ProductGUID = productGUID;
-    if (req.body.user.UserGUID) {
-        req.body.CreatedUserGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.CreatedUserGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
+    req.body.CreatedUserGUID = req.body.user.UserGUID;
     delete req.body.user;
     try {
         if (req.body.ReviewGUID) {

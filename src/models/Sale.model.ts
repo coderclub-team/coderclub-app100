@@ -1,6 +1,9 @@
 import {
   AutoIncrement,
+  BeforeBulkCreate,
+  BeforeBulkUpdate,
   BeforeCreate,
+  BeforeUpdate,
   BelongsTo,
   BelongsToMany,
   Column,
@@ -11,11 +14,11 @@ import {
   PrimaryKey,
   Table,
 } from "sequelize-typescript";
-import GlobalType from "./GlobalType.model";
+import GlobalType from "./global-type.model";
 import { sequelize } from "../database";
-import User from "./User.model";
-import SaleDetail from "./SaleDetail.model";
-import { Promotion } from "./Promotion.model";
+import User from "./user.model";
+import SaleDetail from "./sale-detail.model";
+import { Promotion } from "./promotion.model";
 
 
 @Table({
@@ -85,8 +88,6 @@ export default class Sale extends Model{
   @BelongsTo(() => Promotion)
   Promotion?: Promotion;
 
-  // @BelongsTo(() => User)
-  // Customer!: User;
 
   @HasMany(() => SaleDetail, {
     foreignKey: "SalesMasterGUID",
@@ -100,5 +101,28 @@ export default class Sale extends Model{
     const id = result[0][0].NEXTID;
     sale.SaleOrderID = `S${id.toString().padStart(7, '0')}`;
   }
+
+  @BeforeBulkCreate
+  @BeforeBulkUpdate
+  static beforeBulkCreateHook(instances: Sale[]) {
+    instances.forEach((instance) => {
+      Object.entries(instance.toJSON()).forEach(([key, value]) => {
+        if (typeof value === "string") {
+          instance.setDataValue(key as keyof Sale, value.trim());
+        }
+      });
+    });
+  }
+
+  @BeforeCreate
+  @BeforeUpdate
+  static beforeCreateHook(instance: Sale) {
+    Object.entries(instance.toJSON()).forEach(([key, value]) => {
+      if (typeof value === "string") {
+        instance.setDataValue(key as keyof Sale, value.trim());
+      }
+    });
+  }
+
 
 }

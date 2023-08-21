@@ -13,19 +13,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getWalletBalance = exports.creditOrDebit = exports.getWalletTransactions = void 0;
-const decodeJWT_1 = __importDefault(require("../utils/decodeJWT"));
 const User_model_1 = __importDefault(require("../models/User.model"));
 const UserWallet_1 = __importDefault(require("../models/UserWallet"));
 const UserWalletBalances_1 = __importDefault(require("../models/UserWalletBalances"));
 const ProductSubscriptions_model_1 = __importDefault(require("../models/ProductSubscriptions.model"));
 const Sale_model_1 = __importDefault(require("../models/Sale.model"));
 const getWalletTransactions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.body.user) {
-        req.body.CreatedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
+    req.body.CreatedGUID = req.body.user.UserGUID;
     try {
         const { count, rows: transactions } = yield UserWallet_1.default.findAndCountAll({
             where: {
@@ -43,12 +37,7 @@ const getWalletTransactions = (req, res, next) => __awaiter(void 0, void 0, void
 });
 exports.getWalletTransactions = getWalletTransactions;
 const creditOrDebit = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.body.user) {
-        req.body.CreatedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
+    req.body.CreatedGUID = req.body.user.UserGUID;
     const { type, amount, CreatedGUID } = req.body;
     if (!amount || amount <= 0 && isNaN(amount)) {
         throw new Error("Invalid amount");
@@ -98,12 +87,7 @@ const creditOrDebit = (req, res, next) => __awaiter(void 0, void 0, void 0, func
 });
 exports.creditOrDebit = creditOrDebit;
 const getWalletBalance = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.body.user) {
-        req.body.CreatedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
+    req.body.CreatedGUID = req.body.user.UserGUID;
     try {
         const balance = yield UserWalletBalances_1.default.findOne({
             where: { UserGUID: req.body.CreatedGUID },

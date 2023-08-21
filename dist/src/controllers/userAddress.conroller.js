@@ -14,14 +14,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteAddress = exports.updateAddress = exports.createAddress = exports.getMyAddresses = void 0;
 const UserAddress_model_1 = __importDefault(require("../models/UserAddress.model"));
-const decodeJWT_1 = __importDefault(require("../utils/decodeJWT"));
 const getMyAddresses = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.body.user) {
-        req.body.CreatedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
+    req.body.CreatedGUID = req.body.user.UserGUID;
     req.body.UserGUID = req.body.CreatedGUID;
     try {
         const addresses = yield UserAddress_model_1.default.findAll({
@@ -37,13 +31,8 @@ const getMyAddresses = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
 });
 exports.getMyAddresses = getMyAddresses;
 const createAddress = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.body.user) {
-        req.body.CreatedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
-    req.body.UserGUID = req.body.CreatedGUID;
+    req.body.CreatedGUID = req.body.user.UserGUID;
+    req.body.UserGUID = req.body.user.CreatedGUID;
     try {
         const address = yield UserAddress_model_1.default.create(req.body);
         res.send({
@@ -57,12 +46,7 @@ const createAddress = (req, res, next) => __awaiter(void 0, void 0, void 0, func
 });
 exports.createAddress = createAddress;
 const updateAddress = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.body.user) {
-        req.body.CreatedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
+    req.body.CreatedGUID = req.body.user.UserGUID;
     try {
         const address = yield UserAddress_model_1.default.findByPk(req.params.AddressGUID);
         if (!address)
@@ -80,12 +64,7 @@ const updateAddress = (req, res, next) => __awaiter(void 0, void 0, void 0, func
 });
 exports.updateAddress = updateAddress;
 const deleteAddress = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.body.user) {
-        req.body.CreatedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
+    req.body.CreatedGUID = req.body.user.UserGUID;
     try {
         const address = yield UserAddress_model_1.default.findByPk(req.params.AddressGUID);
         if (!address)

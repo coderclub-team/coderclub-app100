@@ -1,31 +1,20 @@
 "use strict";
-var __rest = (this && this.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
-        }
-    return t;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const jsonwebtoken_1 = require("jsonwebtoken");
-exports.default = (req) => {
-    // Get the token from the Authorization header
-    const authHeader = req.header("Authorization");
-    const token = authHeader && authHeader.split(" ")[1];
-    if (!token) {
-        throw new Error("No token, authorization denied");
-    }
-    try {
-        const decoded = (0, jsonwebtoken_1.verify)(token, process.env.JWT_SECRET);
-        const user = __rest(decoded, []);
-        return user;
-    }
-    catch (error) {
-        throw new Error("Token is not valid");
-    }
-};
-//
+// import { NextFunction, Request, Response } from "express";
+// import { verify } from "jsonwebtoken";
+// import User from "../models/User.model";
+// export default (req: Request) => {
+//   // Get the token from the Authorization header
+//   const authHeader = req.header("Authorization");
+//   const token = authHeader && authHeader.split(" ")[1];
+//   if (!token) {
+//     throw new Error("No token, authorization denied");
+//   }
+//   try {
+//     const decoded = verify(token, process.env.JWT_SECRET!);
+//     const { ...user } = decoded as User;
+//     return user;
+//   } catch (error) {
+//     throw new Error("Token is not valid");
+//   }
+// };
+// //

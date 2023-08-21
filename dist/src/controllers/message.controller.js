@@ -13,13 +13,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.lowBalanceAlertMessage = exports.expiryAlertMessage = void 0;
-const ProductSubscriptions_model_1 = __importDefault(require("../models/ProductSubscriptions.model"));
+const product_subscription_model_1 = __importDefault(require("../models/product-subscription.model"));
 const sequelize_1 = require("sequelize");
-const User_model_1 = __importDefault(require("../models/User.model"));
-const Message_model_1 = __importDefault(require("../models/Message.model"));
+const user_model_1 = __importDefault(require("../models/user.model"));
+const message_class_1 = __importDefault(require("../entities/message.class"));
 const expiryAlertMessage = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const expiredSubscriptions = yield ProductSubscriptions_model_1.default.findAll({
+        const expiredSubscriptions = yield product_subscription_model_1.default.findAll({
             where: {
                 SubscriptionEndDate: {
                     [sequelize_1.Op.lte]: new Date(),
@@ -30,14 +30,14 @@ const expiryAlertMessage = () => __awaiter(void 0, void 0, void 0, function* () 
             },
             include: [
                 {
-                    model: User_model_1.default,
+                    model: user_model_1.default,
                 },
             ],
         });
         const bulkMessage = expiredSubscriptions.map((subscription) => __awaiter(void 0, void 0, void 0, function* () {
             var _a, _b, _c;
             if (subscription.User.Status == 1 && subscription.User.MobileNo === "9944781003") {
-                return Message_model_1.default.sendCardExpiryAlertMessage({
+                return message_class_1.default.sendCardExpiryAlertMessage({
                     CustomerName: (_a = subscription.User) === null || _a === void 0 ? void 0 : _a.FirstName,
                     DigitalCard: (_b = subscription.User) === null || _b === void 0 ? void 0 : _b.DigitalCard,
                     ExpiresDate: subscription.SubscriptionEndDate,

@@ -17,11 +17,10 @@ const User_model_1 = __importDefault(require("../models/User.model"));
 const node_path_1 = __importDefault(require("node:path"));
 const node_fs_1 = __importDefault(require("node:fs"));
 const config_1 = require("../../config");
-const decodeJWT_1 = __importDefault(require("../utils/decodeJWT"));
 const UserAddress_model_1 = __importDefault(require("../models/UserAddress.model"));
 const CartItem_model_1 = __importDefault(require("../models/CartItem.model"));
 const sequelize_1 = require("sequelize");
-const ProductMaster_model_1 = __importDefault(require("../models/product/ProductMaster.model"));
+const ProductMaster_model_1 = __importDefault(require("../models/ProductMaster.model"));
 const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { deleted } = req.query;
     const paranoid = deleted === "true" ? false : true;
@@ -75,7 +74,7 @@ const getUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 });
 exports.getUserById = getUserById;
 const updateUserById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { UserGUID } = req.body.user || (0, decodeJWT_1.default)(req);
+    const { UserGUID } = req.body.user;
     const { deleted } = req.query;
     const paranoid = deleted === "true" ? false : true;
     if (req.file) {
@@ -156,25 +155,8 @@ const deleteUserById = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.deleteUserById = deleteUserById;
-// Manage user addresses
-// export const getAllAddresses = (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   if (req.body.user) {
-//     req.body.CreatedGUID = req.body.user.UserGUID;
-//   } else {
-//     req.body.CreatedGUID = decodeJWT(req).UserGUID;
-//   }
-// };
 const getCartItems = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.body.user) {
-        req.body.CreatedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
+    req.body.CreatedGUID = req.body.user.UserGUID;
     try {
         const cartItems = yield CartItem_model_1.default.findAll({
             where: {
@@ -197,7 +179,7 @@ const getCartItems = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
 });
 exports.getCartItems = getCartItems;
 const addCartItem = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { UserGUID } = req.body.user || (0, decodeJWT_1.default)(req);
+    const { UserGUID } = req.body.user;
     const { Quantity, ProductGUID } = req.body;
     if (!ProductGUID || !Quantity) {
         throw Error("ProductGUID and Quantity is required to add cart item!");
@@ -250,7 +232,7 @@ const addCartItem = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
 });
 exports.addCartItem = addCartItem;
 const cartTotal = (req) => __awaiter(void 0, void 0, void 0, function* () {
-    const { UserGUID } = req.body.user || (0, decodeJWT_1.default)(req);
+    const { UserGUID } = req.body.user;
     const items = yield CartItem_model_1.default.findAll({
         where: {
             CreatedGUID: {

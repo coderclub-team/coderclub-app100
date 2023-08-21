@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import ProductSubscription from "../models/ProductSubscriptions.model";
+import ProductSubscription from "../models/product-subscription.model";
 import { Op } from "sequelize";
-import User from "../models/User.model";
-import Message from "../models/Message.model";
+import User from "../models/user.model";
+import Message from "../entities/message.class";
 
 export const expiryAlertMessage = async () => {
   try {

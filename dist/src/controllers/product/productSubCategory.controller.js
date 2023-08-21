@@ -14,7 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteProductSubCategory = exports.updateProductSubCategory = exports.createProductSubCategory = exports.getProductSubCategoryById = exports.getAllProductSubCategories = void 0;
 const ProductSubCategory_model_1 = __importDefault(require("../../models/product/ProductSubCategory.model"));
-const decodeJWT_1 = __importDefault(require("../../utils/decodeJWT"));
 const ProductCategory_model_1 = __importDefault(require("../../models/product/ProductCategory.model"));
 const getAllProductSubCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -57,13 +56,7 @@ const getProductSubCategoryById = (req, res) => __awaiter(void 0, void 0, void 0
 });
 exports.getProductSubCategoryById = getProductSubCategoryById;
 const createProductSubCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    // add createdGUID using req.body.user.UserGUID or decodeJWT(req)
-    if (req.body.user.UserGUID) {
-        req.body.CreatedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
+    req.body.CreatedGUID = req.body.user.UserGUID;
     try {
         // Check if the ProductCategoryGUID value exists in the ProductCategory table
         const category = yield ProductCategory_model_1.default.findByPk(req.body.ProductCategoryGUID);
@@ -83,13 +76,7 @@ const createProductSubCategory = (req, res, next) => __awaiter(void 0, void 0, v
 });
 exports.createProductSubCategory = createProductSubCategory;
 const updateProductSubCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    // add modifiedGUID using req.body.user.UserGUID or decodeJWT(req)
-    if (req.body.user.UserGUID) {
-        req.body.ModifiedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.ModifiedGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
+    req.body.ModifiedGUID = req.body.user.UserGUID;
     const { ProductSubCategoryGUID } = req.params;
     try {
         const productSubCategory = yield ProductSubCategory_model_1.default.findByPk(ProductSubCategoryGUID);

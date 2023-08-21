@@ -14,7 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteProductCategory = exports.createProductCategory = exports.getProductCategoryById = exports.getAllProductCategories = void 0;
-const decodeJWT_1 = __importDefault(require("../../utils/decodeJWT"));
 const ProductCategory_model_1 = __importDefault(require("../../models/product/ProductCategory.model"));
 // import { productCategoryImageUploadOptions } from "../../config";
 const getAllProductCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -51,12 +50,7 @@ const getProductCategoryById = (req, res) => __awaiter(void 0, void 0, void 0, f
 });
 exports.getProductCategoryById = getProductCategoryById;
 const createProductCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.body.user) {
-        req.body.CreatedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
+    req.body.CreatedGUID = req.body.user.UserGUID;
     try {
         const productCategory = yield ProductCategory_model_1.default.create(req.body);
         res.send({
@@ -70,31 +64,6 @@ const createProductCategory = (req, res, next) => __awaiter(void 0, void 0, void
     }
 });
 exports.createProductCategory = createProductCategory;
-// export const updateProductCategory = async (req: Request, res: Response) => {
-//   if (req.body.user.UserGUID) {
-//     req.body.ModifiedGUID = req.body.user.UserGUID;
-//   } else {
-//     req.body.ModifiedGUID = decodeJWT(req).UserGUID;
-//   }
-//   const { ProductCategoryGUID } = req.params;
-//   try {
-//     const productCategory = await ProductCategory.findByPk(ProductCategoryGUID);
-//     if (!productCategory) {
-//       return res.status(400).json({
-//         message: "Product category not found!",
-//       });
-//     }
-//     await productCategory.update(req.body, {
-//       exclude: ["CreatedGUID", "CreatedDate", "ProductCategoryGUID"],
-//     });
-//     res.send({
-//       message: "Product category updated successfully!",
-//       productCategory,
-//     });
-//   } catch (error) {
-//     res.status(500).json(error);
-//   }
-// };
 const deleteProductCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { ProductCategoryGUID } = req.params;
     try {

@@ -13,21 +13,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.expireSubscription = exports.calcelSubscription = exports.subscribeProduct = exports.getUserSubscriptions = void 0;
-const decodeJWT_1 = __importDefault(require("../utils/decodeJWT"));
-const functions_1 = require("../utils/functions");
+const functions_1 = require("../functions");
 const ProductSubscriptions_model_1 = __importDefault(require("../models/ProductSubscriptions.model"));
-const BillingCycles_model_1 = __importDefault(require("../models/product/BillingCycles.model"));
+const BillingCycles_model_1 = __importDefault(require("../models/BillingCycles.model"));
 const sequelize_1 = require("sequelize");
-const ProductMaster_model_1 = __importDefault(require("../models/product/ProductMaster.model"));
+const ProductMaster_model_1 = __importDefault(require("../models/ProductMaster.model"));
 const database_1 = require("../database");
 const UserWallet_1 = __importDefault(require("../models/UserWallet"));
 const getUserSubscriptions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.body.user) {
-        req.body.CreatedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
+    req.body.CreatedGUID = req.body.user.UserGUID;
     const where = (0, functions_1.omitUndefined)({
         userGUID: req.body.CreatedGUID,
         SubscriptionGUID: req.body.SubscriptionGUID,
@@ -53,12 +47,7 @@ const getUserSubscriptions = (req, res, next) => __awaiter(void 0, void 0, void 
 });
 exports.getUserSubscriptions = getUserSubscriptions;
 const subscribeProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.body.user) {
-        req.body.CreatedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
+    req.body.CreatedGUID = req.body.user.UserGUID;
     req.body.UserGUID = req.body.CreatedGUID;
     try {
         if (!req.body.ProductGUID) {
@@ -133,7 +122,7 @@ const calcelSubscription = (req, res, next) => __awaiter(void 0, void 0, void 0,
         req.body.CreatedGUID = req.body.user.UserGUID;
     }
     else {
-        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
+        req.body.CreatedGUID = req.body.user.UserGUID;
     }
     req.body.UserGUID = req.body.CreatedGUID;
     if (!Status) {

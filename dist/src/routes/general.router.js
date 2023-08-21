@@ -14,10 +14,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.billingcyclesRouter = void 0;
 const express_1 = require("express");
-const BillingCycles_model_1 = __importDefault(require("../models/product/BillingCycles.model"));
+const billing_cycle_model_1 = __importDefault(require("../models/billing-cycle.model"));
 const billingcyclesRouter = (0, express_1.Router)();
 exports.billingcyclesRouter = billingcyclesRouter;
 billingcyclesRouter.all("", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const billingcycles = yield BillingCycles_model_1.default.findAll();
+    const billingcycles = yield billing_cycle_model_1.default.findAll();
     res.send(billingcycles);
 }));

@@ -15,23 +15,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.sequelize = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
 const config_1 = require("../config");
-const ProductMaster_model_1 = __importDefault(require("./models/product/ProductMaster.model"));
-const User_model_1 = __importDefault(require("./models/User.model"));
-const ProductCategory_model_1 = __importDefault(require("./models/product/ProductCategory.model"));
-const ProductSubCategory_model_1 = __importDefault(require("./models/product/ProductSubCategory.model"));
-const Sale_model_1 = __importDefault(require("./models/Sale.model"));
-const SaleDetail_model_1 = __importDefault(require("./models/SaleDetail.model"));
-const GlobalType_model_1 = __importDefault(require("./models/GlobalType.model"));
-const GlobalTypeCategory_nodel_1 = __importDefault(require("./models/GlobalTypeCategory.nodel"));
-const ProductReview_model_1 = __importDefault(require("./models/product/ProductReview.model"));
-const UserAddress_model_1 = __importDefault(require("./models/UserAddress.model"));
-const CartItem_model_1 = __importDefault(require("./models/CartItem.model"));
-const ProductSubscriptions_model_1 = __importDefault(require("./models/ProductSubscriptions.model"));
-const BillingCycles_model_1 = __importDefault(require("./models/product/BillingCycles.model"));
-const ProductStockMaster_1 = __importDefault(require("./models/product/ProductStockMaster"));
-const UserWallet_1 = __importDefault(require("./models/UserWallet"));
-const UserWalletBalances_1 = __importDefault(require("./models/UserWalletBalances"));
-const Promotion_model_1 = require("./models/Promotion.model");
+const product_master_model_1 = __importDefault(require("./models/product-master.model"));
+const user_model_1 = __importDefault(require("./models/user.model"));
+const product_category_model_1 = __importDefault(require("./models/product-category.model"));
+const product_sub_category_model_1 = __importDefault(require("./models/product-sub-category.model"));
+const sale_model_1 = __importDefault(require("./models/sale.model"));
+const sale_detail_model_1 = __importDefault(require("./models/sale-detail.model"));
+const global_type_model_1 = __importDefault(require("./models/global-type.model"));
+const global_type_category_nodel_1 = __importDefault(require("./models/global-type-category.nodel"));
+const product_review_model_1 = __importDefault(require("./models/product-review.model"));
+const user_address_model_1 = __importDefault(require("./models/user-address.model"));
+const cart_item_1 = __importDefault(require("./models/cart-item"));
+const product_subscription_model_1 = __importDefault(require("./models/product-subscription.model"));
+const billing_cycle_model_1 = __importDefault(require("./models/billing-cycle.model"));
+const product_stock_master_model_1 = __importDefault(require("./models/product-stock-master.model"));
+const user_wallet_model_1 = __importDefault(require("./models/user-wallet.model"));
+const user_wallet_balance_model_1 = __importDefault(require("./models/user-wallet-balance.model"));
+const promotion_model_1 = require("./models/promotion.model");
 exports.sequelize = new sequelize_typescript_1.Sequelize(config_1.sequelizeConnectionOptions);
 exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
     exports.sequelize
@@ -47,41 +47,23 @@ exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
         console.error("Unable to connect to the database:", err);
     });
     exports.sequelize.addModels([
-        User_model_1.default,
-        ProductCategory_model_1.default,
-        ProductSubCategory_model_1.default,
-        ProductMaster_model_1.default,
-        GlobalTypeCategory_nodel_1.default,
-        GlobalType_model_1.default,
-        Sale_model_1.default,
-        SaleDetail_model_1.default,
-        ProductReview_model_1.default,
-        UserAddress_model_1.default,
-        CartItem_model_1.default,
-        BillingCycles_model_1.default,
-        ProductSubscriptions_model_1.default,
-        ProductStockMaster_1.default,
-        UserWallet_1.default,
-        UserWalletBalances_1.default,
-        Promotion_model_1.Promotion
+        user_model_1.default,
+        product_category_model_1.default,
+        product_sub_category_model_1.default,
+        product_master_model_1.default,
+        global_type_category_nodel_1.default,
+        global_type_model_1.default,
+        sale_model_1.default,
+        sale_detail_model_1.default,
+        product_review_model_1.default,
+        user_address_model_1.default,
+        cart_item_1.default,
+        billing_cycle_model_1.default,
+        product_subscription_model_1.default,
+        product_stock_master_model_1.default,
+        user_wallet_model_1.default,
+        user_wallet_balance_model_1.default,
+        promotion_model_1.Promotion
     ]);
-    User_model_1.default.sync();
-    ProductCategory_model_1.default.sync();
-    GlobalTypeCategory_nodel_1.default.sync();
-    GlobalType_model_1.default.sync();
-    ProductSubCategory_model_1.default.sync();
-    ProductMaster_model_1.default.sync();
-    ProductReview_model_1.default.sync();
-    UserAddress_model_1.default.sync();
-    CartItem_model_1.default.sync();
-    BillingCycles_model_1.default.sync();
-    ProductSubscriptions_model_1.default.sync();
-    ProductStockMaster_1.default.sync(),
-        UserWallet_1.default.sync(),
-        UserWalletBalances_1.default.sync();
-    Sale_model_1.default.sync({
-        schema: "dbo",
-    });
-    SaleDetail_model_1.default.sync();
-    return exports.sequelize;
+    // return sequelize;
 });

@@ -14,8 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteStoreMaster = exports.updateStoreMaster = exports.createStoreMaster = exports.getStoreMasterById = exports.getAllStoreMasters = void 0;
 const StoreMaster_model_1 = __importDefault(require("../models/StoreMaster.model"));
-const decodeJWT_1 = __importDefault(require("../utils/decodeJWT"));
-const ProductCategory_model_1 = __importDefault(require("../models/product/ProductCategory.model"));
+const ProductCategory_model_1 = __importDefault(require("../models/ProductCategory.model"));
 const getAllStoreMasters = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const storeMasters = yield StoreMaster_model_1.default.findAll({
@@ -77,12 +76,7 @@ const getStoreMasterById = (req, res) => __awaiter(void 0, void 0, void 0, funct
 });
 exports.getStoreMasterById = getStoreMasterById;
 const createStoreMaster = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.body.user.UserGUID) {
-        req.body.CreatedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.CreatedGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
+    req.body.CreatedGUID = req.body.user.UserGUID;
     try {
         const storeMaster = yield StoreMaster_model_1.default.create(req.body);
         res.status(201).json({
@@ -96,12 +90,7 @@ const createStoreMaster = (req, res) => __awaiter(void 0, void 0, void 0, functi
 });
 exports.createStoreMaster = createStoreMaster;
 const updateStoreMaster = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.body.user.UserGUID) {
-        req.body.ModifiedGUID = req.body.user.UserGUID;
-    }
-    else {
-        req.body.ModifiedGUID = (0, decodeJWT_1.default)(req).UserGUID;
-    }
+    req.body.ModifiedGUID = req.body.user.UserGUID;
     const { StoreGUID } = req.params;
     try {
         const store = yield StoreMaster_model_1.default.findByPk(StoreGUID);

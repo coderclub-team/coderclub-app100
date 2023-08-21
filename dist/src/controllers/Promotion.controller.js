@@ -10,10 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAllPromotions = void 0;
-const Promotion_model_1 = require("../models/Promotion.model");
+const promotion_model_1 = require("../models/promotion.model");
 const getAllPromotions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const promotions = yield Promotion_model_1.Promotion.findAll();
+        const promotions = yield promotion_model_1.Promotion.findAll();
         res.status(200).json(promotions);
     }
     catch (error) {
