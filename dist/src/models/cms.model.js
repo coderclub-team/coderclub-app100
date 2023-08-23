@@ -93,7 +93,7 @@ __decorate([
             const baseURL = process.env.NODE_ENV == "production"
                 ? process.env.STATIC_FILE_URL
                 : "http://localhost:3000";
-            const path = this.getDataValue("PhotoPath");
+            const path = this.getDataValue("image");
             return baseURL + "/" + path;
         },
     }),

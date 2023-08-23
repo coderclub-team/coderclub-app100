@@ -78,7 +78,7 @@ export class Banner extends Model<Banner>{
               process.env.NODE_ENV == "production"
                 ? process.env.STATIC_FILE_URL
                 : "http://localhost:3000";
-            const path = this.getDataValue("PhotoPath") as string;
+            const path = this.getDataValue("image") as string;
             return baseURL + "/" + path;
           },
     })
