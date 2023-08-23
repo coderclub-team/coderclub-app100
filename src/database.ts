@@ -17,6 +17,7 @@ import ProductStockMaster from "./models/product-stock-master.model";
 import UserWallet from "./models/user-wallet.model";
 import UserWalletBalance from "./models/user-wallet-balance.model";
 import { Promotion } from "./models/promotion.model";
+import { Banner, Walkthrough } from "./models/cms.model";
 
 export const sequelize = new Sequelize(sequelizeConnectionOptions);
 
@@ -55,7 +56,9 @@ export default async () => {
     ProductStockMaster,
     UserWallet,
     UserWalletBalance,
-    Promotion
+    Promotion,
+    Walkthrough,
+    Banner
   ]);
   // return sequelize;
 };

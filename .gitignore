@@ -3,3 +3,7 @@ restClient
 data
 nodemon.json
 package-lock.json
+public/icons/*
+public/banners/*
+public/splashscreen/*
+dist

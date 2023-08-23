@@ -24,6 +24,8 @@ import subsRouter from "./routes/product-subscription.router";
 import handleSequelizeError from "./middlewares/handle-sequelize-error.middleware";
 import { billingcyclesRouter } from "./routes/general.router";
 import walletRouter from "./routes/wallet.router";
+import appConfigRouter from "./routes/app-config.router";
+
 import promotionRouter from "./routes/promotion.router";
 import { expireSubscription } from "./controllers/product-subscription.controller";
 // Set the base URL and store it in app.locals
@@ -53,48 +55,49 @@ app.use("/api/subscriptions", authGaurd, subsRouter, handleSequelizeError);
 app.use("/api/billingcycles", billingcyclesRouter, handleSequelizeError);
 app.use("/api/wallets", authGaurd, walletRouter, handleSequelizeError);
 app.use("/api/promotions", promotionRouter, handleSequelizeError);
-app.get("/api/app/config", (req: Request, res: Response) => {
-  const app_config = {
-    splashlogo: [
-      {
-        image: "splashscreen/splash_logo.gif",
-      },
-    ],
-    applogo: [
-      {
-        image: "icons/milk_bottle.png",
-      },
-    ],
-    walkthrogh: [
-      {
-        title: "Pick up",
-        description:
-          "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
-        image: "walkthrough/pickup.png",
-      },
-      {
-        title: "Transport",
-        description:
-          "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
-        image: "walkthrough/transport.png",
-      },
-      {
-        title: "Dellivery",
-        description:
-          "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
-        image: "walkthrough/delivery.png",
-      },
-    ],
-  };
-  const host = req.protocol + "://" + req.get("host");
-  app_config.applogo[0].image = host + "/" + app_config.applogo[0].image;
-  app_config.splashlogo[0].image = host + "/" + app_config.splashlogo[0].image;
-  app_config.walkthrogh.forEach((item) => {
-    item.image = host + "/" + item.image;
-  });
+app.use("/api/app/config", appConfigRouter, handleSequelizeError);
+// app.get("/api/app/config", (req: Request, res: Response) => {
+//   const app_config = {
+//     splashlogo: [
+//       {
+//         image: "splashscreen/splash_logo.gif",
+//       },
+//     ],
+//     applogo: [
+//       {
+//         image: "icons/milk_bottle.png",
+//       },
+//     ],
+//     walkthrogh: [
+//       {
+//         title: "Pick up",
+//         description:
+//           "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
+//         image: "walkthrough/pickup.png",
+//       },
+//       {
+//         title: "Transport",
+//         description:
+//           "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
+//         image: "walkthrough/transport.png",
+//       },
+//       {
+//         title: "Dellivery",
+//         description:
+//           "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
+//         image: "walkthrough/delivery.png",
+//       },
+//     ],
+//   };
+//   const host = req.protocol + "://" + req.get("host");
+//   app_config.applogo[0].image = host + "/" + app_config.applogo[0].image;
+//   app_config.splashlogo[0].image = host + "/" + app_config.splashlogo[0].image;
+//   app_config.walkthrogh.forEach((item) => {
+//     item.image = host + "/" + item.image;
+//   });
 
-  res.status(200).json(app_config);
-});
+//   res.status(200).json(app_config);
+// });
 
 
 
