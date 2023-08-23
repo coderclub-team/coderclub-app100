@@ -284,20 +284,7 @@ export default class User extends Model {
     password: { type: DataTypes.STRING, allowNull: false, exclude: true },
   };
 
-  @Column({
-    type: DataType.VIRTUAL,
-    get() {
-      const userId = this.getDataValue("UserGUID");
-      if (!userId) return;
-      const hash = crypto.createHash("sha256");
-      const hashDigest = hash.update(userId).digest("hex");
-      // Extract the first 16 characters of the hash to get a 16-digit number
-      // const uniqueNumber = hashDigest.substring(0, 16);
-
-      const uniqueNumber = parseInt(hashDigest.substring(0, 16), 16);
-      return uniqueNumber;
-    },
-  })
+  @Column
   DigitalCard?: number;
 
   private _token!: string;
