@@ -68,6 +68,12 @@ __decorate([
     __metadata("design:type", String)
 ], ProductReview.prototype, "Review", void 0);
 __decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.DECIMAL(1, 2),
+    }),
+    __metadata("design:type", Number)
+], ProductReview.prototype, "Rating", void 0);
+__decorate([
     sequelize_typescript_1.BeforeBulkCreate,
     sequelize_typescript_1.BeforeBulkUpdate,
     __metadata("design:type", Function),

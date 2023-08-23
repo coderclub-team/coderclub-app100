@@ -24,7 +24,6 @@ var User_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_typescript_1 = require("sequelize-typescript");
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const crypto_1 = __importDefault(require("crypto"));
 const moment_1 = __importDefault(require("moment"));
 const sequelize_1 = require("sequelize");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -569,20 +568,7 @@ __decorate([
     __metadata("design:type", Number)
 ], User.prototype, "StoreGUID", void 0);
 __decorate([
-    (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.VIRTUAL,
-        get() {
-            const userId = this.getDataValue("UserGUID");
-            if (!userId)
-                return;
-            const hash = crypto_1.default.createHash("sha256");
-            const hashDigest = hash.update(userId).digest("hex");
-            // Extract the first 16 characters of the hash to get a 16-digit number
-            // const uniqueNumber = hashDigest.substring(0, 16);
-            const uniqueNumber = parseInt(hashDigest.substring(0, 16), 16);
-            return uniqueNumber;
-        },
-    }),
+    sequelize_typescript_1.Column,
     __metadata("design:type", Number)
 ], User.prototype, "DigitalCard", void 0);
 __decorate([
