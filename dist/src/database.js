@@ -66,7 +66,9 @@ exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
         user_wallet_balance_model_1.default,
         promotion_model_1.Promotion,
         cms_model_1.Walkthrough,
-        cms_model_1.Banner
+        cms_model_1.Banner,
+        cms_model_1.FAQ,
+        cms_model_1.ContactForm
     ]);
     // return sequelize;
 });

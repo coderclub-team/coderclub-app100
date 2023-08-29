@@ -17,14 +17,11 @@ import ProductStockMaster from "./models/product-stock-master.model";
 import UserWallet from "./models/user-wallet.model";
 import UserWalletBalance from "./models/user-wallet-balance.model";
 import { Promotion } from "./models/promotion.model";
-import { Banner, Walkthrough } from "./models/cms.model";
+import { Banner, ContactForm, FAQ, Walkthrough } from "./models/cms.model";
 
 export const sequelize = new Sequelize(sequelizeConnectionOptions);
 
 export default async () => {
-
-
-  
   sequelize
     .authenticate({
       logging: console.log,
@@ -58,7 +55,9 @@ export default async () => {
     UserWalletBalance,
     Promotion,
     Walkthrough,
-    Banner
+    Banner,
+    FAQ,
+    ContactForm
   ]);
   // return sequelize;
 };
