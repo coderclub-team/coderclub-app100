@@ -164,13 +164,22 @@ __decorate([
         },
     }),
     __metadata("design:type", String)
-], UserWallet.prototype, "VoucherType", void 0);
+], UserWallet.prototype, "VoucherNo", void 0);
 __decorate([
     (0, sequelize_typescript_1.HasOne)(() => sale_model_1.default, {
         foreignKey: 'WalletGUID',
     }),
     __metadata("design:type", UserWallet)
 ], UserWallet.prototype, "Sale", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.VIRTUAL,
+        get() {
+            return this.getDataValue("Credit") > 0 ? "RECEIPT" : "INVOICE";
+        },
+    }),
+    __metadata("design:type", String)
+], UserWallet.prototype, "VoucherType", void 0);
 __decorate([
     (0, sequelize_typescript_1.HasOne)(() => product_subscription_model_1.default, {
         foreignKey: 'WalletGUID',

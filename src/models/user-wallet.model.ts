@@ -153,12 +153,20 @@ export default class UserWallet extends Model {
         return `${prefix}${new Date(this.getDataValue("CreatedDate")).getTime()}`
      },
  })
- VoucherType!: string;
+ VoucherNo!: string;
 
   @HasOne(() => Sale, {
     foreignKey: 'WalletGUID',
   })
   Sale!: UserWallet;
+
+  @Column({
+    type: DataType.VIRTUAL,
+    get() {
+      return this.getDataValue("Credit") > 0 ? "RECEIPT" : "INVOICE";
+    },
+  })
+  VoucherType!: string;
 
   @HasOne(() => ProductSubscription, {
     foreignKey: 'WalletGUID',
