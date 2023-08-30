@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cancelOrder = exports.createOrder = exports.getOrders = exports.signout = exports.resetPassword = exports.forgotPassword = exports.sendOTP = exports.verifyAccount = exports.getCurrentUser = exports.login = exports.register = void 0;
+exports.cancelOrder = exports.getOrders = exports.signout = exports.resetPassword = exports.forgotPassword = exports.sendOTP = exports.verifyAccount = exports.getCurrentUser = exports.login = exports.register = void 0;
 const node_path_1 = __importDefault(require("node:path"));
 const user_model_1 = __importDefault(require("../models/user.model"));
 const node_fs_1 = __importDefault(require("node:fs"));
@@ -75,7 +75,7 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
             where: {
                 MobileNo: MobileNo,
             },
-            include: [user_address_model_1.default, product_subscription_model_1.default,],
+            include: [user_address_model_1.default, product_subscription_model_1.default],
         });
         if (!user) {
             throw new custom_error_1.UserNotFoundExceptionError("User not found!");
@@ -246,18 +246,20 @@ const getOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function
             {
                 model: sale_detail_model_1.default,
                 all: true,
-                include: [{
+                include: [
+                    {
                         model: product_master_model_1.default,
-                    }]
+                    },
+                ],
             },
             {
-                model: promotion_model_1.Promotion
-            }
+                model: promotion_model_1.Promotion,
+            },
         ],
     });
     salemasters === null || salemasters === void 0 ? void 0 : salemasters.forEach((sale) => {
         var _a;
-        (_a = sale === null || sale === void 0 ? void 0 : sale.SaleDetails) === null || _a === void 0 ? void 0 : _a.forEach(saleDetail => {
+        (_a = sale === null || sale === void 0 ? void 0 : sale.SaleDetails) === null || _a === void 0 ? void 0 : _a.forEach((saleDetail) => {
             var _a;
             (_a = saleDetail === null || saleDetail === void 0 ? void 0 : saleDetail.product) === null || _a === void 0 ? void 0 : _a.setFullURL(req, "PhotoPath");
         });
@@ -269,65 +271,6 @@ const getOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function
     res.json(salemasters);
 });
 exports.getOrders = getOrders;
-const createOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    req.body.CreatedGUID = req.body.user.UserGUID;
-    const transaction = yield database_1.sequelize.transaction();
-    try {
-        const { SaleOrderID, SaleOrderDate, ModeOfPayment, SaleChannel, SalePlatform, CustomerGUID = req.body.user.UserGUID, SalesDetails, CreatedGUID, PaymentTransactionID, PromotionGUID } = req.body;
-        const saleData = {
-            SaleOrderID,
-            SaleOrderDate,
-            SaleChannel,
-            CustomerGUID,
-            CreatedGUID,
-            SalePlatform,
-            ModeOfPayment,
-            PaymentTransactionID,
-            PromotionGUID
-        };
-        if (!SaleOrderDate) {
-            throw new Error("SaleOrderDate is required");
-        }
-        else if (!ModeOfPayment) {
-            throw new Error("ModeOfPayment is required");
-        }
-        else if (!SaleChannel) {
-            throw new Error("SaleChannel is required");
-        }
-        else if (!SalePlatform) {
-            throw new Error("SalePlatform is required");
-        }
-        else if (!PaymentTransactionID) {
-            throw new Error("PaymentTransactionID is required");
-        }
-        SalesDetails.forEach((saleDetail) => {
-            if (!saleDetail.ProductGUID) {
-                throw new Error("ProductGUID is required");
-            }
-            else if (!saleDetail.Qty) {
-                throw new Error("Quantity is required");
-            }
-            else if (!saleDetail.Amount) {
-                throw new Error("Amount is required");
-            }
-        });
-        if (!Array.isArray(SalesDetails)) {
-            throw new Error("SaleDetails should be an array");
-        }
-        const sale = yield sale_model_1.default.create(saleData, { transaction });
-        const saleDetails = yield sale_detail_model_1.default.bulkCreate(SalesDetails.map((saleDetail) => (Object.assign({ SalesMasterGUID: sale.SalesMasterGUID }, saleDetail))), { transaction });
-        transaction.commit();
-        res.json({
-            sale,
-            SaleDetails: saleDetails,
-        });
-    }
-    catch (error) {
-        transaction.rollback();
-        next(error);
-    }
-});
-exports.createOrder = createOrder;
 const cancelOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { SalesMasterGUID } = req.params;
     if (!SalesMasterGUID) {

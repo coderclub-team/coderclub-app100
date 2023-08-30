@@ -13,6 +13,7 @@ import {
 import ProductMaster from "./product-master.model";
 import User from "./user.model";
 import BillingCycles from "./billing-cycle.model";
+import { Promotion } from "./promotion.model";
 
 @Table({
   tableName: "tbl_ProductSubscriptions",
@@ -47,7 +48,15 @@ class ProductSubscription extends Model<ProductSubscription> {
   @Column
   SubscriptionOccurrences!: number;
 
+  @ForeignKey(() => Promotion)
+  @Column({
+    type: DataType.NUMBER,
+    
+  })
+  PromotionGUID!: number;
 
+  @BelongsTo(() => Promotion)
+  Promotion?: Promotion;
 
   @ForeignKey(() => BillingCycles)
   @Column

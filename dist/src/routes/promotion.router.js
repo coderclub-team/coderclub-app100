@@ -9,5 +9,5 @@ const coupon_gaurd_moddleware_1 = __importDefault(require("../middlewares/coupon
 const auth_gaurd_middleware_1 = __importDefault(require("../middlewares/auth-gaurd.middleware"));
 const router = express_1.default.Router();
 router.get('/', promotion_controller_1.getAllPromotions);
-router.get('/check', auth_gaurd_middleware_1.default, coupon_gaurd_moddleware_1.default, promotion_controller_1.checkPromoCode);
+router.post('/check', auth_gaurd_middleware_1.default, coupon_gaurd_moddleware_1.default, promotion_controller_1.checkPromoCode);
 exports.default = router;

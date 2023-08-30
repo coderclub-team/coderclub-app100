@@ -18,16 +18,22 @@ const user_wallet_model_1 = __importDefault(require("../models/user-wallet.model
 const user_wallet_balance_model_1 = __importDefault(require("../models/user-wallet-balance.model"));
 const product_subscription_model_1 = __importDefault(require("../models/product-subscription.model"));
 const sale_model_1 = __importDefault(require("../models/sale.model"));
+const sale_detail_model_1 = __importDefault(require("../models/sale-detail.model"));
 const getWalletTransactions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     req.body.CreatedGUID = req.body.user.UserGUID;
     try {
-        const { count, rows: transactions } = yield user_wallet_model_1.default.findAndCountAll({
+        const transactions = yield user_wallet_model_1.default.findAll({
             where: {
                 UserGUID: req.body.CreatedGUID,
                 Status: "FULLFILLED",
             },
-            include: [sale_model_1.default, product_subscription_model_1.default],
             order: [["CreatedDate", "DESC"]],
+            include: [{
+                    model: sale_model_1.default,
+                    include: [sale_detail_model_1.default]
+                }, {
+                    model: product_subscription_model_1.default
+                }]
         });
         res.json(transactions);
     }
@@ -55,19 +61,20 @@ const creditOrDebit = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             });
         }
         else if (new String(type).toUpperCase() === "DEBIT") {
-            const walletBalance = yield user_wallet_balance_model_1.default.findOne({
-                where: { UserGUID: CreatedGUID },
-            });
-            if (walletBalance && walletBalance.Balance < amount) {
-                throw new Error("Insufficient balance");
-            }
-            transaction = yield user_wallet_model_1.default.create({
-                UserGUID: CreatedGUID,
-                Credit: 0,
-                Debit: amount,
-                CreatedGUID: CreatedGUID,
-                Status: "FULLFILLED",
-            });
+            return res.status(400).json({ message: "Debit through this API is restricted" });
+            // const walletBalance = await UserWalletBalance.findOne({
+            //   where: { UserGUID: CreatedGUID },
+            // });
+            // if (walletBalance && walletBalance.Balance < amount) {
+            //   throw new Error("Insufficient balance");
+            // } 
+            //   transaction = await UserWallet.create({
+            //     UserGUID: CreatedGUID,
+            //     Credit: 0,
+            //     Debit: amount,
+            //     CreatedGUID: CreatedGUID,
+            //     Status: "FULLFILLED",
+            //   });
         }
         else {
             return res.status(400).json({ message: "Invalid request" });
@@ -96,7 +103,7 @@ const getWalletBalance = (req, res, next) => __awaiter(void 0, void 0, void 0, f
                     attributes: ['LoginName', 'UserGUID', 'FirstName', 'LastName', 'EmailAddress', 'MobileNo']
                 }],
         });
-        res.json([balance]);
+        res.json([{ balance: balance !== null && balance !== void 0 ? balance : { "Balance": 0, } }]);
     }
     catch (error) {
         next(error);

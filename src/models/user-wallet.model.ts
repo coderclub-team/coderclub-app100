@@ -4,6 +4,8 @@ import {
   Column,
   DataType,
   ForeignKey,
+  HasMany,
+  HasOne,
   Model,
   Sequelize,
   Table,
@@ -13,6 +15,7 @@ import User from "./user.model";
 import UserWalletBalance from "./user-wallet-balance.model";
 import ProductSubscription from "./product-subscription.model";
 import Sale from "./sale.model";
+import { VIRTUAL } from "sequelize";
 
 @Table({
   timestamps: true,
@@ -54,6 +57,8 @@ export default class UserWallet extends Model {
     defaultValue: 0,
   })
   Debit!: number;
+
+
 
   @Column({
     type: DataType.DATE,
@@ -102,19 +107,21 @@ export default class UserWallet extends Model {
   @Column
   PaymentId!: string;
 
-  @ForeignKey(() => Sale)
-  @Column
-  SalesMasterGUID!: number;
+  // @ForeignKey(() => Sale)
+  // @Column
+  // SalesMasterGUID!: number;
 
-  @BelongsTo(() => Sale)
-  Order!: Sale;
+  // @BelongsTo(() => Sale)
+  // Order!: Sale;
 
-  @ForeignKey(() => ProductSubscription)
-  @Column
-  SubscriptionGUID!: number;
+  // @ForeignKey(() => ProductSubscription)
+  // @Column
+  // SubscriptionGUID!: number;
 
-  @BelongsTo(() => ProductSubscription)
-  Subscription!: ProductSubscription;
+  // @BelongsTo(() => ProductSubscription)
+  // Subscription!: ProductSubscription;
+
+
   @AfterCreate
   static async updateBalance(instance: UserWallet) {
     const user = await User.findByPk(instance.getDataValue("UserGUID"));
@@ -137,4 +144,24 @@ export default class UserWallet extends Model {
         });
     }
   }
+
+ @Column({
+    type: DataType.VIRTUAL,
+    allowNull: true,
+     get() {
+      const prefix = this.getDataValue("Credit") > 0 ? "PT-" : "CL-";
+        return `${prefix}${new Date(this.getDataValue("CreatedDate")).getTime()}`
+     },
+ })
+ VoucherType!: string;
+
+  @HasOne(() => Sale, {
+    foreignKey: 'WalletGUID',
+  })
+  Sale!: UserWallet;
+
+  @HasOne(() => ProductSubscription, {
+    foreignKey: 'WalletGUID',
+  })
+  Subscription!: UserWallet;
 }

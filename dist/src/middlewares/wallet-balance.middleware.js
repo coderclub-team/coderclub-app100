@@ -21,7 +21,12 @@ function WalletBalance(req, res, next) {
                     UserGUID: req.body.user.UserGUID,
                 },
             });
-            req.body.WalletBalance = balance === null || balance === void 0 ? void 0 : balance.getDataValue("Balance");
+            if (balance == null) {
+                req.body.WalletBalance = 0;
+            }
+            else {
+                req.body.WalletBalance = balance === null || balance === void 0 ? void 0 : balance.getDataValue("Balance");
+            }
             next();
         }
         catch (error) {

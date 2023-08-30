@@ -10,6 +10,7 @@ import {
   DataType,
   ForeignKey,
   HasMany,
+  HasOne,
   Model,
   PrimaryKey,
   Table,
@@ -19,6 +20,7 @@ import { sequelize } from "../database";
 import User from "./user.model";
 import SaleDetail from "./sale-detail.model";
 import { Promotion } from "./promotion.model";
+import UserWallet from "./user-wallet.model";
 
 
 @Table({
@@ -95,6 +97,9 @@ export default class Sale extends Model{
   })
   SaleDetails!: SaleDetail[];
 
+  @Column
+  WalletGUID!: number;
+
   @BeforeCreate
   static async addSaleOrderID(sale: Sale) {
     const result = await sequelize.query("SELECT IDENT_CURRENT('tbl_SalesMaster')+1 as NEXTID") as any[][];
@@ -125,4 +130,8 @@ export default class Sale extends Model{
   }
 
 
+
+
 }
+
+;

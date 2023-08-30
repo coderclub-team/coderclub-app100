@@ -13,6 +13,8 @@ const auth_gaurd_middleware_1 = __importDefault(require("../middlewares/auth-gau
 const user_controller_1 = require("../controllers/user.controller.");
 const payment_controller_1 = require("../controllers/payment.controller");
 const coupon_gaurd_moddleware_1 = __importDefault(require("../middlewares/coupon-gaurd.moddleware"));
+const wallet_balance_middleware_1 = __importDefault(require("../middlewares/wallet-balance.middleware"));
+const sale_controller_1 = require("../controllers/sale.controller");
 const authRouter = (0, express_1.Router)();
 const upload = (0, multer_1.default)({
     storage: config_1.userImageUploadOptions.storage,
@@ -55,7 +57,7 @@ authRouter.post("/update-email", auth_controller_1.resetPassword, handle_sequeli
 authRouter.post("/forget-password", auth_controller_1.forgotPassword, handle_sequelize_error_middleware_1.default);
 authRouter.get("/current-user", auth_gaurd_middleware_1.default, auth_controller_1.getCurrentUser, handle_sequelize_error_middleware_1.default);
 authRouter.get("/orders", auth_gaurd_middleware_1.default, auth_controller_1.getOrders, handle_sequelize_error_middleware_1.default);
-authRouter.post("/orders", auth_gaurd_middleware_1.default, coupon_gaurd_moddleware_1.default, auth_controller_1.createOrder, handle_sequelize_error_middleware_1.default);
+authRouter.post("/orders", auth_gaurd_middleware_1.default, coupon_gaurd_moddleware_1.default, wallet_balance_middleware_1.default, sale_controller_1.createSale, handle_sequelize_error_middleware_1.default);
 authRouter.patch("/orders/:SalesMasterGUID", auth_gaurd_middleware_1.default, auth_controller_1.cancelOrder, handle_sequelize_error_middleware_1.default);
 authRouter.get("/orders/payments/createOrder", auth_gaurd_middleware_1.default, payment_controller_1.generateRazorpayIntent, handle_sequelize_error_middleware_1.default);
 exports.default = authRouter;

@@ -4,6 +4,7 @@ import UserWallet from "../models/user-wallet.model";
 import UserWalletBalance from "../models/user-wallet-balance.model";
 import ProductSubscription from "../models/product-subscription.model";
 import Sale from "../models/sale.model";
+import SaleDetail from "../models/sale-detail.model";
 export const getWalletTransactions = async (
   req: Request,
   res: Response,
@@ -11,14 +12,20 @@ export const getWalletTransactions = async (
 ) => {
   req.body.CreatedGUID = req.body.user.UserGUID;
   try {
-    const { count, rows: transactions } = await UserWallet.findAndCountAll({
+    const transactions = await UserWallet.findAll({
       where: {
         UserGUID: req.body.CreatedGUID,
         Status: "FULLFILLED",
       },
-      include:[Sale,ProductSubscription],
       order: [["CreatedDate", "DESC"]],
+      include: [{
+        model:Sale,
+        include: [SaleDetail]
+      },{
+        model: ProductSubscription
+      }]
     });
+
     res.json(transactions);
   } catch (error) {
     next(error);
@@ -47,20 +54,21 @@ export const creditOrDebit = async (
         Status: "FULLFILLED",
       });
     } else if (new String(type).toUpperCase() === "DEBIT") {
-      const walletBalance = await UserWalletBalance.findOne({
-        where: { UserGUID: CreatedGUID },
-      });
-      if (walletBalance && walletBalance.Balance < amount) {
-        throw new Error("Insufficient balance");
-      } 
+      return res.status(400).json({ message: "Debit through this API is restricted" });
+      // const walletBalance = await UserWalletBalance.findOne({
+      //   where: { UserGUID: CreatedGUID },
+      // });
+      // if (walletBalance && walletBalance.Balance < amount) {
+      //   throw new Error("Insufficient balance");
+      // } 
 
-        transaction = await UserWallet.create({
-          UserGUID: CreatedGUID,
-          Credit: 0,
-          Debit: amount,
-          CreatedGUID: CreatedGUID,
-          Status: "FULLFILLED",
-        });
+      //   transaction = await UserWallet.create({
+      //     UserGUID: CreatedGUID,
+      //     Credit: 0,
+      //     Debit: amount,
+      //     CreatedGUID: CreatedGUID,
+      //     Status: "FULLFILLED",
+      //   });
 
     } else {
       return res.status(400).json({ message: "Invalid request" });
@@ -95,7 +103,9 @@ export const getWalletBalance = async (
                   attributes: ['LoginName','UserGUID', 'FirstName', 'LastName', 'EmailAddress', 'MobileNo']
                 }],
             });
-            res.json([balance]);
+      
+           
+            res.json([{balance: balance??{"Balance": 0,}}]);
         } catch (error) {
             next(error);
         }

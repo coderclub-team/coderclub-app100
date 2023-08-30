@@ -1,5 +1,6 @@
 import express from "express";
 import { Banner, ContactForm, FAQ, Walkthrough } from "../models/cms.model";
+import authGaurdMiddleware from "../middlewares/auth-gaurd.middleware";
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const router = express.Router();
 
@@ -37,33 +38,33 @@ router.get("/walkthroughs", async (req, res, next) => {
   }
 });
 
-router.post("/contact", async (req, res, next) => {
-  const { Name, Email, Message } = req.body;
-
-  const contact = await ContactForm.findOne({
-    where: {
-      Email,
-      Message,
-    },
-  });
-  if (contact) {
-   return res.status(400).json({ message: "You have already submitted this form" });
-  }
-
-  if (!Name || !Email || !Message || !emailRegex.test(Email)) {
-    return res.status(400).json({ message: "You have already submitted this form" });
-    res
-      .status(400)
-      .json({ message: "Please enter Name, Email and Message fields" });
+router.post("/contact", authGaurdMiddleware, async (req, res, next) => {
+  const { Message } = req.body;
+  const { EmailAddress, MobileNo,FirstName } = req.body.user;
+  if (Message.length < 2) {
+    throw new Error("Message is too short");
   }
 
   try {
+    const contact_exists = await ContactForm.findOne({
+      where: {
+        Phone: MobileNo,
+        Email: EmailAddress,
+        Message,
+      },
+    });
+    if (contact_exists) {
+      return res
+        .status(400)
+        .json({ message: "You have already submitted this form" });
+    }
     const contact = await ContactForm.create({
-      Name,
-      Email,
+        Name:FirstName,
+      Phone: MobileNo,
+      Email: EmailAddress,
+
       Message,
     });
-    return res.status(400).json({ message: "You have already submitted this form" });
     res.status(200).json(contact);
   } catch (error) {
     next(error);

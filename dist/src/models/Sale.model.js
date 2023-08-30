@@ -138,6 +138,10 @@ __decorate([
     __metadata("design:type", Array)
 ], Sale.prototype, "SaleDetails", void 0);
 __decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], Sale.prototype, "WalletGUID", void 0);
+__decorate([
     sequelize_typescript_1.BeforeCreate,
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Sale]),
@@ -168,3 +172,4 @@ Sale = __decorate([
     })
 ], Sale);
 exports.default = Sale;
+;

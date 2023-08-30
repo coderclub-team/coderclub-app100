@@ -28,6 +28,16 @@ const user_wallet_balance_model_1 = __importDefault(require("./user-wallet-balan
 const product_subscription_model_1 = __importDefault(require("./product-subscription.model"));
 const sale_model_1 = __importDefault(require("./sale.model"));
 let UserWallet = class UserWallet extends sequelize_typescript_1.Model {
+    // @ForeignKey(() => Sale)
+    // @Column
+    // SalesMasterGUID!: number;
+    // @BelongsTo(() => Sale)
+    // Order!: Sale;
+    // @ForeignKey(() => ProductSubscription)
+    // @Column
+    // SubscriptionGUID!: number;
+    // @BelongsTo(() => ProductSubscription)
+    // Subscription!: ProductSubscription;
     static updateBalance(instance) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = yield user_model_1.default.findByPk(instance.getDataValue("UserGUID"));
@@ -145,22 +155,27 @@ __decorate([
     __metadata("design:type", String)
 ], UserWallet.prototype, "PaymentId", void 0);
 __decorate([
-    (0, sequelize_typescript_1.ForeignKey)(() => sale_model_1.default),
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
-], UserWallet.prototype, "SalesMasterGUID", void 0);
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.VIRTUAL,
+        allowNull: true,
+        get() {
+            const prefix = this.getDataValue("Credit") > 0 ? "PT-" : "CL-";
+            return `${prefix}${new Date(this.getDataValue("CreatedDate")).getTime()}`;
+        },
+    }),
+    __metadata("design:type", String)
+], UserWallet.prototype, "VoucherType", void 0);
 __decorate([
-    (0, sequelize_typescript_1.BelongsTo)(() => sale_model_1.default),
-    __metadata("design:type", sale_model_1.default)
-], UserWallet.prototype, "Order", void 0);
+    (0, sequelize_typescript_1.HasOne)(() => sale_model_1.default, {
+        foreignKey: 'WalletGUID',
+    }),
+    __metadata("design:type", UserWallet)
+], UserWallet.prototype, "Sale", void 0);
 __decorate([
-    (0, sequelize_typescript_1.ForeignKey)(() => product_subscription_model_1.default),
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
-], UserWallet.prototype, "SubscriptionGUID", void 0);
-__decorate([
-    (0, sequelize_typescript_1.BelongsTo)(() => product_subscription_model_1.default),
-    __metadata("design:type", product_subscription_model_1.default)
+    (0, sequelize_typescript_1.HasOne)(() => product_subscription_model_1.default, {
+        foreignKey: 'WalletGUID',
+    }),
+    __metadata("design:type", UserWallet)
 ], UserWallet.prototype, "Subscription", void 0);
 __decorate([
     sequelize_typescript_1.AfterCreate,

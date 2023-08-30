@@ -147,6 +147,11 @@ export class ContactForm extends Model {
     allowNull: false,
   })
   Name!: string;
+  @Column({
+    type: DataType.STRING(255),
+    allowNull: false,
+  })
+  Phone!: string;
 
   @Column({
     type: DataType.STRING(255),

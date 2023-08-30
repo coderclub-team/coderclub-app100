@@ -7,12 +7,16 @@ export default async function WalletBalance(
   next: NextFunction
 ) {
   try {
-    const balance= await  UserWalletBalance.findOne({
-        where: {    
-            UserGUID: req.body.user.UserGUID,
-        },
+    const balance = await UserWalletBalance.findOne({
+      where: {
+        UserGUID: req.body.user.UserGUID,
+      },
     });
-    req.body.WalletBalance = balance?.getDataValue("Balance");
+    if (balance == null) {
+      req.body.WalletBalance = 0;
+    } else {
+      req.body.WalletBalance = balance?.getDataValue("Balance");
+    }
     next();
   } catch (error) {
     next(error);
