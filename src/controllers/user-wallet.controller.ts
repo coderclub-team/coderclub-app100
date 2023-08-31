@@ -5,6 +5,7 @@ import UserWalletBalance from "../models/user-wallet-balance.model";
 import ProductSubscription from "../models/product-subscription.model";
 import Sale from "../models/sale.model";
 import SaleDetail from "../models/sale-detail.model";
+import ProductMaster from "../models/product-master.model";
 export const getWalletTransactions = async (
   req: Request,
   res: Response,
@@ -20,9 +21,13 @@ export const getWalletTransactions = async (
       order: [["CreatedDate", "DESC"]],
       include: [{
         model:Sale,
-        include: [SaleDetail]
+        include: [{
+          model:SaleDetail,
+          include:[ProductMaster]
+        }]
       },{
-        model: ProductSubscription
+        model: ProductSubscription,
+        include:[ProductMaster]
       }]
     });
 

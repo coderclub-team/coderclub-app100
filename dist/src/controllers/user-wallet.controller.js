@@ -19,6 +19,7 @@ const user_wallet_balance_model_1 = __importDefault(require("../models/user-wall
 const product_subscription_model_1 = __importDefault(require("../models/product-subscription.model"));
 const sale_model_1 = __importDefault(require("../models/sale.model"));
 const sale_detail_model_1 = __importDefault(require("../models/sale-detail.model"));
+const product_master_model_1 = __importDefault(require("../models/product-master.model"));
 const getWalletTransactions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     req.body.CreatedGUID = req.body.user.UserGUID;
     try {
@@ -30,7 +31,10 @@ const getWalletTransactions = (req, res, next) => __awaiter(void 0, void 0, void
             order: [["CreatedDate", "DESC"]],
             include: [{
                     model: sale_model_1.default,
-                    include: [sale_detail_model_1.default]
+                    include: [{
+                            model: sale_detail_model_1.default,
+                            include: [product_master_model_1.default]
+                        }]
                 }, {
                     model: product_subscription_model_1.default
                 }]
