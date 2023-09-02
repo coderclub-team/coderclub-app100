@@ -270,7 +270,6 @@ const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         req.body.uploadPath = node_path_1.default.join(config_1.userImageUploadOptions.relativePath, filename);
         req.body.PhotoPath = node_path_1.default.join(config_1.userImageUploadOptions.directory, filename);
     }
-    console.log("register", req.body);
     try {
         const createdUser = yield user_model_1.default.create(req.body);
         if (!createdUser) {

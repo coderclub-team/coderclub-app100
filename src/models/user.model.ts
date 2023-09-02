@@ -308,20 +308,20 @@ export default class User extends Model {
       const salt = await bcrypt.genSalt(10);
       const hash = await bcrypt.hash(instance.Password, salt);
       instance.Password = hash;
-      // const { OTP, OtpExpiryDate } = instance.generateOTP();
-      // instance.OTP = OTP;
-      // instance.OtpExpiryDate = OtpExpiryDate;
+      const { OTP, OtpExpiryDate } = instance.generateOTP();
+      instance.OTP = OTP;
+      instance.OtpExpiryDate = OtpExpiryDate;
     }
   }
   @AfterCreate
   static async sendOTPMessage(instance: User) {
     if (instance.MobileNo) {
-      const { OTP, OtpExpiryDate } = instance.generateOTP();
+      const { OTP, OtpExpiryDate } = instance;
       instance.OTP = OTP;
       instance.OtpExpiryDate = OtpExpiryDate;
-      await Message.sendOTPMessage({
+      await Message.sendWelcomeMessage({
         MobileNo: instance.getDataValue("MobileNo"),
-        OTP: OTP,
+        OTP: OTP!,
       });
     }
   }
@@ -534,24 +534,24 @@ export default class User extends Model {
     this.setDataValue(key, fullPath);
   }
 
-  @AfterCreate
-  static async sendWelcomeMessage(instance: User) {
-    if (instance.Account_Deactivated) {
-      return Promise.reject("Account is deactivated by admin");
-    }
-    // else if (this.Password_Attempt && this.Password_Attempt >= 3) {
-    //   return Promise.reject("Account is locked due to multiple attempts");
-    // }
+  // @AfterCreate
+  // static async sendWelcomeMessage(instance: User) {
+  //   if (instance.Account_Deactivated) {
+  //     return Promise.reject("Account is deactivated by admin");
+  //   }
+  //   // else if (this.Password_Attempt && this.Password_Attempt >= 3) {
+  //   //   return Promise.reject("Account is locked due to multiple attempts");
+  //   // }
 
-    const { OTP, OtpExpiryDate } = instance.generateOTP();
-    instance.OTP = OTP;
-    instance.OtpExpiryDate = OtpExpiryDate ? OtpExpiryDate : null;
+  //   const { OTP, OtpExpiryDate } = instance.generateOTP();
+  //   instance.OTP = OTP;
+  //   instance.OtpExpiryDate = OtpExpiryDate ? OtpExpiryDate : null;
 
-    if (instance.MobileNo) {
-      await Message.sendWelcomeMessage({
-        MobileNo: instance.getDataValue("MobileNo"),
-        OTP: instance.getDataValue("OTP"),
-      });
-    }
-  }
+  //   if (instance.MobileNo) {
+  //     await Message.sendWelcomeMessage({
+  //       MobileNo: instance.getDataValue("MobileNo"),
+  //       OTP: instance.getDataValue("OTP"),
+  //     });
+  //   }
+  // }
 }

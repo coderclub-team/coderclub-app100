@@ -53,10 +53,10 @@ let User = User_1 = class User extends sequelize_typescript_1.Model {
     static sendOTPMessage(instance) {
         return __awaiter(this, void 0, void 0, function* () {
             if (instance.MobileNo) {
-                const { OTP, OtpExpiryDate } = instance.generateOTP();
+                const { OTP, OtpExpiryDate } = instance;
                 instance.OTP = OTP;
                 instance.OtpExpiryDate = OtpExpiryDate;
-                yield message_class_1.default.sendOTPMessage({
+                yield message_class_1.default.sendWelcomeMessage({
                     MobileNo: instance.getDataValue("MobileNo"),
                     OTP: OTP,
                 });
@@ -264,25 +264,6 @@ let User = User_1 = class User extends sequelize_typescript_1.Model {
         const fullPath = `${hostname}/${originalPath}`;
         this.setDataValue(key, fullPath);
     }
-    static sendWelcomeMessage(instance) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (instance.Account_Deactivated) {
-                return Promise.reject("Account is deactivated by admin");
-            }
-            // else if (this.Password_Attempt && this.Password_Attempt >= 3) {
-            //   return Promise.reject("Account is locked due to multiple attempts");
-            // }
-            const { OTP, OtpExpiryDate } = instance.generateOTP();
-            instance.OTP = OTP;
-            instance.OtpExpiryDate = OtpExpiryDate ? OtpExpiryDate : null;
-            if (instance.MobileNo) {
-                yield message_class_1.default.sendWelcomeMessage({
-                    MobileNo: instance.getDataValue("MobileNo"),
-                    OTP: instance.getDataValue("OTP"),
-                });
-            }
-        });
-    }
 };
 User.fields = {
     password: { type: sequelize_1.DataTypes.STRING, allowNull: false, exclude: true },
@@ -299,7 +280,7 @@ __decorate([
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING(50),
-        allowNull: true,
+        allowNull: false,
         validate: {
             notEmpty: true,
             // regex for First Name
@@ -605,12 +586,6 @@ __decorate([
     __metadata("design:paramtypes", [User]),
     __metadata("design:returntype", void 0)
 ], User, "beforeCreateHook", null);
-__decorate([
-    sequelize_typescript_1.AfterCreate,
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [User]),
-    __metadata("design:returntype", Promise)
-], User, "sendWelcomeMessage", null);
 User = User_1 = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: "tbl_Users",

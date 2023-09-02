@@ -89,9 +89,10 @@ function parseSequelizeError(error) {
         };
     }
     else if (error instanceof sequelize_1.DatabaseError) {
+        error.parent.message = error.parent.message.replace("SequelizeDatabaseError: ", "");
         console.log("Error on DatabaseError", error);
         return {
-            message: error.message,
+            message: error.parent.message,
             error: error,
         };
     }
