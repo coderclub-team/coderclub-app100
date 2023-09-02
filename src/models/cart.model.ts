@@ -41,7 +41,7 @@ export default class Cart extends Model {
   CreatedDate!: Date;
 
   @Column
-  IsSubscription!: boolean;
+  IsSubscription!: number;
 
   @ForeignKey(() => SubscriptionCycle)
   @Column

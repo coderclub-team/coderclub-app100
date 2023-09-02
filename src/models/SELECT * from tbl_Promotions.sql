@@ -16,3 +16,5 @@ SELECT * from dbo.tbl_CartItems where CreatedGUID=295
 DELETE  from dbo.tbl_CartItems where CreatedGUID=295
 
 SELECT * from tbl_Users where LoginName='hellodivya'
+
+

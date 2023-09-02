@@ -84,6 +84,6 @@ const upload = multer({
   meRouter.post("/cart", authGaurd,addToCart,handleSequelizeError);
   meRouter.patch("/cart", authGaurd,removeFromCart,handleSequelizeError);
 
-  meRouter.post("/cart/orders",authGaurd,WalletBalanceMiddleWare,moveFromCartToOrder,handleSequelizeError);
+  meRouter.post("/cart/checkout",authGaurd,WalletBalanceMiddleWare,moveFromCartToOrder,handleSequelizeError);
 
 export default meRouter;

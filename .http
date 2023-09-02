@@ -5,8 +5,8 @@ POST {{baseUrl}}/me/login
 Content-Type: application/json
 
 {
-    "MobileNo":"9944781003",
-    "Password":"Chennai@123"
+    "MobileNo":"9750022933",
+    "Password":"bharani@123"
 }
 ###
 
@@ -25,7 +25,7 @@ Authorization: Bearer {{token}}
 
 {
     "ProductGUID":1,
-    "Quantity":1,
+    "Quantity":1
 
    
 }
@@ -76,7 +76,7 @@ Authorization: Bearer {{token}}
 }
 
 ###
-POST  {{baseUrl}}/me/cart/orders
+POST  {{baseUrl}}/me/cart/checkout
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

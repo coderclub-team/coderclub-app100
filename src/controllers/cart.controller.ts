@@ -39,6 +39,9 @@ const addSubsToCart = async (req: Request, res: Response) => {
       where: {
         ProductGUID,
         CreatedGUID: user.UserGUID,
+        IsSubscription: {
+          [Op.eq]: 1,
+        },
       },
     });
     if (cart) {
@@ -84,7 +87,7 @@ const removeSubsFromCart = async (req: Request, res: Response) => {
           [Op.eq]: [user.UserGUID],
         },
         IsSubscription: {
-          [Op.eq]: IsSubscription,
+          [Op.eq]: 1,
         },
         SubsCycleGUID: {
           [Op.eq]: SubsCycleGUID,
@@ -168,6 +171,9 @@ export const addToCart = async (req: Request, res: Response) => {
           CreatedGUID: user.UserGUID,
         },
       });
+
+
+
       if (cart) {
         cart.Quantity += Quantity;
         await cart.save();
@@ -176,12 +182,7 @@ export const addToCart = async (req: Request, res: Response) => {
           cart,
         });
       }
-      console.log("createdGUID", {
-        ProductGUID,
-        Quantity,
-        UserGUID: user.UserGUID,
-        CreatedGUID: user.UserGUID,
-      });
+     
       const newCart = await Cart.create({
         ProductGUID,
         Quantity,
@@ -217,7 +218,7 @@ export const removeFromCart = async (req: Request, res: Response) => {
             [Op.eq]: [user.UserGUID],
           },
           IsSubscription: {
-            [Op.ne]: 1,
+            [Op.ne]: 0,
           },
         },
       });
