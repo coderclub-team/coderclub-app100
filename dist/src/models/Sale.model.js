@@ -30,9 +30,9 @@ const promotion_model_1 = require("./promotion.model");
 let Sale = class Sale extends sequelize_typescript_1.Model {
     static addSaleOrderID(sale) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield database_1.sequelize.query("SELECT IDENT_CURRENT('tbl_SalesMaster')+1 as NEXTID");
+            const result = (yield database_1.sequelize.query("SELECT IDENT_CURRENT('tbl_SalesMaster')+1 as NEXTID"));
             const id = result[0][0].NEXTID;
-            sale.SaleOrderID = `S${id.toString().padStart(7, '0')}`;
+            sale.SaleOrderID = `S${id.toString().padStart(7, "0")}`;
         });
     }
     static beforeBulkCreateHook(instances) {
@@ -62,6 +62,13 @@ __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", String)
 ], Sale.prototype, "SaleOrderID", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.DATE,
+        defaultValue: new Date(),
+    }),
+    __metadata("design:type", Date)
+], Sale.prototype, "SaleOrderDate", void 0);
 __decorate([
     (0, sequelize_typescript_1.ForeignKey)(() => global_type_model_1.default),
     (0, sequelize_typescript_1.Column)({
@@ -142,6 +149,18 @@ __decorate([
     __metadata("design:type", Number)
 ], Sale.prototype, "WalletGUID", void 0);
 __decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], Sale.prototype, "GrossTotal", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], Sale.prototype, "TotalAmount", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
+], Sale.prototype, "SalePlatform", void 0);
+__decorate([
     sequelize_typescript_1.BeforeCreate,
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Sale]),
@@ -172,4 +191,3 @@ Sale = __decorate([
     })
 ], Sale);
 exports.default = Sale;
-;

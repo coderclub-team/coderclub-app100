@@ -13,6 +13,7 @@ import {
 } from "sequelize-typescript";
 import ProductMaster from "./product-master.model";
 import User from "./user.model";
+import SubscriptionCycle from "./billing-cycle.model";
 
 
 @Table({
@@ -42,6 +43,17 @@ class CartItem extends Model {
 
   @BelongsTo(() => ProductMaster)
   Product?: ProductMaster;
+
+
+@Column
+isSubscription?: boolean;
+
+@ForeignKey(() => SubscriptionCycle)
+@Column
+SubsCycleGUID?: number;
+
+@Column
+SubsOccurences?: number;
 
   @BeforeBulkCreate
   @BeforeBulkUpdate

@@ -95,7 +95,7 @@ __decorate([
 ], ProductSubscription.prototype, "PaymentMethod", void 0);
 __decorate([
     sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
+    __metadata("design:type", String)
 ], ProductSubscription.prototype, "PaymentTransactionId", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.DATE),
@@ -132,6 +132,11 @@ __decorate([
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.INTEGER),
     __metadata("design:type", Number)
 ], ProductSubscription.prototype, "DeletedGUID", void 0);
+__decorate([
+    (0, sequelize_typescript_1.ForeignKey)(() => user_model_1.default),
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], ProductSubscription.prototype, "SalesMasterGUID", void 0);
 __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", String)

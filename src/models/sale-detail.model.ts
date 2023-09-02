@@ -43,7 +43,7 @@ export default class SaleDetail extends Model {
   ProductGUID!: number;
 
   @BelongsTo(() => ProductMaster)
-  product!: ProductMaster;
+  Product!: ProductMaster;
 
 
 

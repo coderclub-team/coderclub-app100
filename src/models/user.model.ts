@@ -43,7 +43,7 @@ export default class User extends Model {
 
   @Column({
     type: DataType.STRING(50),
-    allowNull: true,
+    allowNull: false,
     validate: {
       notEmpty: true,
       // regex for First Name
@@ -308,9 +308,9 @@ export default class User extends Model {
       const salt = await bcrypt.genSalt(10);
       const hash = await bcrypt.hash(instance.Password, salt);
       instance.Password = hash;
-      const { OTP, OtpExpiryDate } = instance.generateOTP();
-      instance.OTP = OTP;
-      instance.OtpExpiryDate = OtpExpiryDate;
+      // const { OTP, OtpExpiryDate } = instance.generateOTP();
+      // instance.OTP = OTP;
+      // instance.OtpExpiryDate = OtpExpiryDate;
     }
   }
   @AfterCreate

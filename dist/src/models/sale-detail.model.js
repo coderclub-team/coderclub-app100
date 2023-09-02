@@ -77,7 +77,7 @@ __decorate([
 __decorate([
     (0, sequelize_typescript_1.BelongsTo)(() => product_master_model_1.default),
     __metadata("design:type", product_master_model_1.default)
-], SaleDetail.prototype, "product", void 0);
+], SaleDetail.prototype, "Product", void 0);
 __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", Number)

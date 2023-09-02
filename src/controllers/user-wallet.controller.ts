@@ -23,11 +23,14 @@ export const getWalletTransactions = async (
         model:Sale,
         include: [{
           model:SaleDetail,
-          include:[ProductMaster]
+          include:[ProductMaster],
+          nested: true
+
         }]
       },{
         model: ProductSubscription,
-        include:[ProductMaster]
+        include:[ProductMaster],
+        nested: true
       }]
     });
 

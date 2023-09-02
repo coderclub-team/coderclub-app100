@@ -112,6 +112,14 @@ __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.BIGINT,
         allowNull: false,
+        field: "Sale_Rate",
+    }),
+    __metadata("design:type", Number)
+], ProductMaster.prototype, "SaleRate", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.BIGINT,
+        allowNull: false,
     }),
     __metadata("design:type", Number)
 ], ProductMaster.prototype, "MRP", void 0);

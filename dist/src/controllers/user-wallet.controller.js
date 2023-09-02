@@ -33,10 +33,13 @@ const getWalletTransactions = (req, res, next) => __awaiter(void 0, void 0, void
                     model: sale_model_1.default,
                     include: [{
                             model: sale_detail_model_1.default,
-                            include: [product_master_model_1.default]
+                            include: [product_master_model_1.default],
+                            nested: true
                         }]
                 }, {
-                    model: product_subscription_model_1.default
+                    model: product_subscription_model_1.default,
+                    include: [product_master_model_1.default],
+                    nested: true
                 }]
         });
         res.json(transactions);

@@ -64,6 +64,7 @@ export class Promotion extends Model {
 
     @Column
     Type!: string;
+    // ([Type]='FREE SHIPPING' OR [Type]='FIXED' OR [Type]='PERCENTAGE')
 
     @Column
     Value!: number;

@@ -10,29 +10,26 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_typescript_1 = require("sequelize-typescript");
-// --BillingCycleGUID;
-// --BillingCycleName;
-// --NumberOfCycle;
-let BillingCycles = class BillingCycles extends sequelize_typescript_1.Model {
+let SubscriptionCycle = class SubscriptionCycle extends sequelize_typescript_1.Model {
 };
 __decorate([
     sequelize_typescript_1.PrimaryKey,
     sequelize_typescript_1.Column,
     __metadata("design:type", Number)
-], BillingCycles.prototype, "BillingCycleGUID", void 0);
+], SubscriptionCycle.prototype, "BillingCycleGUID", void 0);
 __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", String)
-], BillingCycles.prototype, "BillingCycleName", void 0);
+], SubscriptionCycle.prototype, "BillingCycleName", void 0);
 __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", String)
-], BillingCycles.prototype, "NumberOfCycles", void 0);
-BillingCycles = __decorate([
+], SubscriptionCycle.prototype, "NumberOfCycles", void 0);
+SubscriptionCycle = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: "tbl_BillingCycles",
         timestamps: false,
         paranoid: false,
     })
-], BillingCycles);
-exports.default = BillingCycles;
+], SubscriptionCycle);
+exports.default = SubscriptionCycle;

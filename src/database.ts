@@ -12,12 +12,13 @@ import ProductReview from "./models/product-review.model";
 import UserAddress from "./models/user-address.model";
 import CartItem from "./models/cart-item";
 import ProductSubscription from "./models/product-subscription.model";
-import BillingCycles from "./models/billing-cycle.model";
+import SubscriptionCycles from "./models/billing-cycle.model";
 import ProductStockMaster from "./models/product-stock-master.model";
 import UserWallet from "./models/user-wallet.model";
 import UserWalletBalance from "./models/user-wallet-balance.model";
 import { Promotion } from "./models/promotion.model";
 import { Banner, ContactForm, FAQ, Walkthrough } from "./models/cms.model";
+import Cart from "./models/cart.model";
 
 export const sequelize = new Sequelize(sequelizeConnectionOptions);
 
@@ -48,7 +49,7 @@ export default async () => {
     ProductReview,
     UserAddress,
     CartItem,
-    BillingCycles,
+    SubscriptionCycles,
     ProductSubscription,
     ProductStockMaster,
     UserWallet,
@@ -57,7 +58,9 @@ export default async () => {
     Walkthrough,
     Banner,
     FAQ,
-    ContactForm
+    ContactForm,
+    Cart,
+ 
   ]);
   // return sequelize;
 };

@@ -21,7 +21,7 @@ import { Promotion } from "./promotion.model";
   updatedAt: "UpdatedDate",
   deletedAt: "DeletedDate",
 })
-class ProductSubscription extends Model<ProductSubscription> {
+class ProductSubscription extends Model {
   @Column({ primaryKey: true, autoIncrement: true })
   SubscriptionGUID!: number;
 
@@ -85,7 +85,7 @@ class ProductSubscription extends Model<ProductSubscription> {
   PaymentMethod!: string;
 
   @Column
-  PaymentTransactionId!:number
+  PaymentTransactionId!:string
 
   @Column(DataType.DATE)
   LastPaymentDate!: Date;
@@ -115,7 +115,11 @@ class ProductSubscription extends Model<ProductSubscription> {
   DeletedGUID!: number;
 
   // ('ACTIVE', 'INACTIVE', 'CANCELLED', 'EXPIRED', 'PENDING', 'SUSPENDED', 'TRIAL','PLACED'))  @Column(DataType.STRING(20))
+  
 
+  @ForeignKey(() => User)
+  @Column
+  SalesMasterGUID!: number;
   @Column
   Status!: string;
 

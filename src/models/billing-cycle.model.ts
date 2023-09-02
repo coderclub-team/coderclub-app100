@@ -5,15 +5,12 @@ import {
   Table,
 } from "sequelize-typescript";
 
-// --BillingCycleGUID;
-// --BillingCycleName;
-// --NumberOfCycle;
 @Table({
   tableName: "tbl_BillingCycles",
   timestamps: false,
   paranoid: false,
 })
-class BillingCycles extends Model<BillingCycles> {
+class SubscriptionCycle extends Model<SubscriptionCycle> {
   @PrimaryKey
   @Column
   BillingCycleGUID!: number;
@@ -23,4 +20,4 @@ class BillingCycles extends Model<BillingCycles> {
   NumberOfCycles!: string;
 
 }
-export default BillingCycles;
+export default SubscriptionCycle;

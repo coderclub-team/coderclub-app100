@@ -21,11 +21,46 @@ function parseSequelizeError(error) {
         };
     }
     else if (error instanceof sequelize_1.ValidationError) {
-        console.log("Error on ValidationError", {
-            path: error.errors[0].path,
-            message: error.errors[0].message,
-            value: error.errors[0].value,
-        });
+        if (error.errors[0].message === "UC_EmailAddress must be unique") {
+            return {
+                message: `Email address already exists`,
+            };
+        }
+        else if (error.errors[0].message === "UC_MobileNo must be unique") {
+            return {
+                message: `Mobile number already exists`,
+            };
+        }
+        else if (error.errors[0].message === "UC_LoginName must be unique") {
+            return {
+                message: `Login name already exists`,
+            };
+        }
+        else if (error.errors[0].message === "User.EmailAddress cannot be null") {
+            return {
+                message: `Email address is required`,
+            };
+        }
+        else if (error.errors[0].message === "User.MobileNo cannot be null") {
+            return {
+                message: `Mobile number is required`,
+            };
+        }
+        else if (error.errors[0].message === "User.LoginName cannot be null") {
+            return {
+                message: `Login name is required`,
+            };
+        }
+        else if (error.errors[0].message === "User.Password cannot be null") {
+            return {
+                message: `Password is required`,
+            };
+        }
+        else if (error.errors[0].message === "User.FirstName cannot be null") {
+            return {
+                message: `First name is required`,
+            };
+        }
         const errors = error.errors
             .map((err) => `${err.path} ${err.message}`)
             .join(", ");
@@ -35,11 +70,12 @@ function parseSequelizeError(error) {
         };
     }
     else if (error instanceof sequelize_1.UniqueConstraintError) {
-        console.log("Error on UniqueConstraintError", {
-            path: error.errors[0].path,
-            message: error.errors[0].message,
-            value: error.errors[0].value,
-        });
+        if (error.errors[0].message === "UC_EmailAddress must be unique") {
+            return {
+                message: `Email address already exists`,
+                error: error,
+            };
+        }
         return {
             message: ` ${error.message}`,
             error: error,

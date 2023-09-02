@@ -12,10 +12,8 @@ import {
   verifyAccount,
   forgotPassword,
   getCurrentUser,
-  getOrders,
-
-  cancelOrder,
-} from "../controllers/auth.controller";
+} from "../controllers/user.controller.";
+import {  cancelOrder, getOrders } from "../controllers/auth.controller"
 import handleSequelizeError from "../middlewares/handle-sequelize-error.middleware";
 import authGaurd from "../middlewares/auth-gaurd.middleware";
 import { updateUserById } from "../controllers/user.controller.";

@@ -1,5 +1,6 @@
 import {
   BeforeCreate,
+  BeforeFind,
   BelongsTo,
   Column,
   DataType,
@@ -66,12 +67,12 @@ class ProductMaster extends Model {
     field: "Unit_Price",
   })
   UnitPrice!: number;
-  // @Column({
-  //   type: DataType.BIGINT,
-  //   allowNull: false,
-  //   field: "Sale_Rate",
-  // })
-  // SaleRate!: number;
+  @Column({
+    type: DataType.BIGINT,
+    allowNull: false,
+    field: "Sale_Rate",
+  })
+  SaleRate!: number;
   @Column({
     type: DataType.BIGINT,
     allowNull: false,
@@ -233,6 +234,9 @@ class ProductMaster extends Model {
      const fullPath = `${hostname}/${originalPath}`;
      this.setDataValue(key, fullPath);
    }
+
+
+
 }
 
 export default ProductMaster;
