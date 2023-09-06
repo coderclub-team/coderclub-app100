@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { omitUndefined } from "../functions";
+import { generateUniqueNumber, omitUndefined } from "../functions";
 import { MyWhereType } from "../..";
 import ProductSubscription from "../models/product-subscription.model";
 import BillingCycles from "../models/billing-cycle.model";
@@ -107,6 +107,7 @@ export const subscribeProduct = async (
           UserGUID: req.body.CreatedGUID,
           Debit: req.body.SubscriptionPrice,
           CreatedGUID: req.body.CreatedGUID,
+          TransactionId:generateUniqueNumber()
         });
         const subscription = await ProductSubscription.create(
           {
@@ -121,7 +122,7 @@ export const subscribeProduct = async (
         );
         await t.commit().then(() => {
           console.log("subscription", subscription.toJSON());
-          res.status(200).send({
+        return  res.status(200).send({
             message: "Subscription created successfully!",
             subscription: subscription.toJSON(),
             updatedWalletBalance:

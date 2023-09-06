@@ -19,6 +19,7 @@ const global_type_model_1 = __importDefault(require("../models/global-type.model
 const user_model_1 = __importDefault(require("../models/user.model"));
 const database_1 = require("../database");
 const user_wallet_model_1 = __importDefault(require("../models/user-wallet.model"));
+const functions_1 = require("../functions");
 function getAllSales(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const salemasters = yield sale_model_1.default.findAll({
@@ -156,6 +157,7 @@ const createSale = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
             UserGUID: req.body.CreatedGUID,
             Debit: TotalAmount,
             CreatedGUID: req.body.CreatedGUID,
+            TransactionId: (0, functions_1.generateUniqueNumber)()
         });
         const sale = yield sale_model_1.default.create(Object.assign(Object.assign({}, saleData), { WalletGUID: updatedWallet.WalletGUID }), { transaction });
         const saleDetails = yield sale_detail_model_1.default.bulkCreate(SalesDetails.map((saleDetail) => (Object.assign({ SalesMasterGUID: sale.SalesMasterGUID }, saleDetail))), { transaction });

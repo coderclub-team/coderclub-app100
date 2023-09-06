@@ -6,6 +6,7 @@ import ProductSubscription from "../models/product-subscription.model";
 import Sale from "../models/sale.model";
 import SaleDetail from "../models/sale-detail.model";
 import ProductMaster from "../models/product-master.model";
+import { generateUniqueNumber } from "../functions";
 export const getWalletTransactions = async (
   req: Request,
   res: Response,
@@ -60,6 +61,7 @@ export const creditOrDebit = async (
         Debit: 0,
         CreatedGUID: CreatedGUID,
         Status: "FULLFILLED",
+        TransactionId:generateUniqueNumber(),
       });
     } else if (new String(type).toUpperCase() === "DEBIT") {
       return res.status(400).json({ message: "Debit through this API is restricted" });

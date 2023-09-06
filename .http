@@ -5,8 +5,8 @@ POST {{baseUrl}}/me/login
 Content-Type: application/json
 
 {
-    "MobileNo":"9750022933",
-    "Password":"bharani@123"
+    "MobileNo":"9566935886",
+    "Password":"987654321"
 }
 ###
 

@@ -7,6 +7,7 @@ import { Sequelize } from "sequelize";
 import User from "../models/user.model";
 import { sequelize } from "../database";
 import UserWallet from "../models/user-wallet.model";
+import { generateUniqueNumber } from "../functions";
 
 export async function getAllSales(req: Request, res: Response) {
   const salemasters = await Sale.findAll({
@@ -88,7 +89,7 @@ export async function getSaleById(req: Request, res: Response) {
   res.status(200).json(sale);
 }
 
-export const createSale = async (
+export const  createSale = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -167,6 +168,7 @@ export const createSale = async (
       UserGUID: req.body.CreatedGUID,
       Debit: TotalAmount,
       CreatedGUID: req.body.CreatedGUID,
+      TransactionId:generateUniqueNumber()
     });
 
     const sale = await Sale.create(

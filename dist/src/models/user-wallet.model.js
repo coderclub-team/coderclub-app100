@@ -38,11 +38,14 @@ let UserWallet = class UserWallet extends sequelize_typescript_1.Model {
     // SubscriptionGUID!: number;
     // @BelongsTo(() => ProductSubscription)
     // Subscription!: ProductSubscription;
-    static updateBalance(instance) {
+    static updateBalance(instance, options) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield user_model_1.default.findByPk(instance.getDataValue("UserGUID"));
+            const user = yield user_model_1.default.findByPk(instance.getDataValue("UserGUID"), {
+                transaction: options.transaction
+            });
             const balance = yield user_wallet_balance_model_1.default.findOne({
                 where: { UserGUID: instance.getDataValue("UserGUID") },
+                transaction: options.transaction
             });
             if (instance.getDataValue("Credit") > 0) {
                 message_class_1.default.sendRechargeSuccessMessage({
@@ -155,6 +158,10 @@ __decorate([
     __metadata("design:type", String)
 ], UserWallet.prototype, "PaymentId", void 0);
 __decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", String)
+], UserWallet.prototype, "TransactionId", void 0);
+__decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.VIRTUAL,
         allowNull: true,
@@ -189,7 +196,7 @@ __decorate([
 __decorate([
     sequelize_typescript_1.AfterCreate,
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [UserWallet]),
+    __metadata("design:paramtypes", [UserWallet, Object]),
     __metadata("design:returntype", Promise)
 ], UserWallet, "updateBalance", null);
 UserWallet = __decorate([

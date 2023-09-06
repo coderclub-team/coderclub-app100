@@ -323,6 +323,7 @@ export const moveFromCartToOrder = async (
         CreatedGUID: user.UserGUID,
         Description: "Order Placed",
         PaymentId:generateUniqueNumber(),
+        TransactionId:generateUniqueNumber(),
         CreatedDate: new Date(),
       },{
         transaction:t
@@ -369,6 +370,8 @@ export const moveFromCartToOrder = async (
         SubscriptionEndDate: new Date().toDateString(),
         SubscriptionOccurrences: cart.SubsOccurences,
         PaymentTransactionId: generateUniqueNumber(),
+        SubscriptionPrice: cart.Product.SaleRate,
+        BillingCycleGUID: cart.SubsCycleGUID,
       }));
 
       const sales_details_records = await SaleDetail.bulkCreate(sale_details, {
@@ -381,19 +384,21 @@ export const moveFromCartToOrder = async (
           transaction: t,
         }
       );
-      await t.commit().then(async () => {
-        await Cart.destroy({
-          where: {
-            CreatedGUID: {
-              [Op.eq]: user.UserGUID,
-            },
+      await Cart.destroy({
+        where: {
+          CreatedGUID: {
+            [Op.eq]: user.UserGUID,
           },
-        });
-       
-      }).catch((err) => {
-        console.log(err);
-        t.rollback();
-      })
+        },
+        transaction: t,
+      });
+      await t.commit()
+      return res.status(200).json({
+        message: "Order placed successfully",
+        salesData,
+        sales_details_records,
+        subscription_records,
+      });
     }
   } catch (error) {
     t.rollback();

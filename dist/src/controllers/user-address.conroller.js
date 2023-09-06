@@ -31,10 +31,8 @@ const getMyAddresses = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
 });
 exports.getMyAddresses = getMyAddresses;
 const createAddress = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    req.body.CreatedGUID = req.body.user.UserGUID;
-    req.body.UserGUID = req.body.user.CreatedGUID;
     try {
-        const address = yield user_address_model_1.default.create(req.body);
+        const address = yield user_address_model_1.default.create(Object.assign(Object.assign({}, req.body), { CreatedGUID: req.body.user.UserGUID, UserGUID: req.body.user.UserGUID }));
         res.send({
             message: "User address added successfully!",
             address,

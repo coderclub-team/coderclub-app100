@@ -15,7 +15,7 @@ import User from "./user.model";
 import UserWalletBalance from "./user-wallet-balance.model";
 import ProductSubscription from "./product-subscription.model";
 import Sale from "./sale.model";
-import { VIRTUAL } from "sequelize";
+import { Transaction, VIRTUAL } from "sequelize";
 
 @Table({
   timestamps: true,
@@ -107,6 +107,9 @@ export default class UserWallet extends Model {
   @Column
   PaymentId!: string;
 
+  @Column
+  TransactionId!:string
+
   // @ForeignKey(() => Sale)
   // @Column
   // SalesMasterGUID!: number;
@@ -123,10 +126,15 @@ export default class UserWallet extends Model {
 
 
   @AfterCreate
-  static async updateBalance(instance: UserWallet) {
-    const user = await User.findByPk(instance.getDataValue("UserGUID"));
+  static async updateBalance(instance: UserWallet,options:{
+    transaction:Transaction
+  }) {
+    const user = await User.findByPk(instance.getDataValue("UserGUID"),{
+      transaction:options.transaction
+    });
     const balance = await UserWalletBalance.findOne({
       where: { UserGUID: instance.getDataValue("UserGUID") },
+      transaction:options.transaction
     });
     if (instance.getDataValue("Credit") > 0) {
       Message.sendRechargeSuccessMessage({
