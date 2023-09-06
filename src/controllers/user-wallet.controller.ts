@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import User from "../models/user.model";
 import UserWallet from "../models/user-wallet.model";
-import UserWalletBalance from "../models/user-wallet-balance.model";
 import ProductSubscription from "../models/product-subscription.model";
 import Sale from "../models/sale.model";
 import SaleDetail from "../models/sale-detail.model";
@@ -89,8 +88,9 @@ export const creditOrDebit = async (
     res.json({
       message: "Transaction successful",
       transaction,
-      balance: await UserWalletBalance.findOne({
+      balance: await UserWallet.findOne({
         where: { UserGUID: req.body.CreatedGUID },
+        order: [["WalletGUID", "DESC"]],
       }).then((t) => t?.Balance),
     });
   } catch (error: any) {
@@ -106,8 +106,9 @@ export const getWalletBalance = async (
     ) => {
       req.body.CreatedGUID = req.body.user.UserGUID;
         try {
-            const balance = await UserWalletBalance.findOne({
+            const balance = await UserWallet.findOne({
                 where: { UserGUID: req.body.CreatedGUID },
+                order: [["WalletGUID", "DESC"]],
                 include: [{
                   model: User,
                   attributes: ['LoginName','UserGUID', 'FirstName', 'LastName', 'EmailAddress', 'MobileNo']

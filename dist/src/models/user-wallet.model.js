@@ -20,14 +20,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var UserWallet_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_typescript_1 = require("sequelize-typescript");
 const message_class_1 = __importDefault(require("../entities/message.class"));
 const user_model_1 = __importDefault(require("./user.model"));
-const user_wallet_balance_model_1 = __importDefault(require("./user-wallet-balance.model"));
+// import UserWalletBalance from "./user-wallet-balance.model";
 const product_subscription_model_1 = __importDefault(require("./product-subscription.model"));
 const sale_model_1 = __importDefault(require("./sale.model"));
-let UserWallet = class UserWallet extends sequelize_typescript_1.Model {
+let UserWallet = UserWallet_1 = class UserWallet extends sequelize_typescript_1.Model {
     // @ForeignKey(() => Sale)
     // @Column
     // SalesMasterGUID!: number;
@@ -43,8 +44,9 @@ let UserWallet = class UserWallet extends sequelize_typescript_1.Model {
             const user = yield user_model_1.default.findByPk(instance.getDataValue("UserGUID"), {
                 transaction: options.transaction
             });
-            const balance = yield user_wallet_balance_model_1.default.findOne({
+            const balance = yield UserWallet_1.findOne({
                 where: { UserGUID: instance.getDataValue("UserGUID") },
+                order: [["WalletGUID", "DESC"]],
                 transaction: options.transaction
             });
             if (instance.getDataValue("Credit") > 0) {
@@ -54,12 +56,6 @@ let UserWallet = class UserWallet extends sequelize_typescript_1.Model {
                     RechargeDate: instance.getDataValue("CreatedDate"),
                     Balance: balance === null || balance === void 0 ? void 0 : balance.getDataValue("Balance"),
                     DigitalCard: user === null || user === void 0 ? void 0 : user.DigitalCard,
-                })
-                    .then((Response) => {
-                    console.log("sendRechargeSuccessMessage Response", Response);
-                })
-                    .catch((error) => {
-                    console.log("Error in sending message", error);
                 });
             }
         });
@@ -194,12 +190,16 @@ __decorate([
     __metadata("design:type", UserWallet)
 ], UserWallet.prototype, "Subscription", void 0);
 __decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], UserWallet.prototype, "Balance", void 0);
+__decorate([
     sequelize_typescript_1.AfterCreate,
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [UserWallet, Object]),
     __metadata("design:returntype", Promise)
 ], UserWallet, "updateBalance", null);
-UserWallet = __decorate([
+UserWallet = UserWallet_1 = __decorate([
     (0, sequelize_typescript_1.Table)({
         timestamps: true,
         paranoid: true,

@@ -12,7 +12,7 @@ import {
 } from "sequelize-typescript";
 import Message from "../entities/message.class";
 import User from "./user.model";
-import UserWalletBalance from "./user-wallet-balance.model";
+// import UserWalletBalance from "./user-wallet-balance.model";
 import ProductSubscription from "./product-subscription.model";
 import Sale from "./sale.model";
 import { Transaction, VIRTUAL } from "sequelize";
@@ -35,11 +35,15 @@ export default class UserWallet extends Model {
   })
   WalletGUID!: number;
 
+  @ForeignKey(()=>User)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
   })
   UserGUID!: number;
+
+  @BelongsTo(()=>User)
+  User!:User
 
   @Column
   Description!: string;
@@ -132,8 +136,9 @@ export default class UserWallet extends Model {
     const user = await User.findByPk(instance.getDataValue("UserGUID"),{
       transaction:options.transaction
     });
-    const balance = await UserWalletBalance.findOne({
+    const balance = await UserWallet.findOne({
       where: { UserGUID: instance.getDataValue("UserGUID") },
+      order: [["WalletGUID", "DESC"]],
       transaction:options.transaction
     });
     if (instance.getDataValue("Credit") > 0) {
@@ -144,12 +149,7 @@ export default class UserWallet extends Model {
         Balance: balance?.getDataValue("Balance"),
         DigitalCard: user?.DigitalCard!,
       })
-        .then((Response) => {
-          console.log("sendRechargeSuccessMessage Response", Response);
-        })
-        .catch((error) => {
-          console.log("Error in sending message", error);
-        });
+       
     }
   }
 
@@ -180,4 +180,7 @@ export default class UserWallet extends Model {
     foreignKey: 'WalletGUID',
   })
   Subscription!: UserWallet;
+
+  @Column
+  Balance!: number;
 }

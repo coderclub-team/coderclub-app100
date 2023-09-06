@@ -337,8 +337,8 @@ export const moveFromCartToOrder = async (
           CustomerGUID: user.StoreGUID,
           SaleOrderDate: new Date(),
           SalePlatform,
-          PaymentMode: GT?.GlobalTypeGUID,
-          PromotionGUID: promotion?.PromotionGUID,
+          PaymentMode: GT?.getDataValue("GlobalTypeGUID"),
+          PromotionGUID: promotion?.getDataValue("PromotionGUID"),
           PaymentTransactionID: wallet.getDataValue("WalletGUID"),
 
           Status: "PLACED",
@@ -357,21 +357,21 @@ export const moveFromCartToOrder = async (
         }
       );
       const sale_details = sales.map((cart) => ({
-        ProductGUID: cart.ProductGUID,
-        Quantity: cart.Quantity,
-        SaleMasterGUID: salesData.SalesMasterGUID,
+        ProductGUID: cart.getDataValue("ProductGUID"),
+        Quantity: cart.getDataValue('Quantity'),
+        SaleMasterGUID: salesData.getDataValue("SalesMasterGUID"),
       }));
 
       const subscriptionsData = subscriptions?.map((cart) => ({
         UserGUID: user.UserGUID,
-        SalesMasterGUID: salesData.SalesMasterGUID,
-        ProductGUID: cart.ProductGUID,
+        SalesMasterGUID: salesData?.getDataValue('SalesMasterGUID'),
+        ProductGUID: cart?.getDataValue("ProductGUID"),
         SubscriptionStartDate: new Date().toISOString(),
         SubscriptionEndDate: new Date().toDateString(),
-        SubscriptionOccurrences: cart.SubsOccurences,
+        SubscriptionOccurrences: cart.getDataValue("SubsOccurences"),
         PaymentTransactionId: generateUniqueNumber(),
-        SubscriptionPrice: cart.Product.SaleRate,
-        BillingCycleGUID: cart.SubsCycleGUID,
+        SubscriptionPrice: cart.Product.getDataValue("SaleRate"),
+        BillingCycleGUID: cart.getDataValue('SubsCycleGUID'),
       }));
 
       const sales_details_records = await SaleDetail.bulkCreate(sale_details, {

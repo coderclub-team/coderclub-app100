@@ -19,7 +19,6 @@ import authGaurd from "../middlewares/auth-gaurd.middleware";
 import { updateUserById } from "../controllers/user.controller.";
 import { generateRazorpayIntent } from "../controllers/payment.controller";
 import couponGuard from "../middlewares/coupon-gaurd.moddleware";
-import UserWalletBalance from "../models/user-wallet-balance.model";
 import WalletBalanceMiddleWare from "../middlewares/wallet-balance.middleware";
 import { createSale } from "../controllers/sale.controller";
 

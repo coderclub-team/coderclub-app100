@@ -1,8 +1,8 @@
 import { Router } from "express";
 import multer from "multer";
-import { register } from "ts-node";
+
 import { userImageUploadOptions } from "../../config";
-import { login, verifyAccount, sendOTP, resetPassword, forgotPassword, getCurrentUser,} from "../controllers/user.controller.";
+import { login, verifyAccount, sendOTP, resetPassword, forgotPassword, getCurrentUser, register,} from "../controllers/user.controller.";
 
 import { getOrders, cancelOrder } from "../controllers/auth.controller";
 import { generateRazorpayIntent } from "../controllers/payment.controller";

@@ -15,11 +15,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getWalletBalance = exports.creditOrDebit = exports.getWalletTransactions = void 0;
 const user_model_1 = __importDefault(require("../models/user.model"));
 const user_wallet_model_1 = __importDefault(require("../models/user-wallet.model"));
-const user_wallet_balance_model_1 = __importDefault(require("../models/user-wallet-balance.model"));
 const product_subscription_model_1 = __importDefault(require("../models/product-subscription.model"));
 const sale_model_1 = __importDefault(require("../models/sale.model"));
 const sale_detail_model_1 = __importDefault(require("../models/sale-detail.model"));
 const product_master_model_1 = __importDefault(require("../models/product-master.model"));
+const functions_1 = require("../functions");
 const getWalletTransactions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     req.body.CreatedGUID = req.body.user.UserGUID;
     try {
@@ -65,6 +65,7 @@ const creditOrDebit = (req, res, next) => __awaiter(void 0, void 0, void 0, func
                 Debit: 0,
                 CreatedGUID: CreatedGUID,
                 Status: "FULLFILLED",
+                TransactionId: (0, functions_1.generateUniqueNumber)(),
             });
         }
         else if (new String(type).toUpperCase() === "DEBIT") {
@@ -89,8 +90,9 @@ const creditOrDebit = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         res.json({
             message: "Transaction successful",
             transaction,
-            balance: yield user_wallet_balance_model_1.default.findOne({
+            balance: yield user_wallet_model_1.default.findOne({
                 where: { UserGUID: req.body.CreatedGUID },
+                order: [["WalletGUID", "DESC"]],
             }).then((t) => t === null || t === void 0 ? void 0 : t.Balance),
         });
     }
@@ -103,8 +105,9 @@ exports.creditOrDebit = creditOrDebit;
 const getWalletBalance = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     req.body.CreatedGUID = req.body.user.UserGUID;
     try {
-        const balance = yield user_wallet_balance_model_1.default.findOne({
+        const balance = yield user_wallet_model_1.default.findOne({
             where: { UserGUID: req.body.CreatedGUID },
+            order: [["WalletGUID", "DESC"]],
             include: [{
                     model: user_model_1.default,
                     attributes: ['LoginName', 'UserGUID', 'FirstName', 'LastName', 'EmailAddress', 'MobileNo']

@@ -98,13 +98,14 @@ const subscribeProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, f
                     UserGUID: req.body.CreatedGUID,
                     Debit: req.body.SubscriptionPrice,
                     CreatedGUID: req.body.CreatedGUID,
+                    TransactionId: (0, functions_1.generateUniqueNumber)()
                 });
                 const subscription = yield product_subscription_model_1.default.create(Object.assign(Object.assign({}, req.body), { PaymentTransactionId: updatedWallet.getDataValue("WalletGUID"), PaymentMethod: "WALLET", WalletGUID: updatedWallet.getDataValue("WalletGUID") }), {
                     transaction: t,
                 });
                 yield t.commit().then(() => {
                     console.log("subscription", subscription.toJSON());
-                    res.status(200).send({
+                    return res.status(200).send({
                         message: "Subscription created successfully!",
                         subscription: subscription.toJSON(),
                         updatedWalletBalance: req.body.WalletBalance - updatedWallet.getDataValue("Debit"),

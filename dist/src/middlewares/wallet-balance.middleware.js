@@ -12,14 +12,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const user_wallet_balance_model_1 = __importDefault(require("../models/user-wallet-balance.model"));
+const user_wallet_model_1 = __importDefault(require("../models/user-wallet.model"));
 function WalletBalance(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const balance = yield user_wallet_balance_model_1.default.findOne({
+            const balance = yield user_wallet_model_1.default.findOne({
                 where: {
                     UserGUID: req.body.user.UserGUID,
                 },
+                order: [["WalletGUID", "DESC"]],
             });
             if (balance == null) {
                 req.body.WalletBalance = 0;
