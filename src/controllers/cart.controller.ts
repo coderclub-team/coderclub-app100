@@ -51,7 +51,7 @@ const addSubsToCart = async (req: Request, res: Response) => {
     }
     const newCart = await Cart.create({
       ProductGUID,
-      Quantity: 1,
+      Quantity: IsSubscription ? SubsOccurences : Quantity,
       CreatedGUID: user.UserGUID,
       IsSubscription: 1,
       SubsCycleGUID,
@@ -82,13 +82,16 @@ const removeSubsFromCart = async (req: Request, res: Response) => {
   try {
     const cart = await Cart.findOne({
       where: {
-        ProductGUID,
+        ProductGUID:{
+          [Op.eq]: ProductGUID,
+        },
         CreatedGUID: {
           [Op.eq]: [user.UserGUID],
         },
         IsSubscription: {
           [Op.eq]: 1,
         },
+       
         SubsCycleGUID: {
           [Op.eq]: SubsCycleGUID,
         },
@@ -97,6 +100,8 @@ const removeSubsFromCart = async (req: Request, res: Response) => {
         },
       },
     });
+
+    
     if (!cart) {
       throw new Error("Cart not found");
     }
@@ -154,7 +159,17 @@ export const getCart = async (req: Request, res: Response) => {
 };
 
 export const addToCart = async (req: Request, res: Response) => {
-  const { ProductGUID, Quantity, IsSubscription, user } = req.body;
+  const {
+    ProductGUID,
+    Quantity,
+    IsSubscription,
+    SubscriptionStartDate,
+    SubscriptionEndDate,
+    SubscriptionOccurrences,
+    BillingCycleGUID,
+    PaymentTransactionId,
+    user,
+  } = req.body;
 
   if (IsSubscription) {
     return addSubsToCart(req, res);
@@ -167,12 +182,17 @@ export const addToCart = async (req: Request, res: Response) => {
 
       const cart = await Cart.findOne({
         where: {
-          ProductGUID,
-          CreatedGUID: user.UserGUID,
+          ProductGUID:{
+            [Op.eq]: ProductGUID,
+          },
+          CreatedGUID: {
+            [Op.eq]: [user.UserGUID],
+          },
+          IsSubscription: {
+            [Op.eq]: 0,
+          },
         },
       });
-
-
 
       if (cart) {
         cart.Quantity += Quantity;
@@ -182,7 +202,10 @@ export const addToCart = async (req: Request, res: Response) => {
           cart,
         });
       }
-     
+      if(!req.body.Quantity){
+        throw new Error("Quantity is required");
+      }
+
       const newCart = await Cart.create({
         ProductGUID,
         Quantity,
@@ -204,8 +227,9 @@ export const addToCart = async (req: Request, res: Response) => {
 
 export const removeFromCart = async (req: Request, res: Response) => {
   const { ProductGUID, Quantity, IsSubscription, user } = req.body;
-
+console.log("req.body==>",req.body);
   if (IsSubscription) {
+
     return removeSubsFromCart(req, res);
   } else {
     try {
@@ -218,7 +242,7 @@ export const removeFromCart = async (req: Request, res: Response) => {
             [Op.eq]: [user.UserGUID],
           },
           IsSubscription: {
-            [Op.ne]: 0,
+            [Op.eq]: 0,
           },
         },
       });
@@ -266,7 +290,6 @@ export const moveFromCartToOrder = async (
   const SalePlatform = req.useragent?.platform;
   const t = await sequelize.transaction({
     autocommit: false,
-  
   });
   try {
     const sales = await Cart.findAll({
@@ -317,17 +340,20 @@ export const moveFromCartToOrder = async (
           })
         : undefined;
 
-      const wallet = await UserWallet.create({
-        UserGUID: user.UserGUID,
-        Debit: CartGrossTotal,
-        CreatedGUID: user.UserGUID,
-        Description: "Order Placed",
-        PaymentId:generateUniqueNumber(),
-        TransactionId:generateUniqueNumber(),
-        CreatedDate: new Date(),
-      },{
-        transaction:t
-      });
+      const wallet = await UserWallet.create(
+        {
+          UserGUID: user.UserGUID,
+          Debit: CartGrossTotal,
+          CreatedGUID: user.UserGUID,
+          Description: "Order Placed",
+          PaymentId: generateUniqueNumber(),
+          TransactionId: generateUniqueNumber(),
+          CreatedDate: new Date(),
+        },
+        {
+          transaction: t,
+        }
+      );
 
       const salesData = await Sale.create(
         {
@@ -358,20 +384,20 @@ export const moveFromCartToOrder = async (
       );
       const sale_details = sales.map((cart) => ({
         ProductGUID: cart.getDataValue("ProductGUID"),
-        Quantity: cart.getDataValue('Quantity'),
+        Quantity: cart.getDataValue("Quantity"),
         SaleMasterGUID: salesData.getDataValue("SalesMasterGUID"),
       }));
 
       const subscriptionsData = subscriptions?.map((cart) => ({
         UserGUID: user.UserGUID,
-        SalesMasterGUID: salesData?.getDataValue('SalesMasterGUID'),
+        SalesMasterGUID: salesData?.getDataValue("SalesMasterGUID"),
         ProductGUID: cart?.getDataValue("ProductGUID"),
         SubscriptionStartDate: new Date().toISOString(),
         SubscriptionEndDate: new Date().toDateString(),
         SubscriptionOccurrences: cart.getDataValue("SubsOccurences"),
         PaymentTransactionId: generateUniqueNumber(),
         SubscriptionPrice: cart.Product.getDataValue("SaleRate"),
-        BillingCycleGUID: cart.getDataValue('SubsCycleGUID'),
+        BillingCycleGUID: cart.getDataValue("SubsCycleGUID"),
       }));
 
       const sales_details_records = await SaleDetail.bulkCreate(sale_details, {
@@ -392,7 +418,7 @@ export const moveFromCartToOrder = async (
         },
         transaction: t,
       });
-      await t.commit()
+      await t.commit();
       return res.status(200).json({
         message: "Order placed successfully",
         salesData,
@@ -406,4 +432,3 @@ export const moveFromCartToOrder = async (
     next(error);
   }
 };
-
