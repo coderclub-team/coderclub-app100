@@ -6,6 +6,6 @@ import authGaurdMiddleware from '../middlewares/auth-gaurd.middleware';
 const router = express.Router();
 
 router.get('/', getAllPromotions);
-router.get('/check',authGaurdMiddleware,couponGuard, checkPromoCode);
+router.post('/check',authGaurdMiddleware,couponGuard, checkPromoCode);
 
 export default router;

@@ -24,14 +24,19 @@ import subsRouter from "./routes/product-subscription.router";
 import handleSequelizeError from "./middlewares/handle-sequelize-error.middleware";
 import { billingcyclesRouter } from "./routes/general.router";
 import walletRouter from "./routes/wallet.router";
+import appConfigRouter from "./routes/app-config.router";
+import staticInfoRouter from "./routes/static-info.router";
+
+import userAgent from "express-useragent";
 import promotionRouter from "./routes/promotion.router";
 import { expireSubscription } from "./controllers/product-subscription.controller";
+import meRouter from "./routes/me-router";
 // Set the base URL and store it in app.locals
 const app = express();
 app.use(express.static("public"));
 app.use(cors());
 // parse application/json
-
+app.use(userAgent.express())
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 console.log("Connecting to DB", path.join("public"));
@@ -42,61 +47,23 @@ ConnectDB()
   .catch((e) => console.log("Error connecting to DB", e));
 
 app.use("/api/users", authGaurd, userRouter);
+
 app.use("/api/cartitems", authGaurd, cartItemsRouter);
 app.use("/api/addresses", authGaurd, userAddressesRouter);
+app.use("/api/wallets", authGaurd, walletRouter, handleSequelizeError);
+app.use("/api/sales", authGaurd, saleRouter);
+app.use("/api/subscriptions", authGaurd, subsRouter, handleSequelizeError);
+
+
 app.use("/api/productMasters", productMasterRouter);
 app.use("/api/productcategories", productCategoryRouter);
 app.use("/api/productsubcategories", productSubCategoryRouter);
-app.use("/api/sales", authGaurd, saleRouter);
 app.use("/api", authRouter);
-app.use("/api/subscriptions", authGaurd, subsRouter, handleSequelizeError);
+app.use("/api/me", meRouter);
 app.use("/api/billingcycles", billingcyclesRouter, handleSequelizeError);
-app.use("/api/wallets", authGaurd, walletRouter, handleSequelizeError);
 app.use("/api/promotions", promotionRouter, handleSequelizeError);
-app.get("/api/app/config", (req: Request, res: Response) => {
-  const app_config = {
-    splashlogo: [
-      {
-        image: "splashscreen/splash_logo.gif",
-      },
-    ],
-    applogo: [
-      {
-        image: "icons/milk_bottle.png",
-      },
-    ],
-    walkthrogh: [
-      {
-        title: "Pick up",
-        description:
-          "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
-        image: "walkthrough/pickup.png",
-      },
-      {
-        title: "Transport",
-        description:
-          "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
-        image: "walkthrough/transport.png",
-      },
-      {
-        title: "Dellivery",
-        description:
-          "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
-        image: "walkthrough/delivery.png",
-      },
-    ],
-  };
-  const host = req.protocol + "://" + req.get("host");
-  app_config.applogo[0].image = host + "/" + app_config.applogo[0].image;
-  app_config.splashlogo[0].image = host + "/" + app_config.splashlogo[0].image;
-  app_config.walkthrogh.forEach((item) => {
-    item.image = host + "/" + item.image;
-  });
-
-  res.status(200).json(app_config);
-});
-
-
+app.use("/api/app/config", appConfigRouter, handleSequelizeError);
+app.use("/api/static-info",staticInfoRouter, handleSequelizeError);
 
 
 // app listening on port 3000

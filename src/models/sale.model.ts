@@ -10,6 +10,7 @@ import {
   DataType,
   ForeignKey,
   HasMany,
+  HasOne,
   Model,
   PrimaryKey,
   Table,
@@ -19,7 +20,7 @@ import { sequelize } from "../database";
 import User from "./user.model";
 import SaleDetail from "./sale-detail.model";
 import { Promotion } from "./promotion.model";
-
+import UserWallet from "./user-wallet.model";
 
 @Table({
   tableName: "tbl_SalesMaster",
@@ -29,7 +30,7 @@ import { Promotion } from "./promotion.model";
   deletedAt: "DeletedDate",
   paranoid: false,
 })
-export default class Sale extends Model{
+export default class Sale extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column
@@ -37,8 +38,11 @@ export default class Sale extends Model{
 
   @Column
   SaleOrderID!: string;
-  // @Column
-  // SaleOrderDate: Date=new Date();
+  @Column({
+    type: DataType.DATE,
+    defaultValue: new Date(),
+  })
+  SaleOrderDate!: Date;
 
   @ForeignKey(() => GlobalType)
   @Column({
@@ -52,6 +56,12 @@ export default class Sale extends Model{
 
   @Column
   PaymentMode!: number;
+  //   POS
+  // Cash
+  // Card
+  // UPI
+  // Net Banking
+
   @Column
   SalemanGUID!: number;
   @Column
@@ -74,20 +84,18 @@ export default class Sale extends Model{
   DeletedDate!: Date;
 
   @Column
-  Status!:string
+  Status!: string;
   @Column
-  PaymentTransactionID!:string
+  PaymentTransactionID!: string;
 
   @ForeignKey(() => Promotion)
   @Column({
     type: DataType.NUMBER,
-    
   })
   PromotionGUID!: number;
 
   @BelongsTo(() => Promotion)
   Promotion?: Promotion;
-
 
   @HasMany(() => SaleDetail, {
     foreignKey: "SalesMasterGUID",
@@ -95,11 +103,16 @@ export default class Sale extends Model{
   })
   SaleDetails!: SaleDetail[];
 
+  @Column
+  WalletGUID!: number;
+
   @BeforeCreate
   static async addSaleOrderID(sale: Sale) {
-    const result = await sequelize.query("SELECT IDENT_CURRENT('tbl_SalesMaster')+1 as NEXTID") as any[][];
+    const result = (await sequelize.query(
+      "SELECT IDENT_CURRENT('tbl_SalesMaster')+1 as NEXTID"
+    )) as any[][];
     const id = result[0][0].NEXTID;
-    sale.SaleOrderID = `S${id.toString().padStart(7, '0')}`;
+    sale.SaleOrderID = `S${id.toString().padStart(7, "0")}`;
   }
 
   @BeforeBulkCreate
@@ -124,5 +137,12 @@ export default class Sale extends Model{
     });
   }
 
+  @Column
+  GrossTotal!: number;
 
+  @Column
+  TotalAmount!: number;
+
+  @Column
+  SalePlatform?: string;
 }

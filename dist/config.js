@@ -21,8 +21,9 @@ exports.sequelizeConnectionOptions = {
     dialectOptions: {
         options: {
             encrypt: false,
+            requestTimeout: 300000,
         },
-        setTimeout: 50000,
+        setTimeout: 100000,
         clearTimeout: 50000,
     },
     // models: [__dirname + "/**/*.model.ts"],

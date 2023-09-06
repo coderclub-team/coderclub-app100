@@ -12,215 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cancelOrder = exports.createOrder = exports.getOrders = exports.signout = exports.resetPassword = exports.forgotPassword = exports.sendOTP = exports.verifyAccount = exports.getCurrentUser = exports.login = exports.register = void 0;
-const node_path_1 = __importDefault(require("node:path"));
-const user_model_1 = __importDefault(require("../models/user.model"));
-const node_fs_1 = __importDefault(require("node:fs"));
-const config_1 = require("../../config");
-const custom_error_1 = require("../../custom.error");
+exports.cancelOrder = exports.getOrders = void 0;
 const sale_model_1 = __importDefault(require("../models/sale.model"));
 const global_type_model_1 = __importDefault(require("../models/global-type.model"));
 const sale_detail_model_1 = __importDefault(require("../models/sale-detail.model"));
-const user_address_model_1 = __importDefault(require("../models/user-address.model"));
 const database_1 = require("../database");
 const product_master_model_1 = __importDefault(require("../models/product-master.model"));
 const promotion_model_1 = require("../models/promotion.model");
-const product_subscription_model_1 = __importDefault(require("../models/product-subscription.model"));
-const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    if (req.file) {
-        const { filename, path: tmpPath } = req.file;
-        req.body.tmpPath = tmpPath;
-        req.body.uploadPath = node_path_1.default.join(config_1.userImageUploadOptions.relativePath, filename);
-        req.body.PhotoPath = node_path_1.default.join(config_1.userImageUploadOptions.directory, filename);
-    }
-    console.log("register", req.body);
-    try {
-        const createdUser = yield user_model_1.default.create(req.body);
-        if (!createdUser) {
-            throw new custom_error_1.UserNotFoundExceptionError("User not found!");
-        }
-        if (req.file) {
-            node_fs_1.default.rename(req.body.tmpPath, req.body.uploadPath, (err) => {
-                if (err) {
-                    console.log(err);
-                }
-            });
-            createdUser.setFullURL(req, "PhotoPath");
-        }
-        return res.status(201).json({
-            message: "User created successfully!",
-            user: createdUser,
-        });
-    }
-    catch (error) {
-        // remove the uploaded file
-        if (req.body.tmpPath) {
-            node_fs_1.default.unlink(req.body.tmpPath, (err) => {
-                if (err) {
-                    console.log(err);
-                }
-            });
-        }
-        next(error);
-    }
-});
-exports.register = register;
-const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { MobileNo, Password } = req.body;
-    try {
-        if (!MobileNo || !Password) {
-            throw new Error("MobileNo or Password is missing");
-        }
-        const user = yield user_model_1.default.findOne({
-            where: {
-                MobileNo: MobileNo,
-            },
-            include: [user_address_model_1.default, product_subscription_model_1.default,],
-        });
-        if (!user) {
-            throw new custom_error_1.UserNotFoundExceptionError("User not found!");
-        }
-        user.setFullURL(req, "PhotoPath");
-        const token = yield (user === null || user === void 0 ? void 0 : user.authenticate(Password));
-        res.status(200).json({
-            message: "Login successful!",
-            user,
-            token,
-        });
-    }
-    catch (error) {
-        next(error);
-    }
-});
-exports.login = login;
-const getCurrentUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    // get user fromtoken
-    try {
-        console.log("auth_user==>", req.body.user);
-        const user = yield user_model_1.default.findByPk(req.body.user.UserGUID, {
-            attributes: {
-                exclude: ["Password"],
-            },
-            include: [user_address_model_1.default],
-        });
-        user === null || user === void 0 ? void 0 : user.setFullURL(req, "PhotoPath");
-        res.json([user]);
-    }
-    catch (error) {
-        next(error);
-    }
-});
-exports.getCurrentUser = getCurrentUser;
-const verifyAccount = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { MobileNo, OTP } = req.body;
-    const { deleted } = req.query;
-    const paranoid = deleted === "true" ? false : true;
-    try {
-        const user = yield user_model_1.default.findOne({
-            where: {
-                MobileNo,
-            },
-            paranoid,
-        });
-        if (!user) {
-            return res.status(400).json({
-                message: "User not found!",
-            });
-        }
-        yield user.verifyOTP(OTP);
-        res.status(200).json({
-            message: "User verified successfully!",
-            user,
-        });
-    }
-    catch (error) {
-        next(error);
-    }
-});
-exports.verifyAccount = verifyAccount;
-const sendOTP = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { MobileNo } = req.body;
-    const { deleted } = req.query;
-    const paranoid = deleted === "true" ? false : true;
-    try {
-        const user = yield user_model_1.default.findOne({
-            where: {
-                MobileNo,
-            },
-            paranoid,
-        });
-        if (!user) {
-            throw new custom_error_1.UserNotFoundExceptionError("User not found!");
-        }
-        yield (user === null || user === void 0 ? void 0 : user.sendOTP());
-        res.status(200).json({
-            message: "OTP sent successfully!",
-            user,
-        });
-    }
-    catch (error) {
-        next(error);
-    }
-});
-exports.sendOTP = sendOTP;
-const forgotPassword = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { MobileNo } = req.body;
-    const { deleted } = req.query;
-    const paranoid = deleted === "true" ? false : true;
-    try {
-        const user = yield user_model_1.default.findOne({
-            where: {
-                MobileNo,
-            },
-            paranoid,
-        });
-        if (!user) {
-            throw new custom_error_1.UserNotFoundExceptionError("User not found!");
-        }
-        yield (user === null || user === void 0 ? void 0 : user.sendOTP());
-        res.status(200).json({
-            message: "OTP sent successfully!",
-        });
-    }
-    catch (error) {
-        next(error);
-    }
-});
-exports.forgotPassword = forgotPassword;
-const resetPassword = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    // reset password by verifying OTP
-    const { MobileNo, OTP, Password, EmailAddress } = req.body;
-    const { deleted } = req.query;
-    const paranoid = deleted === "true" ? false : true;
-    try {
-        const user = yield user_model_1.default.findOne({
-            where: {
-                MobileNo,
-            },
-            paranoid,
-        });
-        if (!user) {
-            return res.status(400).json({
-                message: "User not found!",
-            });
-        }
-        yield user.resetPassword(Password, OTP, EmailAddress, MobileNo);
-        res.status(200).json({
-            message: "Password reset successfully!",
-            user,
-        });
-    }
-    catch (error) {
-        next(error);
-    }
-});
-exports.resetPassword = resetPassword;
-const signout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.json({
-        message: "Signout should be implemented at the Frontend side!",
-    });
-});
-exports.signout = signout;
 const getOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const salemasters = yield sale_model_1.default.findAll({
         where: {
@@ -246,20 +44,22 @@ const getOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function
             {
                 model: sale_detail_model_1.default,
                 all: true,
-                include: [{
+                include: [
+                    {
                         model: product_master_model_1.default,
-                    }]
+                    },
+                ],
             },
             {
-                model: promotion_model_1.Promotion
-            }
+                model: promotion_model_1.Promotion,
+            },
         ],
     });
     salemasters === null || salemasters === void 0 ? void 0 : salemasters.forEach((sale) => {
         var _a;
-        (_a = sale === null || sale === void 0 ? void 0 : sale.SaleDetails) === null || _a === void 0 ? void 0 : _a.forEach(saleDetail => {
+        (_a = sale === null || sale === void 0 ? void 0 : sale.SaleDetails) === null || _a === void 0 ? void 0 : _a.forEach((saleDetail) => {
             var _a;
-            (_a = saleDetail === null || saleDetail === void 0 ? void 0 : saleDetail.product) === null || _a === void 0 ? void 0 : _a.setFullURL(req, "PhotoPath");
+            (_a = saleDetail === null || saleDetail === void 0 ? void 0 : saleDetail.Product) === null || _a === void 0 ? void 0 : _a.setFullURL(req, "PhotoPath");
         });
         if (sale.SaleTypeRef) {
             sale.setDataValue("SaleType", sale.SaleTypeRef.GlobalTypeName);
@@ -269,65 +69,6 @@ const getOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function
     res.json(salemasters);
 });
 exports.getOrders = getOrders;
-const createOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    req.body.CreatedGUID = req.body.user.UserGUID;
-    const transaction = yield database_1.sequelize.transaction();
-    try {
-        const { SaleOrderID, SaleOrderDate, ModeOfPayment, SaleChannel, SalePlatform, CustomerGUID = req.body.user.UserGUID, SalesDetails, CreatedGUID, PaymentTransactionID, PromotionGUID } = req.body;
-        const saleData = {
-            SaleOrderID,
-            SaleOrderDate,
-            SaleChannel,
-            CustomerGUID,
-            CreatedGUID,
-            SalePlatform,
-            ModeOfPayment,
-            PaymentTransactionID,
-            PromotionGUID
-        };
-        if (!SaleOrderDate) {
-            throw new Error("SaleOrderDate is required");
-        }
-        else if (!ModeOfPayment) {
-            throw new Error("ModeOfPayment is required");
-        }
-        else if (!SaleChannel) {
-            throw new Error("SaleChannel is required");
-        }
-        else if (!SalePlatform) {
-            throw new Error("SalePlatform is required");
-        }
-        else if (!PaymentTransactionID) {
-            throw new Error("PaymentTransactionID is required");
-        }
-        SalesDetails.forEach((saleDetail) => {
-            if (!saleDetail.ProductGUID) {
-                throw new Error("ProductGUID is required");
-            }
-            else if (!saleDetail.Qty) {
-                throw new Error("Quantity is required");
-            }
-            else if (!saleDetail.Amount) {
-                throw new Error("Amount is required");
-            }
-        });
-        if (!Array.isArray(SalesDetails)) {
-            throw new Error("SaleDetails should be an array");
-        }
-        const sale = yield sale_model_1.default.create(saleData, { transaction });
-        const saleDetails = yield sale_detail_model_1.default.bulkCreate(SalesDetails.map((saleDetail) => (Object.assign({ SalesMasterGUID: sale.SalesMasterGUID }, saleDetail))), { transaction });
-        transaction.commit();
-        res.json({
-            sale,
-            SaleDetails: saleDetails,
-        });
-    }
-    catch (error) {
-        transaction.rollback();
-        next(error);
-    }
-});
-exports.createOrder = createOrder;
 const cancelOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { SalesMasterGUID } = req.params;
     if (!SalesMasterGUID) {

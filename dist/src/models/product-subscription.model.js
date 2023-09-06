@@ -16,6 +16,7 @@ const sequelize_typescript_1 = require("sequelize-typescript");
 const product_master_model_1 = __importDefault(require("./product-master.model"));
 const user_model_1 = __importDefault(require("./user.model"));
 const billing_cycle_model_1 = __importDefault(require("./billing-cycle.model"));
+const promotion_model_1 = require("./promotion.model");
 let ProductSubscription = class ProductSubscription extends sequelize_typescript_1.Model {
     static beforeBulkCreateHook(instances) {
         instances.forEach((instance) => {
@@ -69,6 +70,17 @@ __decorate([
     __metadata("design:type", Number)
 ], ProductSubscription.prototype, "SubscriptionOccurrences", void 0);
 __decorate([
+    (0, sequelize_typescript_1.ForeignKey)(() => promotion_model_1.Promotion),
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.NUMBER,
+    }),
+    __metadata("design:type", Number)
+], ProductSubscription.prototype, "PromotionGUID", void 0);
+__decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => promotion_model_1.Promotion),
+    __metadata("design:type", promotion_model_1.Promotion)
+], ProductSubscription.prototype, "Promotion", void 0);
+__decorate([
     (0, sequelize_typescript_1.ForeignKey)(() => billing_cycle_model_1.default),
     sequelize_typescript_1.Column,
     __metadata("design:type", Number)
@@ -83,7 +95,7 @@ __decorate([
 ], ProductSubscription.prototype, "PaymentMethod", void 0);
 __decorate([
     sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
+    __metadata("design:type", String)
 ], ProductSubscription.prototype, "PaymentTransactionId", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.DATE),
@@ -120,6 +132,11 @@ __decorate([
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.INTEGER),
     __metadata("design:type", Number)
 ], ProductSubscription.prototype, "DeletedGUID", void 0);
+__decorate([
+    (0, sequelize_typescript_1.ForeignKey)(() => user_model_1.default),
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], ProductSubscription.prototype, "SalesMasterGUID", void 0);
 __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", String)

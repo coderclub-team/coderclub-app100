@@ -61,13 +61,18 @@ const product_subscription_router_1 = __importDefault(require("./routes/product-
 const handle_sequelize_error_middleware_1 = __importDefault(require("./middlewares/handle-sequelize-error.middleware"));
 const general_router_1 = require("./routes/general.router");
 const wallet_router_1 = __importDefault(require("./routes/wallet.router"));
+const app_config_router_1 = __importDefault(require("./routes/app-config.router"));
+const static_info_router_1 = __importDefault(require("./routes/static-info.router"));
+const express_useragent_1 = __importDefault(require("express-useragent"));
 const promotion_router_1 = __importDefault(require("./routes/promotion.router"));
 const product_subscription_controller_1 = require("./controllers/product-subscription.controller");
+const me_router_1 = __importDefault(require("./routes/me-router"));
 // Set the base URL and store it in app.locals
 const app = (0, express_1.default)();
 app.use(express_1.default.static("public"));
 app.use((0, cors_1.default)());
 // parse application/json
+app.use(express_useragent_1.default.express());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use(express_1.default.json());
 console.log("Connecting to DB", node_path_1.default.join("public"));
@@ -78,53 +83,18 @@ console.log("Connecting to DB", node_path_1.default.join("public"));
 app.use("/api/users", auth_gaurd_middleware_1.default, user_router_1.default);
 app.use("/api/cartitems", auth_gaurd_middleware_1.default, cart_item_router_1.default);
 app.use("/api/addresses", auth_gaurd_middleware_1.default, user_address_route_1.default);
+app.use("/api/wallets", auth_gaurd_middleware_1.default, wallet_router_1.default, handle_sequelize_error_middleware_1.default);
+app.use("/api/sales", auth_gaurd_middleware_1.default, sale_router_1.default);
+app.use("/api/subscriptions", auth_gaurd_middleware_1.default, product_subscription_router_1.default, handle_sequelize_error_middleware_1.default);
 app.use("/api/productMasters", product_master_router_1.default);
 app.use("/api/productcategories", product_category_router_1.default);
 app.use("/api/productsubcategories", product_sub_category_router_1.default);
-app.use("/api/sales", auth_gaurd_middleware_1.default, sale_router_1.default);
 app.use("/api", auth_router_1.default);
-app.use("/api/subscriptions", auth_gaurd_middleware_1.default, product_subscription_router_1.default, handle_sequelize_error_middleware_1.default);
+app.use("/api/me", me_router_1.default);
 app.use("/api/billingcycles", general_router_1.billingcyclesRouter, handle_sequelize_error_middleware_1.default);
-app.use("/api/wallets", auth_gaurd_middleware_1.default, wallet_router_1.default, handle_sequelize_error_middleware_1.default);
 app.use("/api/promotions", promotion_router_1.default, handle_sequelize_error_middleware_1.default);
-app.get("/api/app/config", (req, res) => {
-    const app_config = {
-        splashlogo: [
-            {
-                image: "splashscreen/splash_logo.gif",
-            },
-        ],
-        applogo: [
-            {
-                image: "icons/milk_bottle.png",
-            },
-        ],
-        walkthrogh: [
-            {
-                title: "Pick up",
-                description: "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
-                image: "walkthrough/pickup.png",
-            },
-            {
-                title: "Transport",
-                description: "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
-                image: "walkthrough/transport.png",
-            },
-            {
-                title: "Dellivery",
-                description: "Lorem ipsum, or lipsum as it is sometimes known, is dummy text used in laying out print, graphic or web designs.",
-                image: "walkthrough/delivery.png",
-            },
-        ],
-    };
-    const host = req.protocol + "://" + req.get("host");
-    app_config.applogo[0].image = host + "/" + app_config.applogo[0].image;
-    app_config.splashlogo[0].image = host + "/" + app_config.splashlogo[0].image;
-    app_config.walkthrogh.forEach((item) => {
-        item.image = host + "/" + item.image;
-    });
-    res.status(200).json(app_config);
-});
+app.use("/api/app/config", app_config_router_1.default, handle_sequelize_error_middleware_1.default);
+app.use("/api/static-info", static_info_router_1.default, handle_sequelize_error_middleware_1.default);
 // app listening on port 3000
 app.listen(3000, () => {
     console.log("Server started on port 3000");

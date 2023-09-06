@@ -24,7 +24,6 @@ var User_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_typescript_1 = require("sequelize-typescript");
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const crypto_1 = __importDefault(require("crypto"));
 const moment_1 = __importDefault(require("moment"));
 const sequelize_1 = require("sequelize");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -54,10 +53,10 @@ let User = User_1 = class User extends sequelize_typescript_1.Model {
     static sendOTPMessage(instance) {
         return __awaiter(this, void 0, void 0, function* () {
             if (instance.MobileNo) {
-                const { OTP, OtpExpiryDate } = instance.generateOTP();
+                const { OTP, OtpExpiryDate } = instance;
                 instance.OTP = OTP;
                 instance.OtpExpiryDate = OtpExpiryDate;
-                yield message_class_1.default.sendOTPMessage({
+                yield message_class_1.default.sendWelcomeMessage({
                     MobileNo: instance.getDataValue("MobileNo"),
                     OTP: OTP,
                 });
@@ -265,25 +264,6 @@ let User = User_1 = class User extends sequelize_typescript_1.Model {
         const fullPath = `${hostname}/${originalPath}`;
         this.setDataValue(key, fullPath);
     }
-    static sendWelcomeMessage(instance) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (instance.Account_Deactivated) {
-                return Promise.reject("Account is deactivated by admin");
-            }
-            // else if (this.Password_Attempt && this.Password_Attempt >= 3) {
-            //   return Promise.reject("Account is locked due to multiple attempts");
-            // }
-            const { OTP, OtpExpiryDate } = instance.generateOTP();
-            instance.OTP = OTP;
-            instance.OtpExpiryDate = OtpExpiryDate ? OtpExpiryDate : null;
-            if (instance.MobileNo) {
-                yield message_class_1.default.sendWelcomeMessage({
-                    MobileNo: instance.getDataValue("MobileNo"),
-                    OTP: instance.getDataValue("OTP"),
-                });
-            }
-        });
-    }
 };
 User.fields = {
     password: { type: sequelize_1.DataTypes.STRING, allowNull: false, exclude: true },
@@ -300,7 +280,7 @@ __decorate([
 __decorate([
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING(50),
-        allowNull: true,
+        allowNull: false,
         validate: {
             notEmpty: true,
             // regex for First Name
@@ -569,20 +549,7 @@ __decorate([
     __metadata("design:type", Number)
 ], User.prototype, "StoreGUID", void 0);
 __decorate([
-    (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.VIRTUAL,
-        get() {
-            const userId = this.getDataValue("UserGUID");
-            if (!userId)
-                return;
-            const hash = crypto_1.default.createHash("sha256");
-            const hashDigest = hash.update(userId).digest("hex");
-            // Extract the first 16 characters of the hash to get a 16-digit number
-            // const uniqueNumber = hashDigest.substring(0, 16);
-            const uniqueNumber = parseInt(hashDigest.substring(0, 16), 16);
-            return uniqueNumber;
-        },
-    }),
+    sequelize_typescript_1.Column,
     __metadata("design:type", Number)
 ], User.prototype, "DigitalCard", void 0);
 __decorate([
@@ -619,12 +586,6 @@ __decorate([
     __metadata("design:paramtypes", [User]),
     __metadata("design:returntype", void 0)
 ], User, "beforeCreateHook", null);
-__decorate([
-    sequelize_typescript_1.AfterCreate,
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [User]),
-    __metadata("design:returntype", Promise)
-], User, "sendWelcomeMessage", null);
 User = User_1 = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: "tbl_Users",

@@ -43,37 +43,37 @@ export default class SaleDetail extends Model {
   ProductGUID!: number;
 
   @BelongsTo(() => ProductMaster)
-  product!: ProductMaster;
+  Product!: ProductMaster;
 
 
 
-  @Column
-  ProductName!: string;
+  // @Column
+  // ProductName!: string;
 
-  @Column
-  ProductCode!: string;
+  // @Column
+  // ProductCode!: string;
   @Column
   Qty!: number;
-  @Column
-  MRP!: number;
+  // @Column
+  // MRP!: number;
   @Column
   SaleRate!: number;
-  @Column
-  SGST!: number;
-  @Column
-  CGST!: number;
-  @Column
-  DiscountPercent!: number;
-  @Column
-  DiscAmt!: number;
-  @Column
-  TaxAmount!: number;
-  @Column
-  Amount!: number;
-  @Column
-  CreatedGUID!: number;
-  @Column
-  CreatedDate!: Date;
+  // @Column
+  // SGST!: number;
+  // @Column
+  // CGST!: number;
+  // @Column
+  // DiscountPercent!: number;
+  // @Column
+  // DiscAmt!: number;
+  // @Column
+  // TaxAmount!: number;
+  // @Column
+  // Amount!: number;
+  // @Column
+  // CreatedGUID!: number;
+  // @Column
+  // CreatedDate!: Date;
 
   @BeforeBulkCreate
   @BeforeBulkUpdate

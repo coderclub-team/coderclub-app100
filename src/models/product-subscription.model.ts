@@ -13,6 +13,7 @@ import {
 import ProductMaster from "./product-master.model";
 import User from "./user.model";
 import BillingCycles from "./billing-cycle.model";
+import { Promotion } from "./promotion.model";
 
 @Table({
   tableName: "tbl_ProductSubscriptions",
@@ -20,7 +21,7 @@ import BillingCycles from "./billing-cycle.model";
   updatedAt: "UpdatedDate",
   deletedAt: "DeletedDate",
 })
-class ProductSubscription extends Model<ProductSubscription> {
+class ProductSubscription extends Model {
   @Column({ primaryKey: true, autoIncrement: true })
   SubscriptionGUID!: number;
 
@@ -47,7 +48,15 @@ class ProductSubscription extends Model<ProductSubscription> {
   @Column
   SubscriptionOccurrences!: number;
 
+  @ForeignKey(() => Promotion)
+  @Column({
+    type: DataType.NUMBER,
+    
+  })
+  PromotionGUID!: number;
 
+  @BelongsTo(() => Promotion)
+  Promotion?: Promotion;
 
   @ForeignKey(() => BillingCycles)
   @Column
@@ -76,7 +85,7 @@ class ProductSubscription extends Model<ProductSubscription> {
   PaymentMethod!: string;
 
   @Column
-  PaymentTransactionId!:number
+  PaymentTransactionId!:string
 
   @Column(DataType.DATE)
   LastPaymentDate!: Date;
@@ -106,7 +115,11 @@ class ProductSubscription extends Model<ProductSubscription> {
   DeletedGUID!: number;
 
   // ('ACTIVE', 'INACTIVE', 'CANCELLED', 'EXPIRED', 'PENDING', 'SUSPENDED', 'TRIAL','PLACED'))  @Column(DataType.STRING(20))
+  
 
+  @ForeignKey(() => User)
+  @Column
+  SalesMasterGUID!: number;
   @Column
   Status!: string;
 

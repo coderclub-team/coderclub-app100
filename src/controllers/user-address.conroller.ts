@@ -25,10 +25,12 @@ export const createAddress = async (
   res: Response,
   next: NextFunction
 ) => {
-  req.body.CreatedGUID = req.body.user.UserGUID;
-  req.body.UserGUID = req.body.user.CreatedGUID;
   try {
-    const address = await UserAddress.create(req.body);
+    const address = await UserAddress.create({
+      ...req.body,
+      CreatedGUID: req.body.user.UserGUID,
+      UserGUID: req.body.user.UserGUID,
+    });
     res.send({
       message: "User address added successfully!",
       address,

@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_typescript_1 = require("sequelize-typescript");
 const product_master_model_1 = __importDefault(require("./product-master.model"));
 const user_model_1 = __importDefault(require("./user.model"));
+const billing_cycle_model_1 = __importDefault(require("./billing-cycle.model"));
 let CartItem = class CartItem extends sequelize_typescript_1.Model {
     static beforeBulkCreateHook(instances) {
         instances.forEach((instance) => {
@@ -61,6 +62,19 @@ __decorate([
     (0, sequelize_typescript_1.BelongsTo)(() => product_master_model_1.default),
     __metadata("design:type", product_master_model_1.default)
 ], CartItem.prototype, "Product", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Boolean)
+], CartItem.prototype, "isSubscription", void 0);
+__decorate([
+    (0, sequelize_typescript_1.ForeignKey)(() => billing_cycle_model_1.default),
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], CartItem.prototype, "SubsCycleGUID", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], CartItem.prototype, "SubsOccurences", void 0);
 __decorate([
     sequelize_typescript_1.BeforeBulkCreate,
     sequelize_typescript_1.BeforeBulkUpdate,

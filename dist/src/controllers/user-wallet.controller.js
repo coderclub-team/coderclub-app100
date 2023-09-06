@@ -15,19 +15,32 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getWalletBalance = exports.creditOrDebit = exports.getWalletTransactions = void 0;
 const user_model_1 = __importDefault(require("../models/user.model"));
 const user_wallet_model_1 = __importDefault(require("../models/user-wallet.model"));
-const user_wallet_balance_model_1 = __importDefault(require("../models/user-wallet-balance.model"));
 const product_subscription_model_1 = __importDefault(require("../models/product-subscription.model"));
 const sale_model_1 = __importDefault(require("../models/sale.model"));
+const sale_detail_model_1 = __importDefault(require("../models/sale-detail.model"));
+const product_master_model_1 = __importDefault(require("../models/product-master.model"));
+const functions_1 = require("../functions");
 const getWalletTransactions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     req.body.CreatedGUID = req.body.user.UserGUID;
     try {
-        const { count, rows: transactions } = yield user_wallet_model_1.default.findAndCountAll({
+        const transactions = yield user_wallet_model_1.default.findAll({
             where: {
                 UserGUID: req.body.CreatedGUID,
                 Status: "FULLFILLED",
             },
-            include: [sale_model_1.default, product_subscription_model_1.default],
             order: [["CreatedDate", "DESC"]],
+            include: [{
+                    model: sale_model_1.default,
+                    include: [{
+                            model: sale_detail_model_1.default,
+                            include: [product_master_model_1.default],
+                            nested: true
+                        }]
+                }, {
+                    model: product_subscription_model_1.default,
+                    include: [product_master_model_1.default],
+                    nested: true
+                }]
         });
         res.json(transactions);
     }
@@ -52,22 +65,24 @@ const creditOrDebit = (req, res, next) => __awaiter(void 0, void 0, void 0, func
                 Debit: 0,
                 CreatedGUID: CreatedGUID,
                 Status: "FULLFILLED",
+                TransactionId: (0, functions_1.generateUniqueNumber)(),
             });
         }
         else if (new String(type).toUpperCase() === "DEBIT") {
-            const walletBalance = yield user_wallet_balance_model_1.default.findOne({
-                where: { UserGUID: CreatedGUID },
-            });
-            if (walletBalance && walletBalance.Balance < amount) {
-                throw new Error("Insufficient balance");
-            }
-            transaction = yield user_wallet_model_1.default.create({
-                UserGUID: CreatedGUID,
-                Credit: 0,
-                Debit: amount,
-                CreatedGUID: CreatedGUID,
-                Status: "FULLFILLED",
-            });
+            return res.status(400).json({ message: "Debit through this API is restricted" });
+            // const walletBalance = await UserWalletBalance.findOne({
+            //   where: { UserGUID: CreatedGUID },
+            // });
+            // if (walletBalance && walletBalance.Balance < amount) {
+            //   throw new Error("Insufficient balance");
+            // } 
+            //   transaction = await UserWallet.create({
+            //     UserGUID: CreatedGUID,
+            //     Credit: 0,
+            //     Debit: amount,
+            //     CreatedGUID: CreatedGUID,
+            //     Status: "FULLFILLED",
+            //   });
         }
         else {
             return res.status(400).json({ message: "Invalid request" });
@@ -75,8 +90,9 @@ const creditOrDebit = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         res.json({
             message: "Transaction successful",
             transaction,
-            balance: yield user_wallet_balance_model_1.default.findOne({
+            balance: yield user_wallet_model_1.default.findOne({
                 where: { UserGUID: req.body.CreatedGUID },
+                order: [["WalletGUID", "DESC"]],
             }).then((t) => t === null || t === void 0 ? void 0 : t.Balance),
         });
     }
@@ -89,14 +105,15 @@ exports.creditOrDebit = creditOrDebit;
 const getWalletBalance = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     req.body.CreatedGUID = req.body.user.UserGUID;
     try {
-        const balance = yield user_wallet_balance_model_1.default.findOne({
+        const balance = yield user_wallet_model_1.default.findOne({
             where: { UserGUID: req.body.CreatedGUID },
+            order: [["WalletGUID", "DESC"]],
             include: [{
                     model: user_model_1.default,
                     attributes: ['LoginName', 'UserGUID', 'FirstName', 'LastName', 'EmailAddress', 'MobileNo']
                 }],
         });
-        res.json([balance]);
+        res.json([{ balance: balance !== null && balance !== void 0 ? balance : { "Balance": 0, } }]);
     }
     catch (error) {
         next(error);

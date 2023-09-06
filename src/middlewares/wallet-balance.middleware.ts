@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, response } from "express";
-import UserWalletBalance from "../models/user-wallet-balance.model";
+import UserWallet from "../models/user-wallet.model";
 
 export default async function WalletBalance(
   req: Request,
@@ -7,12 +7,17 @@ export default async function WalletBalance(
   next: NextFunction
 ) {
   try {
-    const balance= await  UserWalletBalance.findOne({
-        where: {    
-            UserGUID: req.body.user.UserGUID,
-        },
+    const balance = await UserWallet.findOne({
+      where: {
+        UserGUID: req.body.user.UserGUID,
+      },
+      order: [["WalletGUID", "DESC"]],
     });
-    req.body.WalletBalance = balance?.getDataValue("Balance");
+    if (balance == null) {
+      req.body.WalletBalance = 0;
+    } else {
+      req.body.WalletBalance = balance?.getDataValue("Balance");
+    }
     next();
   } catch (error) {
     next(error);

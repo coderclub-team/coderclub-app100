@@ -68,10 +68,15 @@ const subscribeProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, f
         else if (!req.body.BillingCycleGUID) {
             throw Error("BillingCycleGUID is required for subscription");
         }
-        else if (req.body.WalletBalance < req.body.SubscriptionPrice) {
-            throw Error("Insufficient balance in wallet");
+        function checkSufficientBalance(TotalAmount, WalletBalance) {
+            // return true or false
+            return TotalAmount <= WalletBalance;
         }
+        let sufficientBalance = checkSufficientBalance(req.body.SubscriptionPrice, req.body.WalletBalance);
         yield database_1.sequelize.transaction((t) => __awaiter(void 0, void 0, void 0, function* () {
+            if (!sufficientBalance) {
+                throw new Error(`Insufficient balance ${req.body.WalletBalance} in wallet`);
+            }
             try {
                 const billingcycle = yield billing_cycle_model_1.default.findByPk(req.body.BillingCycleGUID, {
                     transaction: t,
@@ -93,19 +98,22 @@ const subscribeProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, f
                     UserGUID: req.body.CreatedGUID,
                     Debit: req.body.SubscriptionPrice,
                     CreatedGUID: req.body.CreatedGUID,
+                    TransactionId: (0, functions_1.generateUniqueNumber)()
                 });
-                const subscription = yield product_subscription_model_1.default.create(Object.assign(Object.assign({}, req.body), { PaymentTransactionId: updatedWallet.getDataValue("WalletGUID"), PaymentMethod: "WALLET" }), {
+                const subscription = yield product_subscription_model_1.default.create(Object.assign(Object.assign({}, req.body), { PaymentTransactionId: updatedWallet.getDataValue("WalletGUID"), PaymentMethod: "WALLET", WalletGUID: updatedWallet.getDataValue("WalletGUID") }), {
                     transaction: t,
                 });
-                console.log("subscription", subscription.toJSON());
-                res.status(200).send({
-                    message: "Subscription created successfully!",
-                    subscription: subscription.toJSON(),
-                    updatedWalletBalance: req.body.WalletBalance - updatedWallet.getDataValue("Debit"),
+                yield t.commit().then(() => {
+                    console.log("subscription", subscription.toJSON());
+                    return res.status(200).send({
+                        message: "Subscription created successfully!",
+                        subscription: subscription.toJSON(),
+                        updatedWalletBalance: req.body.WalletBalance - updatedWallet.getDataValue("Debit"),
+                    });
                 });
             }
             catch (error) {
-                yield t.rollback();
+                yield (t === null || t === void 0 ? void 0 : t.rollback());
                 next(error);
             }
         }));

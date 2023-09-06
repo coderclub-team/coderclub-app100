@@ -8,6 +8,7 @@ import {
   BeforeUpdate,
   BelongsTo,
   Column,
+  DataType,
   ForeignKey,
   Model,
   PrimaryKey,
@@ -51,6 +52,11 @@ class ProductReview extends Model {
 
   @Column
   Review?: string;
+
+  @Column({
+    type: DataType.DECIMAL(1,2),
+  })
+  Rating!: number;
 
   @BeforeBulkCreate
   @BeforeBulkUpdate

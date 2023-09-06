@@ -16,62 +16,72 @@ const promotion_model_1 = require("../models/promotion.model");
 const sale_model_1 = __importDefault(require("../models/sale.model"));
 const database_1 = require("../database");
 const sequelize_1 = require("sequelize");
+const product_subscription_model_1 = __importDefault(require("../models/product-subscription.model"));
 const couponGuard = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { PromoCode, GrossTotal } = req.method === "GET" ? req.query : req.body;
+    const { PromoCode, GrossTotal, SubscriptionPrice } = req.method === "GET" ? req.query : req.body;
     if (!PromoCode)
         return next();
-    const UserGUID = req.body.user.UserGUID;
-    if (!UserGUID)
-        return res.status(400).json({ message: "UserGUID is required for apply a coupon" });
-    if (!GrossTotal)
-        return res.status(400).json({ message: "GrossTotal is required for apply a coupon" });
-    const transaction = yield database_1.sequelize.transaction();
-    try {
-        const promotion = yield promotion_model_1.Promotion.findOne({
-            where: {
-                PromoCode,
-                Status: "ACTIVE",
-                Stock: {
-                    [sequelize_1.Op.gt]: 0,
+    yield database_1.sequelize.transaction((transaction) => __awaiter(void 0, void 0, void 0, function* () {
+        const UserGUID = req.body.user.UserGUID;
+        if (!UserGUID)
+            return res
+                .status(400)
+                .json({ message: "UserGUID is required for apply a coupon" });
+        if (!(GrossTotal))
+            return res
+                .status(400)
+                .json({ message: "GrossTotal is required for apply a coupon" });
+        try {
+            const promotion = yield promotion_model_1.Promotion.findOne({
+                where: {
+                    PromoCode,
+                    Status: "ACTIVE",
+                    Stock: {
+                        [sequelize_1.Op.gt]: 0,
+                    },
+                    CurrentStock: {
+                        [sequelize_1.Op.gt]: 0,
+                    },
+                    StartDate: {
+                        [sequelize_1.Op.lte]: new Date(),
+                    },
+                    EndDate: {
+                        [sequelize_1.Op.gte]: new Date(),
+                    },
+                    MinOrderTotal: {
+                        [sequelize_1.Op.lte]: GrossTotal || SubscriptionPrice,
+                    },
                 },
-                CurrentStock: {
-                    [sequelize_1.Op.gt]: 0,
+            });
+            if (!promotion) {
+                return res.status(404).json({ message: "Invalid Coupon" });
+            }
+            const { count: salecount } = yield sale_model_1.default.findAndCountAll({
+                where: {
+                    CreatedGUID: UserGUID,
+                    PromotionGUID: promotion.PromotionGUID,
                 },
-                StartDate: {
-                    [sequelize_1.Op.lte]: new Date(),
+                transaction,
+            });
+            const { count: subscount } = yield product_subscription_model_1.default.findAndCountAll({
+                where: {
+                    CreatedGUID: UserGUID,
+                    PromotionGUID: promotion.PromotionGUID,
                 },
-                EndDate: {
-                    [sequelize_1.Op.gte]: new Date(),
-                },
-                MinOrderTotal: {
-                    [sequelize_1.Op.gte]: GrossTotal,
-                },
-            },
-            transaction,
-        });
-        if (!promotion) {
-            yield transaction.rollback();
-            return res.status(404).json({ message: "Invalid Coupon" });
+                transaction,
+            });
+            const getTotal = (num1 = 0, num2 = 0) => num1 + num2;
+            if (getTotal(salecount, subscount) >= promotion.UsageLimit) {
+                return res.status(400).json({ message: "Coupon already used" });
+            }
+            req.body.promotion = promotion.toJSON();
+            next();
         }
-        const { count } = yield sale_model_1.default.findAndCountAll({
-            where: {
-                CreatedGUID: UserGUID,
-                PromotionGUID: promotion.PromotionGUID,
-            },
-            transaction,
-        });
-        if (count >= promotion.UsageLimit) {
-            yield transaction.rollback();
-            return res.status(400).json({ message: "Coupon already used" });
+        catch (error) {
+            yield (transaction === null || transaction === void 0 ? void 0 : transaction.rollback());
+            console.log(error);
+            res.status(500).json({ message: "Internal server error" });
         }
-        yield transaction.commit();
-        req.body.promotion = promotion.toJSON();
-        next();
-    }
-    catch (error) {
-        yield transaction.rollback();
-        console.log(error);
-        res.status(500).json({ message: "Internal server error" });
-    }
+    }));
 });
 exports.default = couponGuard;

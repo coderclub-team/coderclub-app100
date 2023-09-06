@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { omitUndefined } from "../functions";
+import { generateUniqueNumber, omitUndefined } from "../functions";
 import { MyWhereType } from "../..";
 import ProductSubscription from "../models/product-subscription.model";
 import BillingCycles from "../models/billing-cycle.model";
@@ -7,6 +7,9 @@ import { Op } from "sequelize";
 import ProductMaster from "../models/product-master.model";
 import { sequelize } from "../database";
 import UserWallet from "../models/user-wallet.model";
+import couponGuard from "../middlewares/coupon-gaurd.moddleware";
+import Sale from "../models/sale.model";
+import { Promotion } from "../models/promotion.model";
 
 export const getUserSubscriptions = async (
   req: Request,
@@ -45,7 +48,7 @@ export const subscribeProduct = async (
 ) => {
   req.body.CreatedGUID = req.body.user.UserGUID;
   req.body.UserGUID = req.body.CreatedGUID;
- 
+
   try {
     if (!req.body.ProductGUID) {
       throw Error("ProductGUID is required for subscription");
@@ -59,11 +62,28 @@ export const subscribeProduct = async (
       throw Error("SubscriptionOccurrences is required for subscription");
     } else if (!req.body.BillingCycleGUID) {
       throw Error("BillingCycleGUID is required for subscription");
-    } else if (req.body.WalletBalance < req.body.SubscriptionPrice) {
-      throw Error("Insufficient balance in wallet");
     }
 
+    function checkSufficientBalance(
+      TotalAmount: number,
+      WalletBalance: number
+    ) {
+      // return true or false
+      return TotalAmount <= WalletBalance;
+    }
+    let sufficientBalance = checkSufficientBalance(
+      req.body.SubscriptionPrice,
+      req.body.WalletBalance
+    );
+   
+
     await sequelize.transaction(async (t) => {
+
+      if (!sufficientBalance) {
+        throw new Error(
+          `Insufficient balance ${req.body.WalletBalance} in wallet`
+        );
+      }
       try {
         const billingcycle = await BillingCycles.findByPk(
           req.body.BillingCycleGUID,
@@ -87,26 +107,31 @@ export const subscribeProduct = async (
           UserGUID: req.body.CreatedGUID,
           Debit: req.body.SubscriptionPrice,
           CreatedGUID: req.body.CreatedGUID,
+          TransactionId:generateUniqueNumber()
         });
         const subscription = await ProductSubscription.create(
           {
             ...req.body,
             PaymentTransactionId: updatedWallet.getDataValue("WalletGUID"),
             PaymentMethod: "WALLET",
+            WalletGUID: updatedWallet.getDataValue("WalletGUID"),
           },
           {
             transaction: t,
           }
         );
-        console.log("subscription", subscription.toJSON());
-        res.status(200).send({
-          message: "Subscription created successfully!",
-          subscription: subscription.toJSON(),
-          updatedWalletBalance:
-            req.body.WalletBalance - updatedWallet.getDataValue("Debit"),
+        await t.commit().then(() => {
+          console.log("subscription", subscription.toJSON());
+        return  res.status(200).send({
+            message: "Subscription created successfully!",
+            subscription: subscription.toJSON(),
+            updatedWalletBalance:
+              req.body.WalletBalance - updatedWallet.getDataValue("Debit"),
+          });
         });
       } catch (error) {
-        await t.rollback();
+      
+        await t?.rollback();
         next(error);
       }
     });

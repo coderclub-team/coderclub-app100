@@ -16,7 +16,12 @@ const userRouter = Router();
 
 userRouter.get("/", getAllUsers);
 userRouter.get("/:UserGUID", getUserById);
-
 userRouter.delete("/:UserGUID", deleteUserById, handleSequelizeError);
+
+
+
+
+
+
 
 export default userRouter;

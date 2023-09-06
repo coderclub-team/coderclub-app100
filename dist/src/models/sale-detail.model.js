@@ -16,6 +16,22 @@ const sequelize_typescript_1 = require("sequelize-typescript");
 const sale_model_1 = __importDefault(require("./sale.model"));
 const product_master_model_1 = __importDefault(require("./product-master.model"));
 let SaleDetail = class SaleDetail extends sequelize_typescript_1.Model {
+    // @Column
+    // SGST!: number;
+    // @Column
+    // CGST!: number;
+    // @Column
+    // DiscountPercent!: number;
+    // @Column
+    // DiscAmt!: number;
+    // @Column
+    // TaxAmount!: number;
+    // @Column
+    // Amount!: number;
+    // @Column
+    // CreatedGUID!: number;
+    // @Column
+    // CreatedDate!: Date;
     static beforeBulkCreateHook(instances) {
         instances.forEach((instance) => {
             Object.entries(instance.toJSON()).forEach(([key, value]) => {
@@ -61,15 +77,7 @@ __decorate([
 __decorate([
     (0, sequelize_typescript_1.BelongsTo)(() => product_master_model_1.default),
     __metadata("design:type", product_master_model_1.default)
-], SaleDetail.prototype, "product", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", String)
-], SaleDetail.prototype, "ProductName", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", String)
-], SaleDetail.prototype, "ProductCode", void 0);
+], SaleDetail.prototype, "Product", void 0);
 __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", Number)
@@ -77,43 +85,7 @@ __decorate([
 __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", Number)
-], SaleDetail.prototype, "MRP", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
 ], SaleDetail.prototype, "SaleRate", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
-], SaleDetail.prototype, "SGST", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
-], SaleDetail.prototype, "CGST", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
-], SaleDetail.prototype, "DiscountPercent", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
-], SaleDetail.prototype, "DiscAmt", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
-], SaleDetail.prototype, "TaxAmount", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
-], SaleDetail.prototype, "Amount", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Number)
-], SaleDetail.prototype, "CreatedGUID", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", Date)
-], SaleDetail.prototype, "CreatedDate", void 0);
 __decorate([
     sequelize_typescript_1.BeforeBulkCreate,
     sequelize_typescript_1.BeforeBulkUpdate,

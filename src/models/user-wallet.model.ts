@@ -4,15 +4,18 @@ import {
   Column,
   DataType,
   ForeignKey,
+  HasMany,
+  HasOne,
   Model,
   Sequelize,
   Table,
 } from "sequelize-typescript";
 import Message from "../entities/message.class";
 import User from "./user.model";
-import UserWalletBalance from "./user-wallet-balance.model";
+// import UserWalletBalance from "./user-wallet-balance.model";
 import ProductSubscription from "./product-subscription.model";
 import Sale from "./sale.model";
+import { Transaction, VIRTUAL } from "sequelize";
 
 @Table({
   timestamps: true,
@@ -32,11 +35,15 @@ export default class UserWallet extends Model {
   })
   WalletGUID!: number;
 
+  @ForeignKey(()=>User)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
   })
   UserGUID!: number;
+
+  @BelongsTo(()=>User)
+  User!:User
 
   @Column
   Description!: string;
@@ -54,6 +61,8 @@ export default class UserWallet extends Model {
     defaultValue: 0,
   })
   Debit!: number;
+
+
 
   @Column({
     type: DataType.DATE,
@@ -102,24 +111,35 @@ export default class UserWallet extends Model {
   @Column
   PaymentId!: string;
 
-  @ForeignKey(() => Sale)
   @Column
-  SalesMasterGUID!: number;
+  TransactionId!:string
 
-  @BelongsTo(() => Sale)
-  Order!: Sale;
+  // @ForeignKey(() => Sale)
+  // @Column
+  // SalesMasterGUID!: number;
 
-  @ForeignKey(() => ProductSubscription)
-  @Column
-  SubscriptionGUID!: number;
+  // @BelongsTo(() => Sale)
+  // Order!: Sale;
 
-  @BelongsTo(() => ProductSubscription)
-  Subscription!: ProductSubscription;
+  // @ForeignKey(() => ProductSubscription)
+  // @Column
+  // SubscriptionGUID!: number;
+
+  // @BelongsTo(() => ProductSubscription)
+  // Subscription!: ProductSubscription;
+
+
   @AfterCreate
-  static async updateBalance(instance: UserWallet) {
-    const user = await User.findByPk(instance.getDataValue("UserGUID"));
-    const balance = await UserWalletBalance.findOne({
+  static async updateBalance(instance: UserWallet,options:{
+    transaction:Transaction
+  }) {
+    const user = await User.findByPk(instance.getDataValue("UserGUID"),{
+      transaction:options.transaction
+    });
+    const balance = await UserWallet.findOne({
       where: { UserGUID: instance.getDataValue("UserGUID") },
+      order: [["WalletGUID", "DESC"]],
+      transaction:options.transaction
     });
     if (instance.getDataValue("Credit") > 0) {
       Message.sendRechargeSuccessMessage({
@@ -129,12 +149,38 @@ export default class UserWallet extends Model {
         Balance: balance?.getDataValue("Balance"),
         DigitalCard: user?.DigitalCard!,
       })
-        .then((Response) => {
-          console.log("sendRechargeSuccessMessage Response", Response);
-        })
-        .catch((error) => {
-          console.log("Error in sending message", error);
-        });
+       
     }
   }
+
+ @Column({
+    type: DataType.VIRTUAL,
+    allowNull: true,
+     get() {
+      const prefix = this.getDataValue("Credit") > 0 ? "PT-" : "CL-";
+        return `${prefix}${new Date(this.getDataValue("CreatedDate")).getTime()}`
+     },
+ })
+ VoucherNo!: string;
+
+  @HasOne(() => Sale, {
+    foreignKey: 'WalletGUID',
+  })
+  Sale!: UserWallet;
+
+  @Column({
+    type: DataType.VIRTUAL,
+    get() {
+      return this.getDataValue("Credit") > 0 ? "RECEIPT" : "INVOICE";
+    },
+  })
+  VoucherType!: string;
+
+  @HasOne(() => ProductSubscription, {
+    foreignKey: 'WalletGUID',
+  })
+  Subscription!: UserWallet;
+
+  @Column
+  Balance!: number;
 }

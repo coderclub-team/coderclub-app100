@@ -30,8 +30,9 @@ const product_subscription_model_1 = __importDefault(require("./models/product-s
 const billing_cycle_model_1 = __importDefault(require("./models/billing-cycle.model"));
 const product_stock_master_model_1 = __importDefault(require("./models/product-stock-master.model"));
 const user_wallet_model_1 = __importDefault(require("./models/user-wallet.model"));
-const user_wallet_balance_model_1 = __importDefault(require("./models/user-wallet-balance.model"));
 const promotion_model_1 = require("./models/promotion.model");
+const cms_model_1 = require("./models/cms.model");
+const cart_model_1 = __importDefault(require("./models/cart.model"));
 exports.sequelize = new sequelize_typescript_1.Sequelize(config_1.sequelizeConnectionOptions);
 exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
     exports.sequelize
@@ -62,8 +63,12 @@ exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
         product_subscription_model_1.default,
         product_stock_master_model_1.default,
         user_wallet_model_1.default,
-        user_wallet_balance_model_1.default,
-        promotion_model_1.Promotion
+        promotion_model_1.Promotion,
+        cms_model_1.Walkthrough,
+        cms_model_1.Banner,
+        cms_model_1.FAQ,
+        cms_model_1.ContactForm,
+        cart_model_1.default,
     ]);
     // return sequelize;
 });

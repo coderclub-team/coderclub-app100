@@ -43,7 +43,7 @@ export default class User extends Model {
 
   @Column({
     type: DataType.STRING(50),
-    allowNull: true,
+    allowNull: false,
     validate: {
       notEmpty: true,
       // regex for First Name
@@ -284,20 +284,7 @@ export default class User extends Model {
     password: { type: DataTypes.STRING, allowNull: false, exclude: true },
   };
 
-  @Column({
-    type: DataType.VIRTUAL,
-    get() {
-      const userId = this.getDataValue("UserGUID");
-      if (!userId) return;
-      const hash = crypto.createHash("sha256");
-      const hashDigest = hash.update(userId).digest("hex");
-      // Extract the first 16 characters of the hash to get a 16-digit number
-      // const uniqueNumber = hashDigest.substring(0, 16);
-
-      const uniqueNumber = parseInt(hashDigest.substring(0, 16), 16);
-      return uniqueNumber;
-    },
-  })
+  @Column
   DigitalCard?: number;
 
   private _token!: string;
@@ -329,12 +316,12 @@ export default class User extends Model {
   @AfterCreate
   static async sendOTPMessage(instance: User) {
     if (instance.MobileNo) {
-      const { OTP, OtpExpiryDate } = instance.generateOTP();
+      const { OTP, OtpExpiryDate } = instance;
       instance.OTP = OTP;
       instance.OtpExpiryDate = OtpExpiryDate;
-      await Message.sendOTPMessage({
+      await Message.sendWelcomeMessage({
         MobileNo: instance.getDataValue("MobileNo"),
-        OTP: OTP,
+        OTP: OTP!,
       });
     }
   }
@@ -547,24 +534,24 @@ export default class User extends Model {
     this.setDataValue(key, fullPath);
   }
 
-  @AfterCreate
-  static async sendWelcomeMessage(instance: User) {
-    if (instance.Account_Deactivated) {
-      return Promise.reject("Account is deactivated by admin");
-    }
-    // else if (this.Password_Attempt && this.Password_Attempt >= 3) {
-    //   return Promise.reject("Account is locked due to multiple attempts");
-    // }
+  // @AfterCreate
+  // static async sendWelcomeMessage(instance: User) {
+  //   if (instance.Account_Deactivated) {
+  //     return Promise.reject("Account is deactivated by admin");
+  //   }
+  //   // else if (this.Password_Attempt && this.Password_Attempt >= 3) {
+  //   //   return Promise.reject("Account is locked due to multiple attempts");
+  //   // }
 
-    const { OTP, OtpExpiryDate } = instance.generateOTP();
-    instance.OTP = OTP;
-    instance.OtpExpiryDate = OtpExpiryDate ? OtpExpiryDate : null;
+  //   const { OTP, OtpExpiryDate } = instance.generateOTP();
+  //   instance.OTP = OTP;
+  //   instance.OtpExpiryDate = OtpExpiryDate ? OtpExpiryDate : null;
 
-    if (instance.MobileNo) {
-      await Message.sendWelcomeMessage({
-        MobileNo: instance.getDataValue("MobileNo"),
-        OTP: instance.getDataValue("OTP"),
-      });
-    }
-  }
+  //   if (instance.MobileNo) {
+  //     await Message.sendWelcomeMessage({
+  //       MobileNo: instance.getDataValue("MobileNo"),
+  //       OTP: instance.getDataValue("OTP"),
+  //     });
+  //   }
+  // }
 }
