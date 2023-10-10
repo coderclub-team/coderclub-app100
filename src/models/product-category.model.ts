@@ -1,11 +1,14 @@
 import { Request } from "express";
+import { VIRTUAL } from "sequelize";
 import {
   AutoIncrement,
   Column,
+  HasMany,
   Model,
   PrimaryKey,
   Table,
 } from "sequelize-typescript";
+import ProductMaster from "./product-master.model";
 // Path: src/models/ProductCategory.ts
 
 @Table({
@@ -36,6 +39,15 @@ export default class ProductCategory extends Model<ProductCategory> {
 
   @Column
   ProductCategorySlug!: string;
+
+  @Column({
+    type: VIRTUAL,
+
+  })
+  products?: any[];
+
+  @HasMany(() => ProductMaster)
+  Products?: ProductMaster[];
 
 
   setFullURL(request: Request,key: keyof ProductCategory) {

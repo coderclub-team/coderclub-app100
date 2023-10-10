@@ -3,14 +3,27 @@
 import { NextFunction, Request, Response } from "express";
 
 import ProductCategory from "../models/product-category.model";
+import ProductMaster from "../models/product-master.model";
 // import { productCategoryImageUploadOptions } from "../../config";
 
 export const getAllProductCategories = async (req: Request, res: Response) => {
   try {
-    const categories = await ProductCategory.findAll({});
+    const categories = await ProductCategory.findAll({
+      include:[ProductMaster]
+    });
     categories.forEach(async (category: ProductCategory) => {
       category.setFullURL(req, "PhotoPath");
     });
+    categories?.forEach((category: ProductCategory) => {
+      category?.Products?.forEach((product: ProductMaster) => {
+        product.setFullURL(req, "PhotoPath");
+        product.setFullURL(req, "GalleryPhotoPath1");
+        product.setFullURL(req, "GalleryPhotoPath2");
+        product.setFullURL(req, "GalleryPhotoPath3");
+        product.setFullURL(req, "GalleryPhotoPath4");
+      });
+
+    })
 
     res.status(200).json(categories);
   } catch (error) {
