@@ -2,7 +2,6 @@
 import express, { NextFunction, Request, Response } from "express";
 import categories from '../../mock/categories.json'
 
-
 const router = express.Router();
 
 function fullUrl(request: Request, key: string="identities/user-identity.png") {
