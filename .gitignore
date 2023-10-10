@@ -7,3 +7,4 @@ public/icons/*
 public/banners/*
 public/splashscreen/*
 dist
+*.http

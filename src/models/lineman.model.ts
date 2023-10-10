@@ -16,6 +16,8 @@ import { Request } from "express";
 import moment from "moment";
 import Message from "../entities/message.class";
 import User from "./user.model";
+import jwt from "jsonwebtoken";
+
 @Table({
   tableName: "tbl_Lineman",
   createdAt: "CreatedDate",
@@ -92,6 +94,8 @@ export default class Lineman extends Model {
     allowNull: true,
   })
   public OTP!: string | null;
+  @Column
+  IsPhoneVerified?: number;
 
   @Column({
     type: DataType.DATE,
@@ -183,6 +187,18 @@ export default class Lineman extends Model {
     }
   }
 
+  @AfterCreate
+  static async sendOTPMessage(instance: User) {
+    if (instance.MobileNo) {
+      const { OTP, OtpExpiryDate } = instance;
+      instance.OTP = OTP;
+      instance.OtpExpiryDate = OtpExpiryDate;
+      await Message.sendWelcomeMessage({
+        MobileNo: instance.getDataValue("MobileNo"),
+        OTP: OTP!,
+      });
+    }
+  }
   verifyOTP(otp: string): Promise<Lineman> {
     try {
       if (!otp) {
@@ -201,7 +217,9 @@ export default class Lineman extends Model {
       this.OTP = null;
       this.OtpExpiryDate = null;
       this.Password_Attempt = 0;
+      this.IsPhoneVerified = 1;
       this.Status = 1;
+    
       return this.save();
     } catch (error: any) {
       return Promise.reject(error.message);
@@ -306,5 +324,54 @@ export default class Lineman extends Model {
     if (!originalPath) return;
     const fullPath = `${hostname}/${originalPath}`;
     this.setDataValue(key, fullPath);
+    
+  }
+  
+
+  async authenticate(password: string): Promise<string> {
+    if (!password) {
+      return Promise.reject("Password is required");
+    }
+    // else if (this.Password_Attempt && this.Password_Attempt >= 3) {
+    //   return Promise.reject(
+    //     "Account is locked due to multiple incorrect password attempts"
+    //   );
+    // }
+    else if (this.Account_Deactivated) {
+      return Promise.reject("Account is deactivated");
+    } else if (this.Status == 0) {
+      return Promise.reject("Account is not activated");
+    } else if (!(await bcrypt.compare(password, this.Password!))) {
+      if (this.Password_Attempt) {
+        this.Password_Attempt = this.Password_Attempt + 1;
+      } else {
+        this.Password_Attempt = 1;
+      }
+      await this.save({
+        fields: ["Password_Attempt"],
+      });
+
+      return Promise.reject("Incorrect password");
+    } else if (this.Status == 0) {
+      return Promise.reject("Account is not activated");
+    }
+
+    try {
+      if (process.env.JWT_SECRET) {
+        const token = jwt.sign(
+          this.get({ plain: true }),
+          process.env.JWT_SECRET,
+          {
+            expiresIn: "1d",
+          }
+        );
+
+        return Promise.resolve(token);
+      } else {
+        throw new Error("JWT_SECRET not found");
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
   }
 }
