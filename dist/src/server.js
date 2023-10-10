@@ -68,6 +68,7 @@ const promotion_router_1 = __importDefault(require("./routes/promotion.router"))
 const product_subscription_controller_1 = require("./controllers/product-subscription.controller");
 const me_router_1 = __importDefault(require("./routes/me-router"));
 const lineman_router_1 = __importDefault(require("./routes/lineman.router"));
+const mock_router_1 = __importDefault(require("./routes/mock.router"));
 // Set the base URL and store it in app.locals
 const app = (0, express_1.default)();
 app.use(express_1.default.static("public"));
@@ -98,6 +99,7 @@ app.use("/api/app/config", app_config_router_1.default, handle_sequelize_error_m
 app.use("/api/static-info", static_info_router_1.default, handle_sequelize_error_middleware_1.default);
 ///////
 app.use("/api/lineman", lineman_router_1.default, handle_sequelize_error_middleware_1.default);
+app.use("/api/mock", mock_router_1.default);
 // app listening on port 3000
 app.listen(3000, () => {
     console.log("Server started on port 3000");

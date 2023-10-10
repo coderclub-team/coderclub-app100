@@ -32,6 +32,8 @@ import promotionRouter from "./routes/promotion.router";
 import { expireSubscription } from "./controllers/product-subscription.controller";
 import meRouter from "./routes/me-router";
 import linemanRouter from "./routes/lineman.router";
+import mockRouter from "./routes/mock.router";
+
 import { register } from "./controllers/lineman.controller";
 // Set the base URL and store it in app.locals
 const app = express();
@@ -73,7 +75,7 @@ app.use("/api/static-info",staticInfoRouter, handleSequelizeError);
 
 ///////
 app.use("/api/lineman",linemanRouter,handleSequelizeError);
-
+app.use("/api/mock",mockRouter)
 
 // app listening on port 3000
 app.listen(3000, () => {
