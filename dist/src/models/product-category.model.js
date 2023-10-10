@@ -8,8 +8,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const sequelize_1 = require("sequelize");
 const sequelize_typescript_1 = require("sequelize-typescript");
+const product_master_model_1 = __importDefault(require("./product-master.model"));
 // Path: src/models/ProductCategory.ts
 let ProductCategory = class ProductCategory extends sequelize_typescript_1.Model {
     setFullURL(request, key) {
@@ -51,6 +56,16 @@ __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", String)
 ], ProductCategory.prototype, "ProductCategorySlug", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_1.VIRTUAL,
+    }),
+    __metadata("design:type", Array)
+], ProductCategory.prototype, "products", void 0);
+__decorate([
+    (0, sequelize_typescript_1.HasMany)(() => product_master_model_1.default),
+    __metadata("design:type", Array)
+], ProductCategory.prototype, "Products", void 0);
 ProductCategory = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: "tbl_ProductCategory",

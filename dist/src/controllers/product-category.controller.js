@@ -15,13 +15,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteProductCategory = exports.createProductCategory = exports.getProductCategoryById = exports.getAllProductCategories = void 0;
 const product_category_model_1 = __importDefault(require("../models/product-category.model"));
+const product_master_model_1 = __importDefault(require("../models/product-master.model"));
 // import { productCategoryImageUploadOptions } from "../../config";
 const getAllProductCategories = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const categories = yield product_category_model_1.default.findAll({});
+        const categories = yield product_category_model_1.default.findAll({
+            include: [product_master_model_1.default]
+        });
         categories.forEach((category) => __awaiter(void 0, void 0, void 0, function* () {
             category.setFullURL(req, "PhotoPath");
         }));
+        categories === null || categories === void 0 ? void 0 : categories.forEach((category) => {
+            var _a;
+            (_a = category === null || category === void 0 ? void 0 : category.Products) === null || _a === void 0 ? void 0 : _a.forEach((product) => {
+                product.setFullURL(req, "PhotoPath");
+                product.setFullURL(req, "GalleryPhotoPath1");
+                product.setFullURL(req, "GalleryPhotoPath2");
+                product.setFullURL(req, "GalleryPhotoPath3");
+                product.setFullURL(req, "GalleryPhotoPath4");
+            });
+        });
         res.status(200).json(categories);
     }
     catch (error) {

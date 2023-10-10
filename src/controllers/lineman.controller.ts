@@ -121,7 +121,8 @@ export const register = async (
         }
 
       return res.status(201).json({
-        name: "hi",
+        message: "Registration successful!",
+        lineman,
       });
     }
 
@@ -261,6 +262,10 @@ export const loginRequest = async (req:Request,res:Response,next:NextFunction)=>
             MobileNo: mobile_no,
           },
         });
+        lineman?.setFullURL(req, "AadhaarBackFilePath")
+        lineman?.setFullURL(req, "AadhaarFrontFilePath")
+        lineman?.setFullURL(req, "DrivingLicenseBackFilePath")
+        lineman?.setFullURL(req, "DrivingLicenseFrontFilePath")
         if (!lineman) {
           throw new UserNotFoundExceptionError("User not found!");
         }
