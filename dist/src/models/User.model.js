@@ -255,6 +255,7 @@ let User = User_1 = class User extends sequelize_typescript_1.Model {
                 instance.setDataValue(key, value.trim());
             }
         });
+        // get next identity value
     }
     setFullURL(request, key) {
         const hostname = request.protocol + "://" + request.get("host");
@@ -475,20 +476,6 @@ __decorate([
 ], User.prototype, "Account_Deactivated", void 0);
 __decorate([
     (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.DATEONLY,
-        allowNull: true,
-    }),
-    __metadata("design:type", Object)
-], User.prototype, "Logouttime", void 0);
-__decorate([
-    (0, sequelize_typescript_1.Column)({
-        type: sequelize_typescript_1.DataType.STRING(500),
-        allowNull: true,
-    }),
-    __metadata("design:type", Object)
-], User.prototype, "AuthID", void 0);
-__decorate([
-    (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.STRING(10),
         allowNull: true,
     }),
@@ -509,6 +496,20 @@ __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", String)
 ], User.prototype, "DeviceType", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.DATEONLY,
+        allowNull: true,
+    }),
+    __metadata("design:type", Object)
+], User.prototype, "Logouttime", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING(500),
+        allowNull: true,
+    }),
+    __metadata("design:type", Object)
+], User.prototype, "AuthID", void 0);
 __decorate([
     sequelize_typescript_1.CreatedAt,
     (0, sequelize_typescript_1.Column)({

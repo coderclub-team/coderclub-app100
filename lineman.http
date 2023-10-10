@@ -1,0 +1,56 @@
+POST {{baseUrl}}/lineman/2/register/request
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="name"
+
+Abinaya Nallathambi
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="email"
+
+abinaya@gmail.com
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="phone"
+
+9944781003
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="address"
+
+Valasaiyur
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="city"
+
+salem
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="state"
+
+tamilnadu
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="pincode"
+
+636122
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="password"
+
+Asdf@123$
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="aadhaar_front"; filename="aadhaar_front.png"
+Content-Type: image/png
+
+< /Users/arul/Downloads/aadhaar.png
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="aadhaar_back"; filename="aadhaar_back.png"
+Content-Type: image/png
+
+< /Users/arul/Downloads/aadhaar_back.png
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="driving_licence_front"; filename="driving_licence_front.png"
+Content-Type: image/png
+
+< /Users/arul/Downloads/driving.png
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="driving_licence_back"; filename="driving_licence_back.png"
+Content-Type: image/png
+
+< /Users/arul/Downloads/driving_back.png
+------WebKitFormBoundary7MA4YWxkTrZu0gW--

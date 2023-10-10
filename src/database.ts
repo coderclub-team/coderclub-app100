@@ -19,6 +19,7 @@ import UserWalletBalance from "./models/user-wallet-balance.model";
 import { Promotion } from "./models/promotion.model";
 import { Banner, ContactForm, FAQ, Walkthrough } from "./models/cms.model";
 import Cart from "./models/cart.model";
+import Lineman from "./models/lineman.model";
 
 export const sequelize = new Sequelize(sequelizeConnectionOptions);
 
@@ -60,6 +61,7 @@ export default async () => {
     FAQ,
     ContactForm,
     Cart,
+    Lineman
  
   ]);
   // return sequelize;

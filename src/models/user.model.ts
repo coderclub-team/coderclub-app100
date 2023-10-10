@@ -219,18 +219,6 @@ export default class User extends Model {
   public Account_Deactivated!: Date | null;
 
   @Column({
-    type: DataType.DATEONLY,
-    allowNull: true,
-  })
-  public Logouttime!: Date | null;
-
-  @Column({
-    type: DataType.STRING(500),
-    allowNull: true,
-  })
-  public AuthID!: string | null;
-
-  @Column({
     type: DataType.STRING(10),
     allowNull: true,
   })
@@ -247,6 +235,20 @@ export default class User extends Model {
 
   @Column
   DeviceType!: string;
+
+  @Column({
+    type: DataType.DATEONLY,
+    allowNull: true,
+  })
+  public Logouttime!: Date | null;
+
+  @Column({
+    type: DataType.STRING(500),
+    allowNull: true,
+  })
+  public AuthID!: string | null;
+
+
 
   @CreatedAt
   @Column({
@@ -524,6 +526,9 @@ export default class User extends Model {
         instance.setDataValue(key as keyof User, value.trim());
       }
     });
+    
+    // get next identity value
+  
   }
   setFullURL(request: Request, key: keyof User) {
     const hostname = request.protocol + "://" + request.get("host");

@@ -71,12 +71,17 @@ __decorate([
     __metadata("design:type", Number)
 ], UserWallet.prototype, "WalletGUID", void 0);
 __decorate([
+    (0, sequelize_typescript_1.ForeignKey)(() => user_model_1.default),
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.INTEGER,
         allowNull: false,
     }),
     __metadata("design:type", Number)
 ], UserWallet.prototype, "UserGUID", void 0);
+__decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => user_model_1.default),
+    __metadata("design:type", user_model_1.default)
+], UserWallet.prototype, "User", void 0);
 __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", String)

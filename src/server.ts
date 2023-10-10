@@ -31,6 +31,8 @@ import userAgent from "express-useragent";
 import promotionRouter from "./routes/promotion.router";
 import { expireSubscription } from "./controllers/product-subscription.controller";
 import meRouter from "./routes/me-router";
+import linemanRouter from "./routes/lineman.router";
+import { register } from "./controllers/lineman.controller";
 // Set the base URL and store it in app.locals
 const app = express();
 app.use(express.static("public"));
@@ -64,6 +66,13 @@ app.use("/api/billingcycles", billingcyclesRouter, handleSequelizeError);
 app.use("/api/promotions", promotionRouter, handleSequelizeError);
 app.use("/api/app/config", appConfigRouter, handleSequelizeError);
 app.use("/api/static-info",staticInfoRouter, handleSequelizeError);
+
+
+
+
+
+///////
+app.use("/api/lineman",linemanRouter,handleSequelizeError);
 
 
 // app listening on port 3000

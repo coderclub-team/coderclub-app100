@@ -9,14 +9,6 @@ import { Op } from "sequelize";
 import ProductMaster from "../models/product-master.model";
 
 
-
-
-
-
-
-
-
-
 export const getAllUsers = async (req: Request, res: Response) => {
   const { deleted } = req.query;
   const paranoid = deleted === "true" ? false : true;
