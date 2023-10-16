@@ -1,5 +1,9 @@
+
+
+
 // a route for products
 import express, { NextFunction, Request, Response } from "express";
+import path from "path";
 import categories from '../../mock/categories.json'
 
 const router = express.Router();
@@ -7,7 +11,7 @@ const router = express.Router();
 function fullUrl(request: Request, key: string="identities/user-identity.png") {
     const hostname = request.protocol + "://" + request.get("host");
     const originalPath = key
-    const fullPath = `${hostname}/${originalPath}`;
+    const fullPath = `${hostname}/${path.basename(originalPath)}`;
     return fullPath;
   }
 
