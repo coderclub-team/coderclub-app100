@@ -1,18 +1,20 @@
+
+
+
 // a route for products
 import express, { NextFunction, Request, Response } from "express";
-import categories from '../../mock/categories.json'
-
+import path from "path";
+import fs from 'fs';
 const router = express.Router();
 
 function fullUrl(request: Request, key: string = "identities/user-identity.png") {
-    let hostname=''
-     hostname = request.protocol + "://" + request.get("host");
+    let hostname = request.protocol + "://" + request.get("host");
     const fullPath = `${hostname}/${key}`;
     return fullPath;
 }
 
-import fs from 'fs';
-import path from 'path';
+
+
 
 router.get("/product_categories", (req:Request,res:Response,next:NextFunction)=>{
     const categoriesPath = path.join(__dirname, '../../mock/categories.json');
