@@ -136,12 +136,12 @@
       "category_name": "CUP CURD",
       "products": [
         {
-          "img": "products/cup_curd.jpg",
+          "img": "products/cup-curd.jpg",
           "name": "Cup Curd-50g",
           "price": 6.00
         },
         {
-          "img": "products/cup_curd.jpg",
+          "img": "products/cup-curd.jpg",
           "name": "Cup Curd-100g",
           "price":10.00
         }
@@ -192,32 +192,32 @@
       "category_name": "TAMIL GHEE",
       "products": [
         {
-          "img": "products/ghee/cow_ghee.jpg",
+          "img": "products/ghee/cow-ghee.jpg",
           "name": "Tamil Ghee-Mini Pouch",
           "price": 10.00
         },
         {
-          "img": "products/ghee/cow_ghee.jpg",
+          "img": "products/ghee/cow-ghee.jpg",
           "name": "Tamil Ghee-50ml",
           "price": 48.00
         },
         {
-          "img": "products/ghee/cow_ghee.jpg",
+          "img": "products/ghee/cow-ghee.jpg",
           "name": "Tamil Ghee-100ml",
           "price": 88.00
         },
         {
-          "img": "products/ghee/cow_ghee.jpg",
+          "img": "products/ghee/cow-ghee.jpg",
           "name": "Tamil Ghee-200ml",
           "price": 116.00
         },
         {
-          "img": "products/ghee/cow_ghee.jpg",
+          "img": "products/ghee/cow-ghee.jpg",
           "name": "Tamil Ghee-500ml",
           "price": 384.00
         },
         {
-          "img": "products/ghee/cow_ghee.jpg",
+          "img": "products/ghee/cow-ghee.jpg",
           "name": "Tamil Ghee-1000ml",
           "price": 755.00
         }
@@ -269,12 +269,12 @@
       "category_name": "MILK BURFI",
       "products": [
         {
-          "img": "products/sweets/burfi_box.jpg",
+          "img": "products/sweets/burfi-box.jpg",
           "name": "Milk Burfi-250g",
           "price": 145.00
         },
         {
-          "img": "products/sweets/burfi_box.jpg",
+          "img": "products/sweets/burfi-box.jpg",
           "name": "Milk Burfi-500g",
           "price": 260.00
         }
