@@ -5,6 +5,7 @@ import path from "path";
 import fs from "node:fs";
 import Lineman from "../models/lineman.model";
 import { UserNotFoundExceptionError } from "../../custom.error";
+import { Op } from "sequelize";
 
 export const register = async (
   req: Request,
@@ -45,7 +46,6 @@ export const register = async (
         AadhaarBackFilePath: zod.string().optional(),
         DrivingLicenceFrontFilePath: zod.string().optional(),
         DrivingLicenceBackFilePath: zod.string().optional(),
-        
       })
       .parse({
         ...req.body,
@@ -55,6 +55,27 @@ export const register = async (
         DrivingLicenceFrontFilePath: req.body.driving_licence_front,
         DrivingLicenceBackFilePath: req.body.driving_licence_back,
       });
+
+
+    const lineman_exists = await Lineman.findOne({
+      where: {
+        [Op.or]: [
+          { MobileNo: schema.phone },
+          { EmailAddress: schema.email }
+        ]
+      },
+    });
+
+    if (lineman_exists) {
+      console.log("lineman_exists", lineman_exists);
+      lineman_exists?.MobileNo===schema.phone?res.status(400).json({
+        message: "Mobile Number already exists!",
+      }) : res.status(400).json({
+        message: "Email Address already exists!",
+      });
+      return;
+    
+    }
 
     const lineman = await LinemanModel.create({
       LineManName: schema.name,
@@ -75,50 +96,54 @@ export const register = async (
       Status: 0,
     });
     if (lineman) {
-        if (req.body.aadhaar_front_tmp) {
-          fs.rename(
-            req.body.aadhaar_front_tmp,
-            path.join("public", req.body.aadhaar_front),
-            (err) => {
-              if (err) {
-                console.log(err);
-              }
+      if (req.body.aadhaar_front_tmp) {
+        fs.rename(
+          req.body.aadhaar_front_tmp,
+          path.join("public", req.body.aadhaar_front),
+          (err) => {
+            if (err) {
+              console.log(err);
             }
-          )
-        }
-        if (req.body.aadhaar_back_tmp) {
-          fs.rename(
-            req.body.aadhaar_back_tmp,
-            path.join("public", req.body.aadhaar_back),
-            (err) => {
-              if (err) {
-                console.log(err);
-              }
+          }
+        );
+      }
+      if (req.body.aadhaar_back_tmp) {
+        fs.rename(
+          req.body.aadhaar_back_tmp,
+          path.join("public", req.body.aadhaar_back),
+          (err) => {
+            if (err) {
+              console.log(err);
             }
-          );
-        }
-        if (req.body.driving_licence_front_tmp) {
-          fs.rename(
-            req.body.driving_licence_front_tmp,
-            path.join("public", req.body.driving_licence_front),
-            (err) => {
-              if (err) {
-                console.log(err);
-              }
+          }
+        );
+      }
+      if (req.body.driving_licence_front_tmp) {
+        fs.rename(
+          req.body.driving_licence_front_tmp,
+          path.join("public", req.body.driving_licence_front),
+          (err) => {
+            if (err) {
+              console.log(err);
             }
-          );
-        }
-        if (req.body.driving_licence_back_tmp) {
-          fs.rename(
-            req.body.driving_licence_back_tmp,
-            path.join("public", req.body.driving_licence_back),
-            (err) => {
-              if (err) {
-                console.log(err);
-              }
+          }
+        );
+      }
+      if (req.body.driving_licence_back_tmp) {
+        fs.rename(
+          req.body.driving_licence_back_tmp,
+          path.join("public", req.body.driving_licence_back),
+          (err) => {
+            if (err) {
+              console.log(err);
             }
-          );
-        }
+          }
+        );
+      }
+      lineman.setFullURL(req, "AadhaarBackFilePath");
+      lineman.setFullURL(req, "AadhaarFrontFilePath");
+      lineman.setFullURL(req, "DrivingLicenceBackFilePath");
+      lineman.setFullURL(req, "DrivingLicenceFrontFilePath");
 
       return res.status(201).json({
         message: "Registration successful!",
@@ -166,69 +191,80 @@ export const register = async (
   }
 };
 
-export const verifyRegistration = async (req:Request,res:Response,next:NextFunction) => {
-    const { mobile_no, otp } = req.body;
-    const { deleted } = req.query;
-    const paranoid = deleted === "true" ? false : true;
-    try {
-      const lineman = await Lineman.findOne({
-        where: {
-          MobileNo:mobile_no,
-        },
-        paranoid,
-      });
-   
-      if (!lineman) {
-        return res.status(400).json({
-          message: "Account not found!",
-        });
-      }
-  
-      await lineman.verifyOTP(otp);
-      res.status(200).json({
-        message: "Account verified successfully!",
-        lineman,
-      });
-    } catch (error: any) {
-      next(error);
-    }
-
-};
-
-export const resetPasswordRequest = async (req:Request,res:Response,next:NextFunction) => {
-    const { mobile_no } = req.body;
-    const { deleted } = req.query;
-    const paranoid = deleted === "true" ? false : true;
-    try {
-      const lineman = await Lineman.findOne({
-        where: {
-          MobileNo:mobile_no,
-        },
-        paranoid,
-      });
-  
-      if (!lineman) {
-        throw new UserNotFoundExceptionError("Account not found!");
-      }
-  
-      await lineman?.sendOTP();
-  
-      res.status(200).json({
-        message: "OTP sent successfully!",
-      });
-    } catch (error: any) {
-      next(error);
-    }
-}
-
-export const resetPassword = async (req:Request,res:Response,next:NextFunction) => {
-    const { mobile_no, otp, password,email } = req.body;
+export const verifyRegistration = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { mobile_no, otp } = req.body;
   const { deleted } = req.query;
   const paranoid = deleted === "true" ? false : true;
   try {
     const lineman = await Lineman.findOne({
       where: {
-        MobileNo:mobile_no,
+        MobileNo: mobile_no,
+      },
+      paranoid,
+    });
+
+    if (!lineman) {
+      return res.status(400).json({
+        message: "Account not found!",
+      });
+    }
+
+    await lineman.verifyOTP(otp);
+    res.status(200).json({
+      message: "Account verified successfully!",
+      lineman,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+export const resetPasswordRequest = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { mobile_no } = req.body;
+  const { deleted } = req.query;
+  const paranoid = deleted === "true" ? false : true;
+  try {
+    const lineman = await Lineman.findOne({
+      where: {
+        MobileNo: mobile_no,
+      },
+      paranoid,
+    });
+
+    if (!lineman) {
+      throw new UserNotFoundExceptionError("Account not found!");
+    }
+
+    await lineman?.sendOTP();
+
+    res.status(200).json({
+      message: "OTP sent successfully!",
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+export const resetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { mobile_no, otp, password, email } = req.body;
+  const { deleted } = req.query;
+  const paranoid = deleted === "true" ? false : true;
+  try {
+    const lineman = await Lineman.findOne({
+      where: {
+        MobileNo: mobile_no,
       },
       paranoid,
     });
@@ -245,40 +281,41 @@ export const resetPassword = async (req:Request,res:Response,next:NextFunction) 
   } catch (error: any) {
     next(error);
   }
-}
+};
 
+export const loginRequest = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { mobile_no, password } = req.body;
 
-export const loginRequest = async (req:Request,res:Response,next:NextFunction)=>{
-    const {mobile_no,password}=req.body
-   
+  try {
+    if (!mobile_no || !password) {
+      throw new Error("MobileNo or Password is missing");
+    }
 
-    try {
-        if (!mobile_no || !password) {
-          throw new Error("MobileNo or Password is missing");
-        }
-    
-        const lineman = await Lineman.findOne({
-          where: {
-            MobileNo: mobile_no,
-          },
-        });
-        lineman?.setFullURL(req, "AadhaarBackFilePath")
-        lineman?.setFullURL(req, "AadhaarFrontFilePath")
-        lineman?.setFullURL(req, "DrivingLicenseBackFilePath")
-        lineman?.setFullURL(req, "DrivingLicenseFrontFilePath")
-        if (!lineman) {
-          throw new UserNotFoundExceptionError("User not found!");
-        }
-        // user.setFullURL(req, "PhotoPath");
-    
+    const lineman = await Lineman.findOne({
+      where: {
+        MobileNo: mobile_no,
+      },
+    });
+    lineman?.setFullURL(req, "AadhaarBackFilePath");
+    lineman?.setFullURL(req, "AadhaarFrontFilePath");
+    lineman?.setFullURL(req, "DrivingLicenceBackFilePath");
+    lineman?.setFullURL(req, "DrivingLicenceFrontFilePath");
+    if (!lineman) {
+      throw new UserNotFoundExceptionError("User not found!");
+    }
+    // user.setFullURL(req, "PhotoPath");
 
-        const token = await lineman?.authenticate(password);
-        res.status(200).json({
-          message: "Login successful!",
-          lineman,
-          token,
-        });
-      } catch (error: any) {
-        next(error);
-      }
-}
+    const token = await lineman?.authenticate(password);
+    res.status(200).json({
+      message: "Login successful!",
+      lineman,
+      token,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};

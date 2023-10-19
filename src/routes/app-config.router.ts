@@ -15,11 +15,15 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
         : "http://localhost:3000";
     const splashlogo = url + "/splashscreen/splash_logo.gif";
     const applogo = url + "/icons/milk_bottle.png";
+    const tamilmilk_logo=url+"/icons/tamilmilk_logo.jpg"
     const config = {
       splashlogo: [
         {
           image: splashlogo,
         },
+        {
+          tamilmilk_logo: tamilmilk_logo
+        }
       ],
       applogo: [
         {

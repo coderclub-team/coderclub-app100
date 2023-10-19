@@ -26,7 +26,4 @@ export default class GlobalTypeCategory extends Model<GlobalTypeCategory> {
   CreatedDate!: Date;
   @Column
   IsActive!: number;
-
-
 }
-

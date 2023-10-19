@@ -122,10 +122,10 @@ export default class Lineman extends Model {
   AadhaarBackFilePath?: string;
 
   @Column
-  DrivingLicenseFrontFilePath?: string;
+  DrivingLicenceFrontFilePath?: string;
 
   @Column
-  DrivingLicenseBackFilePath?: string;
+  DrivingLicenceBackFilePath?: string;
 
   @BeforeCreate
   static async hashPassword(instance: Lineman) {
@@ -318,6 +318,8 @@ export default class Lineman extends Model {
   }
 
   setFullURL(request: Request, key: keyof Lineman) {
+
+ 
     const hostname = request.protocol + "://" + request.get("host");
     const originalPath =
       this.getDataValue(key) || "identities/lineman-identity.png";

@@ -20,6 +20,7 @@ import { Promotion } from "./models/promotion.model";
 import { Banner, ContactForm, FAQ, Walkthrough } from "./models/cms.model";
 import Cart from "./models/cart.model";
 import Lineman from "./models/lineman.model";
+import Customer from "./models/customer.model";
 
 export const sequelize = new Sequelize(sequelizeConnectionOptions);
 
@@ -61,7 +62,8 @@ export default async () => {
     FAQ,
     ContactForm,
     Cart,
-    Lineman
+    Lineman,
+    Customer
  
   ]);
   // return sequelize;
