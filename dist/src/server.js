@@ -63,11 +63,12 @@ const general_router_1 = require("./routes/general.router");
 const wallet_router_1 = __importDefault(require("./routes/wallet.router"));
 const app_config_router_1 = __importDefault(require("./routes/app-config.router"));
 const static_info_router_1 = __importDefault(require("./routes/static-info.router"));
+const lineman_router_1 = __importDefault(require("./routes/lineman.router"));
+const store_router_1 = __importDefault(require("./routes/store.router"));
 const express_useragent_1 = __importDefault(require("express-useragent"));
 const promotion_router_1 = __importDefault(require("./routes/promotion.router"));
 const product_subscription_controller_1 = require("./controllers/product-subscription.controller");
 const me_router_1 = __importDefault(require("./routes/me-router"));
-const lineman_router_1 = __importDefault(require("./routes/lineman.router"));
 const mock_router_1 = __importDefault(require("./routes/mock.router"));
 // Set the base URL and store it in app.locals
 const app = (0, express_1.default)();
@@ -97,6 +98,7 @@ app.use("/api/billingcycles", general_router_1.billingcyclesRouter, handle_seque
 app.use("/api/promotions", promotion_router_1.default, handle_sequelize_error_middleware_1.default);
 app.use("/api/app/config", app_config_router_1.default, handle_sequelize_error_middleware_1.default);
 app.use("/api/static-info", static_info_router_1.default, handle_sequelize_error_middleware_1.default);
+app.use("/api/stores", store_router_1.default, handle_sequelize_error_middleware_1.default);
 ///////
 app.use("/api/lineman", lineman_router_1.default, handle_sequelize_error_middleware_1.default);
 app.use("/api/mock", mock_router_1.default);

@@ -26,15 +26,16 @@ import { billingcyclesRouter } from "./routes/general.router";
 import walletRouter from "./routes/wallet.router";
 import appConfigRouter from "./routes/app-config.router";
 import staticInfoRouter from "./routes/static-info.router";
+import linemanRouter from "./routes/lineman.router";
+import storeRouter from "./routes/store.router";
+
 
 import userAgent from "express-useragent";
 import promotionRouter from "./routes/promotion.router";
 import { expireSubscription } from "./controllers/product-subscription.controller";
 import meRouter from "./routes/me-router";
-import linemanRouter from "./routes/lineman.router";
 import mockRouter from "./routes/mock.router";
 
-import { register } from "./controllers/lineman.controller";
 // Set the base URL and store it in app.locals
 const app = express();
 app.use(express.static("public"));
@@ -69,8 +70,7 @@ app.use("/api/promotions", promotionRouter, handleSequelizeError);
 app.use("/api/app/config", appConfigRouter, handleSequelizeError);
 app.use("/api/static-info",staticInfoRouter, handleSequelizeError);
 
-
-
+app.use("/api/stores",storeRouter,handleSequelizeError)
 
 
 ///////
