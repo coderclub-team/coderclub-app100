@@ -7,7 +7,7 @@ import Lineman from "../models/lineman.model";
 import { UserNotFoundExceptionError } from "../../custom.error";
 import { Op } from "sequelize";
 
-export const register = async (
+export const registerRequest = async (
   req: Request,
   res: Response,
   next: NextFunction

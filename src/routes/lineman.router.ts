@@ -1,5 +1,5 @@
 import express from "express";
-import { loginRequest, register, resetPassword, resetPasswordRequest, verifyRegistration } from "../controllers/lineman.controller";
+import { loginRequest,  registerRequest, resetPassword, resetPasswordRequest, verifyRegistration } from "../controllers/lineman.controller";
 import handleSequelizeError from "../middlewares/handle-sequelize-error.middleware";
 import multer from "multer";
 import path from "path";
@@ -43,7 +43,7 @@ router.post(
     { name: "driving_licence_front" },
     { name: "driving_licence_back" },
   ]),
-  register
+  registerRequest
 );
 router.post("/:store_id/register/request/confirm",verifyRegistration)
 router.post("/:store_id/password/reset/request",resetPasswordRequest)

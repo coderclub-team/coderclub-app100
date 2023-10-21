@@ -1,4 +1,4 @@
-import { Column, Model, PrimaryKey, Table } from "sequelize-typescript";
+import { AutoIncrement, Column, Model, PrimaryKey, Table } from "sequelize-typescript";
 
 @Table({
     tableName: "tbl_Customer",
@@ -9,6 +9,7 @@ import { Column, Model, PrimaryKey, Table } from "sequelize-typescript";
     paranoid: true,
     })
 export default class Customer extends Model {
+  @AutoIncrement
   @PrimaryKey
   @Column
   CustomerGUID!: number;
