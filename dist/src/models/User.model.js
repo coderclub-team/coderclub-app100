@@ -30,6 +30,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const user_address_model_1 = __importDefault(require("./user-address.model"));
 const message_class_1 = __importDefault(require("../entities/message.class"));
 const product_subscription_model_1 = __importDefault(require("./product-subscription.model"));
+const route_model_1 = require("./route.model");
 // 
 let User = User_1 = class User extends sequelize_typescript_1.Model {
     get token() {
@@ -545,6 +546,15 @@ __decorate([
     }),
     __metadata("design:type", Object)
 ], User.prototype, "ModifiedGUID", void 0);
+__decorate([
+    (0, sequelize_typescript_1.ForeignKey)(() => route_model_1.Route),
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], User.prototype, "RouteRefGUID", void 0);
+__decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => route_model_1.Route),
+    __metadata("design:type", route_model_1.Route)
+], User.prototype, "Route", void 0);
 __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", Number)

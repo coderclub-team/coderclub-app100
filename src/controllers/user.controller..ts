@@ -295,6 +295,7 @@ import { sequelize } from "../database";
 import { Promotion } from "../models/promotion.model";
 import ProductSubscription from "../models/product-subscription.model";
 import UserWallet from "../models/user-wallet.model";
+import { Route } from "../models/route.model";
 
 export const register = async (
   req: Request,

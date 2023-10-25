@@ -75,6 +75,7 @@ app.use("/api/stores",storeRouter,handleSequelizeError)
 
 ///////
 app.use("/api/lineman",linemanRouter,handleSequelizeError);
+
 app.use("/api/mock",mockRouter)
 
 // app listening on port 3000

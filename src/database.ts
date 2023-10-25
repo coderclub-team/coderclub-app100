@@ -22,6 +22,7 @@ import Cart from "./models/cart.model";
 import Lineman from "./models/lineman.model";
 import Customer from "./models/customer.model";
 import StoreMaster from "./models/store-master.model";
+import { Route } from "./models/route.model";
 
 export const sequelize = new Sequelize(sequelizeConnectionOptions);
 
@@ -64,7 +65,9 @@ export default async () => {
     ContactForm,
     Cart,
     Lineman,
-    Customer,StoreMaster
+    Customer,
+    StoreMaster,
+    Route
  
   ]);
   // return sequelize;

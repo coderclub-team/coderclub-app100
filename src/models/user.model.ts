@@ -13,6 +13,7 @@ import {
   ForeignKey,
   HasMany,
   AfterCreate,
+  BelongsTo,
 } from "sequelize-typescript";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
@@ -25,6 +26,8 @@ import UserAddress from "./user-address.model";
 import { Request } from "express";
 import Message from "../entities/message.class";
 import ProductSubscription from "./product-subscription.model";
+import { Route } from "./route.model";
+import Sale from "./sale.model";
 
 // 
 @Table({
@@ -280,6 +283,14 @@ export default class User extends Model {
   })
   public ModifiedGUID!: number | null;
 
+  @ForeignKey(() => Route)
+  @Column
+  RouteRefGUID!: number;
+
+  @BelongsTo(() => Route)
+  Route?: Route;
+  
+
   @Column
   StoreGUID!: number;
   static readonly fields = {
@@ -303,6 +314,9 @@ export default class User extends Model {
 
   @HasMany(() => ProductSubscription)
   Subscriptions?: ProductSubscription[];
+
+  @HasMany(() => Sale)
+  Orders?: Sale[];
 
   @BeforeCreate
   static async hashPassword(instance: User) {

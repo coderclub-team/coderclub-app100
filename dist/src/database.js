@@ -37,6 +37,7 @@ const cart_model_1 = __importDefault(require("./models/cart.model"));
 const lineman_model_1 = __importDefault(require("./models/lineman.model"));
 const customer_model_1 = __importDefault(require("./models/customer.model"));
 const store_master_model_1 = __importDefault(require("./models/store-master.model"));
+const route_model_1 = require("./models/route.model");
 exports.sequelize = new sequelize_typescript_1.Sequelize(config_1.sequelizeConnectionOptions);
 exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
     exports.sequelize
@@ -75,7 +76,9 @@ exports.default = () => __awaiter(void 0, void 0, void 0, function* () {
         cms_model_1.ContactForm,
         cart_model_1.default,
         lineman_model_1.default,
-        customer_model_1.default, store_master_model_1.default
+        customer_model_1.default,
+        store_master_model_1.default,
+        route_model_1.Route
     ]);
     // return sequelize;
 });
