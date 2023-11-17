@@ -86,26 +86,6 @@ __decorate([
     __metadata("design:type", Number)
 ], ProductSubscription.prototype, "BillingCycleGUID", void 0);
 __decorate([
-    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.INTEGER),
-    __metadata("design:type", Number)
-], ProductSubscription.prototype, "SubscriptionPrice", void 0);
-__decorate([
-    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.STRING(100)),
-    __metadata("design:type", String)
-], ProductSubscription.prototype, "PaymentMethod", void 0);
-__decorate([
-    sequelize_typescript_1.Column,
-    __metadata("design:type", String)
-], ProductSubscription.prototype, "PaymentTransactionId", void 0);
-__decorate([
-    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.DATE),
-    __metadata("design:type", Date)
-], ProductSubscription.prototype, "LastPaymentDate", void 0);
-__decorate([
-    (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.DATE),
-    __metadata("design:type", Date)
-], ProductSubscription.prototype, "NextPaymentDate", void 0);
-__decorate([
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.DATE),
     __metadata("design:type", Date)
 ], ProductSubscription.prototype, "CreatedDate", void 0);

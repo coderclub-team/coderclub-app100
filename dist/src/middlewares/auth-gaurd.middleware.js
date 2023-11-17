@@ -25,7 +25,6 @@ exports.default = (req, res, next) => {
         const decoded = (0, jsonwebtoken_1.verify)(token, process.env.JWT_SECRET);
         const user = __rest(decoded, []);
         req.body.user = user;
-        console.log("payload", req.body.user);
         next();
     }
     catch (error) {

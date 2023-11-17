@@ -65,15 +65,16 @@ Content-Type: application/json
     "mobile_no": "9750022933"
 }
 ###
-POST {{baseUrl}}/lineman/2/password/reset/request
+POST http://{{baseUrl}}/stores/2/lineman/password/reset/request
 Content-Type: application/json
 
 {
     "mobile_no": "9750022933"
 }
+
 ###
 
-POST {{baseUrl}}/lineman/2/password/reset/request/confirm
+POST http://{{baseUrl}}/stores/2/lineman/password/reset/request/confirm
 Content-Type: application/json
 
 {

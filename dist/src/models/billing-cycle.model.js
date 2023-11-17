@@ -14,6 +14,7 @@ let SubscriptionCycle = class SubscriptionCycle extends sequelize_typescript_1.M
 };
 __decorate([
     sequelize_typescript_1.PrimaryKey,
+    sequelize_typescript_1.AutoIncrement,
     sequelize_typescript_1.Column,
     __metadata("design:type", Number)
 ], SubscriptionCycle.prototype, "BillingCycleGUID", void 0);
@@ -25,6 +26,50 @@ __decorate([
     sequelize_typescript_1.Column,
     __metadata("design:type", String)
 ], SubscriptionCycle.prototype, "NumberOfCycles", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], SubscriptionCycle.prototype, "MondayQty", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], SubscriptionCycle.prototype, "TuesdayQty", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], SubscriptionCycle.prototype, "WednesdayQty", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], SubscriptionCycle.prototype, "ThursdayQty", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], SubscriptionCycle.prototype, "FridayQty", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], SubscriptionCycle.prototype, "SaturdayQty", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], SubscriptionCycle.prototype, "SundayQty", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], SubscriptionCycle.prototype, "EveryNthDayInterval", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], SubscriptionCycle.prototype, "EveryNthDayQty", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], SubscriptionCycle.prototype, "UserGUID", void 0);
+__decorate([
+    sequelize_typescript_1.Column,
+    __metadata("design:type", Number)
+], SubscriptionCycle.prototype, "ProductGUID", void 0);
 SubscriptionCycle = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: "tbl_BillingCycles",

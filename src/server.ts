@@ -70,7 +70,7 @@ app.use("/api/promotions", promotionRouter, handleSequelizeError);
 app.use("/api/app/config", appConfigRouter, handleSequelizeError);
 app.use("/api/static-info",staticInfoRouter, handleSequelizeError);
 
-app.use("/api/stores",storeRouter,handleSequelizeError)
+app.use("/api/stores",authGaurd,storeRouter,handleSequelizeError)
 
 
 ///////
@@ -78,7 +78,7 @@ app.use("/api/lineman",linemanRouter,handleSequelizeError);
 
 app.use("/api/mock",mockRouter)
 
-// app listening on port 3000
+// app listening on port 3000 
 app.listen(3000, () => {
   console.log("Server started on port 3000");
 });

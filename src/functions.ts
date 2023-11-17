@@ -129,3 +129,10 @@ export function generateUniqueNumber(length?:number) {
 
   return uniqueNumber;
 }
+
+export function capitalizeEveryWord(sentence:string) {
+  return sentence
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+}

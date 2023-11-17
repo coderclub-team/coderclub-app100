@@ -98,11 +98,11 @@ app.use("/api/billingcycles", general_router_1.billingcyclesRouter, handle_seque
 app.use("/api/promotions", promotion_router_1.default, handle_sequelize_error_middleware_1.default);
 app.use("/api/app/config", app_config_router_1.default, handle_sequelize_error_middleware_1.default);
 app.use("/api/static-info", static_info_router_1.default, handle_sequelize_error_middleware_1.default);
-app.use("/api/stores", store_router_1.default, handle_sequelize_error_middleware_1.default);
+app.use("/api/stores", auth_gaurd_middleware_1.default, store_router_1.default, handle_sequelize_error_middleware_1.default);
 ///////
 app.use("/api/lineman", lineman_router_1.default, handle_sequelize_error_middleware_1.default);
 app.use("/api/mock", mock_router_1.default);
-// app listening on port 3000
+// app listening on port 3000 
 app.listen(3000, () => {
     console.log("Server started on port 3000");
 });

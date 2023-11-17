@@ -25,7 +25,7 @@ function parseSequelizeError(error: any): string | object {
     };
   } else if (error instanceof UserNotFoundExceptionError) {
     return {
-      message: error.message,
+      message: error.message || 'something went wrong',
       error: error,
     };
   } else if (error instanceof ValidationError) {
@@ -79,7 +79,7 @@ function parseSequelizeError(error: any): string | object {
     }
    
     return {
-      message: ` ${error.message}`,
+      message: `${error.message}`,
       error: error,
     };
   } else if (error instanceof ForeignKeyConstraintError) {
@@ -95,23 +95,23 @@ function parseSequelizeError(error: any): string | object {
     );
     console.log("Error on DatabaseError", error);
     return {
-      message:  error.parent.message,
+      message:  error.parent.message || 'something went wrong',
       error: error,
     };
   } else if (error instanceof TypeError) {
     console.log("Error on TypeError", error);
     return {
-      message: error.message,
+      message: error.message || 'something went wrong',
       error: error,
     };
   } else if (error instanceof ProductCategoryNotFoundException) {
     return {
-      message: error.message,
+      message: error.message || 'something went wrong',
       error: error,
     };
   } else {
     return {
-      message: error.message,
+      message: error.message || 'something went wrong',
       error: error,
     };
   }

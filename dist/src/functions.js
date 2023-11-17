@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateUniqueNumber = exports.numberToCurrency = exports.getCartTotal = exports.promocodeValidator = exports.formatDateIndianStyle = exports.oneMonthAgo = exports.omitUndefined = void 0;
+exports.capitalizeEveryWord = exports.generateUniqueNumber = exports.numberToCurrency = exports.getCartTotal = exports.promocodeValidator = exports.formatDateIndianStyle = exports.oneMonthAgo = exports.omitUndefined = void 0;
 function omitUndefined(obj) {
     const result = {};
     for (const key in obj) {
@@ -98,3 +98,10 @@ function generateUniqueNumber(length) {
     return uniqueNumber;
 }
 exports.generateUniqueNumber = generateUniqueNumber;
+function capitalizeEveryWord(sentence) {
+    return sentence
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+}
+exports.capitalizeEveryWord = capitalizeEveryWord;

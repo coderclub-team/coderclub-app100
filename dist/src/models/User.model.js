@@ -31,6 +31,7 @@ const user_address_model_1 = __importDefault(require("./user-address.model"));
 const message_class_1 = __importDefault(require("../entities/message.class"));
 const product_subscription_model_1 = __importDefault(require("./product-subscription.model"));
 const route_model_1 = require("./route.model");
+const sale_model_1 = __importDefault(require("./sale.model"));
 // 
 let User = User_1 = class User extends sequelize_typescript_1.Model {
     get token() {
@@ -571,6 +572,10 @@ __decorate([
     (0, sequelize_typescript_1.HasMany)(() => product_subscription_model_1.default),
     __metadata("design:type", Array)
 ], User.prototype, "Subscriptions", void 0);
+__decorate([
+    (0, sequelize_typescript_1.HasMany)(() => sale_model_1.default),
+    __metadata("design:type", Array)
+], User.prototype, "Orders", void 0);
 __decorate([
     sequelize_typescript_1.BeforeCreate,
     __metadata("design:type", Function),

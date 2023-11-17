@@ -16,7 +16,7 @@ function parseSequelizeError(error) {
     }
     else if (error instanceof custom_error_1.UserNotFoundExceptionError) {
         return {
-            message: error.message,
+            message: error.message || 'something went wrong',
             error: error,
         };
     }
@@ -77,7 +77,7 @@ function parseSequelizeError(error) {
             };
         }
         return {
-            message: ` ${error.message}`,
+            message: `${error.message}`,
             error: error,
         };
     }
@@ -92,26 +92,26 @@ function parseSequelizeError(error) {
         error.parent.message = error.parent.message.replace("SequelizeDatabaseError: ", "");
         console.log("Error on DatabaseError", error);
         return {
-            message: error.parent.message,
+            message: error.parent.message || 'something went wrong',
             error: error,
         };
     }
     else if (error instanceof TypeError) {
         console.log("Error on TypeError", error);
         return {
-            message: error.message,
+            message: error.message || 'something went wrong',
             error: error,
         };
     }
     else if (error instanceof custom_error_1.ProductCategoryNotFoundException) {
         return {
-            message: error.message,
+            message: error.message || 'something went wrong',
             error: error,
         };
     }
     else {
         return {
-            message: error.message,
+            message: error.message || 'something went wrong',
             error: error,
         };
     }

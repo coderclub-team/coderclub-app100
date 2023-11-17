@@ -14,6 +14,54 @@ import ProductMaster from "./product-master.model";
 import User from "./user.model";
 import BillingCycles from "./billing-cycle.model";
 import { Promotion } from "./promotion.model";
+import { Optional } from "sequelize";
+
+
+// interface SubscriptionCycleInterface {
+//   BillingCycleGUID?: number;
+//   BillingCycleName: "Daily" | "Monthly";
+//   NumberOfCycles: number;
+//   GlobalType?: GlobalType;
+//   MondayQty?: number;
+//   TuesdayQty?: number;
+//   WednesdayQty?: number;
+//   ThursdayQty?: number;
+//   FridayQty?: number;
+//   SaturdayQty?: number;
+//   SundayQty?: number;
+//   EveryNthDayInterval?: number;
+//   EveryNthDayQty?: number;
+//   ProductGUID?: number;
+//   UserGUID?: number;
+// }
+// export interface SubscriptionCycleCreationAttributes extends Optional<SubscriptionCycleInterface, "BillingCycleGUID"> {}
+// --  LastPaymentDate: new Date(),
+// --           NextPaymentDate: new Date(),
+// --           PaymentMethod: "CASH",
+// --           PaymentTransactionId: "344",
+
+interface ProductSubscriptionInterface {
+  SubscriptionGUID?: number;
+  UserGUID?: number;
+  ProductGUID?: number;
+  SubscriptionStartDate?: Date;
+  SubscriptionEndDate?: Date;
+  SubscriptionOccurrences?: number;
+  PromotionGUID?: number;
+  BillingCycleGUID?: number;
+  CreatedDate?: Date;
+  UpdatedDate?: Date;
+  DeletedDate?: Date;
+  CreatedGUID?: number;
+  UpdatedGUID?: number;
+  DeletedGUID?: number;
+  SalesMasterGUID?: number;
+  Status?: string;
+}
+
+export interface ProductSubscriptionCreationAttributes extends Optional<ProductSubscriptionInterface, "SubscriptionGUID"> {}
+
+
 
 @Table({
   tableName: "tbl_ProductSubscriptions",
@@ -21,7 +69,8 @@ import { Promotion } from "./promotion.model";
   updatedAt: "UpdatedDate",
   deletedAt: "DeletedDate",
 })
-class ProductSubscription extends Model {
+
+class ProductSubscription extends Model<ProductSubscriptionInterface,ProductSubscriptionCreationAttributes> {
   @Column({ primaryKey: true, autoIncrement: true })
   SubscriptionGUID!: number;
 
@@ -62,9 +111,6 @@ class ProductSubscription extends Model {
   @Column
   BillingCycleGUID!: number;
 
-  @Column(DataType.INTEGER)
-  SubscriptionPrice!: number;
-
   // 'Prepaid Cards'
   // OR
   // 'Cheque Payment'
@@ -81,17 +127,7 @@ class ProductSubscription extends Model {
   // OR 'UPI'
   // OR 'Net Banking'
   // OR 'Debit Card'
-  @Column(DataType.STRING(100))
-  PaymentMethod!: string;
 
-  @Column
-  PaymentTransactionId!:string
-
-  @Column(DataType.DATE)
-  LastPaymentDate!: Date;
-
-  @Column(DataType.DATE)
-  NextPaymentDate!: Date;
 
   @Column(DataType.DATE)
   CreatedDate!: Date;
@@ -129,7 +165,7 @@ class ProductSubscription extends Model {
     instances.forEach((instance) => {
       Object.entries(instance.toJSON()).forEach(([key, value]) => {
         if (typeof value === "string") {
-          instance.setDataValue(key as keyof ProductSubscription, value.trim());
+          instance.setDataValue(key as keyof ProductSubscriptionInterface, value.trim());
         }
       });
     });
@@ -140,7 +176,7 @@ class ProductSubscription extends Model {
   static beforeCreateHook(instance: ProductSubscription) {
     Object.entries(instance.toJSON()).forEach(([key, value]) => {
       if (typeof value === "string") {
-        instance.setDataValue(key as keyof ProductSubscription, value.trim());
+        instance.setDataValue(key as keyof ProductSubscriptionInterface, value.trim());
       }
     });
   }
